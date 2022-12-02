@@ -23,13 +23,25 @@ class FilmControllerTest extends Specification {
     @Autowired
     private ObjectMapper objectMapper
 
-    def "Should add ok and film json object after call POST request"() {
+    def "Should throw exception when try get not available film"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/films/1")).andExpect(status().isNotFound())
+    }
+
+    def "Should add film to service then return ok and film with id"() {
         given:
-        def film = new Film("Film", "Film description", 121)
-        film.setReleaseDate(new LocalDate(1977, 5, 25))
-        def expected = new Film("Film", "Film description", 121)
-        expected.setId(0)
-        expected.setReleaseDate(new LocalDate(1977, 5, 25))
+        def film = Film.builder()
+                .name("Film")
+                .description("Film Description")
+                .duration(121)
+                .releaseDate(new LocalDate(1977, 5, 25)).build()
+
+        def expected = Film.builder()
+                .id(0)
+                .name("Film")
+                .description("Film Description")
+                .duration(121)
+                .releaseDate(new LocalDate(1977, 5, 25)).build()
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")

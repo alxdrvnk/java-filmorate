@@ -4,8 +4,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -13,24 +13,24 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final List<User> userStorage;
+    private final UserService userStorage;
 
-    public UserController() { userStorage = new ArrayList<>(); }
+    public UserController() { userStorage = new UserService(); }
 
     @PostMapping
     public User create(@RequestBody User user){
         log.info("User controller get method POST. Data: " + user);
-        userStorage.add(user);
+        user = userStorage.create(user);
         return user;
     }
 
     @GetMapping
     public List<User> findAll() {
-        return userStorage;
+        return userStorage.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public User findUserBy(@PathVariable("id") Integer id) {
-        return userStorage.get(id);
+        return userStorage.getUserBy(id);
     }
 }
