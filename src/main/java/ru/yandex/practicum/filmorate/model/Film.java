@@ -23,6 +23,7 @@ public class Film {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
+
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
 
