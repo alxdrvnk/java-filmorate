@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
@@ -15,10 +14,12 @@ public class UserController {
 
     private final UserService userStorage;
 
-    public UserController() { userStorage = new UserService(); }
+    public UserController() {
+        userStorage = new UserService();
+    }
 
     @PostMapping
-    public User create(@RequestBody User user){
+    public User create(@RequestBody User user) {
         log.info("User controller get method POST. Data: " + user);
         user = userStorage.create(user);
         return user;

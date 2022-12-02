@@ -23,9 +23,11 @@ class FilmControllerTest extends Specification {
     @Autowired
     private ObjectMapper objectMapper
 
-    def "Should throw exception when try get not available film"() {
+    def "Should return 404 and message when try get not available film"() {
         expect:
-        mvc.perform(MockMvcRequestBuilders.get("/films/1")).andExpect(status().isNotFound())
+        mvc.perform(MockMvcRequestBuilders.get("/films/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Фильм с id: 1 не найден."))
     }
 
     def "Should add film to service then return ok and film with id"() {
@@ -49,6 +51,22 @@ class FilmControllerTest extends Specification {
                 .content(objectMapper.writeValueAsString(film)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)))
+    }
+
+    def "Should return error when film duration is negative"() {
+        given:
+        def film = Film.builder()
+            .name("Film")
+            .description("Film description")
+            .duration(-200)
+            .releaseDate(new LocalDate(2000,1,1)).build()
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.post("/films")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(film)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Продолжительность фильма должна быть положительной"))
 
     }
 }
