@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -19,11 +20,17 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        log.info("User controller get method POST. Data: " + user);
-        user = userStorage.create(user);
-        return user;
+    public User create(@Valid @RequestBody User user) {
+        log.info(String.format("UserController: получен POST запрос. Data: %s", user));
+        return userStorage.create(user);
     }
+
+    @PutMapping
+    public User update(@Valid @RequestBody User user) {
+        log.info(String.format("UserController: получен PUT запрос. Data: %s", user));
+        return userStorage.update(user);
+    }
+
 
     @GetMapping
     public List<User> findAll() {

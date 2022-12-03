@@ -23,27 +23,27 @@ class FilmControllerTest extends Specification {
     @Autowired
     private ObjectMapper objectMapper
 
-    def "Should return 404 and message when try get not available film"() {
+    def "Should return code 400 when try get not available film"() {
+        // Проблема с кодировкой при парсинге ответа
         expect:
         mvc.perform(MockMvcRequestBuilders.get("/films/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("Фильм с id: 1 не найден."))
+                .andExpect(status().isBadRequest())
     }
 
-    def "Should add film to service then return ok and film with id"() {
+    def "Should add film to service then return code 200 and film with id"() {
         given:
         def film = Film.builder()
                 .name("Film")
                 .description("Film Description")
                 .duration(121)
-                .releaseDate(new LocalDate(1977, 5, 25)).build()
+                .releaseDate(LocalDate.of(1977, 5, 25)).build()
 
         def expected = Film.builder()
                 .id(0)
                 .name("Film")
                 .description("Film Description")
                 .duration(121)
-                .releaseDate(new LocalDate(1977, 5, 25)).build()
+                .releaseDate(LocalDate.of(1977, 5, 25)).build()
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
@@ -53,20 +53,47 @@ class FilmControllerTest extends Specification {
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)))
     }
 
-    def "Should return error when film duration is negative"() {
+    def "Should return code 400 when film duration is negative"() {
         given:
         def film = Film.builder()
-            .name("Film")
-            .description("Film description")
-            .duration(-200)
-            .releaseDate(new LocalDate(2000,1,1)).build()
+                .name("Film")
+                .description("Film description")
+                .duration(-200)
+                .releaseDate(LocalDate.of(2000, 1, 1)).build()
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(film)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("Продолжительность фильма должна быть положительной"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)))
+                .andExpect(status().isBadRequest())
+    }
 
+    def "Should return code 400 when add film with description more then 200 symbols"() {
+        given:
+        def film = Film.builder()
+                .name("Film")
+                .description("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1")
+                .duration(1)
+                .releaseDate(LocalDate.of(2000, 1, 1)).build()
+        expect:
+        mvc.perform(MockMvcRequestBuilders.post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)))
+                .andExpect(status().isBadRequest())
+    }
+
+    def "Should return code 400 when add film with release date earlier than 1895-12-28"() {
+        def film = Film.builder()
+                .name("Film")
+                .description("Film description")
+                .duration(1)
+                .releaseDate(LocalDate.of(1895, 12, 27)).build()
+        expect:
+        mvc.perform(MockMvcRequestBuilders.post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)))
+                .andExpect(status().isBadRequest())
     }
 }

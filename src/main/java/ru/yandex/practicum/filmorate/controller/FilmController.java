@@ -20,19 +20,18 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        log.info("Film controller get method POST. Data: " + film);
+        log.info(String.format("FilmController: получен POST запрос. Data: %s", film));
         return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        log.info("Film controller get PUT request. Data: " + film);
+        log.info(String.format("FilmController: получен PUT запрос. Data: %s)", film));
         return filmService.update(film);
     }
 
     @GetMapping
     public List<Film> findAll() {
-        log.info("Film controller get method GET for all films");
         return filmService.getAllFilms();
     }
 

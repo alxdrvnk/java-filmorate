@@ -1,31 +1,65 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.http.HttpHeaders;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import ru.yandex.practicum.filmorate.error.FilmorateError;
+import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
+import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
 @ControllerAdvice
-public class FilmorateExceptionHandler extends ResponseEntityExceptionHandler {
-
-    //TODO: Create ValidationException
-    @ExceptionHandler(value = {RuntimeException.class})
-    protected ResponseEntity<Object> handlerValidationException(RuntimeException exception, WebRequest request) {
-        return handleExceptionInternal(exception, exception.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+public class FilmorateExceptionHandler {
+    @ExceptionHandler(value = FilmorateValidationException.class)
+    public ResponseEntity<Object> handleValidationException(FilmorateValidationException exception,
+                                                            WebRequest request) {
+        log.warn(String.format("Запрос %s завершился ошибкой: %s.", request.getDescription(false), exception.getMessage()));
+        FilmorateError error = FilmorateError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    //TODO: Create NotFoundException
-    @ExceptionHandler(value = RuntimeException.class)
-    protected ResponseEntity<Object> handlerNotFoundException(RuntimeException exception, WebRequest request) {
-        return handleExceptionInternal(exception, exception.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    @ExceptionHandler(value = FilmorateNotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundException(FilmorateNotFoundException exception,
+                                                          WebRequest request) {
+
+        log.warn(String.format("Запрос %s завершился ошибкой: %s.", request.getDescription(false), exception.getMessage()));
+        FilmorateError error = FilmorateError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // TODO: Create AlreadyExistException
-    @ExceptionHandler(value = RuntimeException.class)
-    protected ResponseEntity<Object> handlerAlreadyExistException(RuntimeException exception, WebRequest request) {
-        return handleExceptionInternal(exception, exception.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    @ExceptionHandler(value = FilmorateAlreadyExistException.class)
+    public ResponseEntity<Object> handleAlreadyExistException(FilmorateAlreadyExistException exception,
+                                                              WebRequest request) {
+        log.warn(String.format("Запрос %s завершился ошибкой: %s.", request.getDescription(false), exception.getMessage()));
+        FilmorateError error = FilmorateError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleAlreadyExistException(MethodArgumentNotValidException exception,
+                                                              WebRequest request) {
+        List<String> errors = exception.getBindingResult().getFieldErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList());
+        log.warn(String.format("Запрос %s завершился ошибкой: %s.", request.getDescription(false), errors));
+        FilmorateError error = FilmorateError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(errors).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
