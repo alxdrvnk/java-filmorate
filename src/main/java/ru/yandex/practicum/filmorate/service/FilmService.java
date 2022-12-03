@@ -17,7 +17,7 @@ public class FilmService {
     private final static LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
     private final Map<Integer, Film> films = new HashMap<>();
 
-    private static Integer id = 0;
+    private static Integer id = 1;
 
     private static Integer getNextId() {
         return id++;

@@ -35,9 +35,9 @@ public class FilmorateExceptionHandler {
 
         log.warn(String.format("Запрос %s завершился ошибкой: %s.", request.getDescription(false), exception.getMessage()));
         FilmorateError error = FilmorateError.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.NOT_FOUND.value())
                 .errors(List.of(exception.getMessage())).build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(value = FilmorateAlreadyExistException.class)

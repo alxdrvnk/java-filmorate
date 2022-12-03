@@ -15,7 +15,7 @@ import java.util.Map;
 public class UserService {
     private final Map<Integer, User> users = new HashMap<>();
 
-    private static Integer id = 0;
+    private static Integer id = 1;
 
     private static Integer getNextId() {
         return id++;
@@ -23,7 +23,7 @@ public class UserService {
 
     public User create(User user) {
         validateUserBirthday(user);
-        if (user.getName().isEmpty()) {
+        if (user.getName() == null) {
             user.setName(user.getLogin());
         }
         int id = getNextId();
