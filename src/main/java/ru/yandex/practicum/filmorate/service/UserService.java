@@ -23,14 +23,13 @@ public class UserService {
 
     public User create(User user) {
         validateUserBirthday(user);
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
         int id = getNextId();
-        user.setId(id);
-
-        users.put(id, user);
-        return user;
+        User newUser = user.withId(id);
+        if (user.getName() == null) {
+            newUser = newUser.withName(user.getLogin());
+        }
+        users.put(id, newUser);
+        return newUser;
     }
 
     public List<User> getAllUsers() {

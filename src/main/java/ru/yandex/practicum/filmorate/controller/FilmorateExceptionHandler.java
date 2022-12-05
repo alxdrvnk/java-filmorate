@@ -51,7 +51,7 @@ public class FilmorateExceptionHandler {
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleAlreadyExistException(MethodArgumentNotValidException exception,
+    public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception,
                                                               WebRequest request) {
         List<String> errors = exception.getBindingResult().getFieldErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)

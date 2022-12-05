@@ -2,7 +2,8 @@ package ru.yandex.practicum.filmorate.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -14,7 +15,8 @@ import java.time.LocalDate
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@WebMvcTest(controllers = FilmController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class FilmControllerTest extends Specification {
 
     @Autowired
@@ -24,10 +26,9 @@ class FilmControllerTest extends Specification {
     private ObjectMapper objectMapper
 
     def "Should return code 400 when try get not available film"() {
-        // Проблема с кодировкой при парсинге ответа
         expect:
         mvc.perform(MockMvcRequestBuilders.get("/films/1"))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
     }
 
     def "Should add film to service then return code 200 and film with id"() {
@@ -72,9 +73,7 @@ class FilmControllerTest extends Specification {
         given:
         def film = Film.builder()
                 .name("Film")
-                .description("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1")
+                .description("A" * 201)
                 .duration(1)
                 .releaseDate(LocalDate.of(2000, 1, 1)).build()
         expect:

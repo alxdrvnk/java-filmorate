@@ -14,7 +14,8 @@ import java.util.Map;
 @Service
 public class FilmService {
 
-    private final static LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
+    private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
+
     private final Map<Integer, Film> films = new HashMap<>();
 
     private static Integer id = 1;
@@ -26,8 +27,7 @@ public class FilmService {
     public Film create(Film film) {
         validateReleaseDate(film);
         int id = getNextId();
-        film.setId(id);
-        films.put(id, film);
+        films.put(id, film.withId(id));
         return film;
     }
 

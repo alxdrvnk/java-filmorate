@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -13,7 +14,8 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userStorage;
+    @Autowired
+    private UserService userStorage;
 
     public UserController() {
         userStorage = new UserService();
@@ -30,7 +32,6 @@ public class UserController {
         log.info(String.format("UserController: получен PUT запрос. Data: %s", user));
         return userStorage.update(user);
     }
-
 
     @GetMapping
     public List<User> findAll() {
