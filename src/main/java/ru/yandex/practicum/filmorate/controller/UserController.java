@@ -15,31 +15,31 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserService userStorage;
+    private UserService userService;
 
     public UserController() {
-        userStorage = new UserService();
+        userService = new UserService();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info(String.format("UserController: получен POST запрос. Data: %s", user));
-        return userStorage.create(user);
+        return userService.create(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info(String.format("UserController: получен PUT запрос. Data: %s", user));
-        return userStorage.update(user);
+        return userService.update(user);
     }
 
     @GetMapping
     public List<User> findAll() {
-        return userStorage.getAllUsers();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public User findUserBy(@PathVariable("id") Integer id) {
-        return userStorage.getUserBy(id);
+        return userService.getUserBy(id);
     }
 }
