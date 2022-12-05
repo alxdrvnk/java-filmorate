@@ -97,14 +97,14 @@ class FilmControllerTest extends Specification {
                 .andExpect(status().isBadRequest())
     }
 
-    def "Should return code 400 when add already added film"() {
+    def "Should return code 404 when add already added film"() {
         def film = Film.builder()
                 .name("Film")
                 .description("Film description")
                 .duration(1)
                 .releaseDate(LocalDate.of(1995, 12, 27)).build()
         def err = FilmorateError.builder()
-                .status(400)
+                .status(404)
                 .errors(List.of("Данный фильм уже добавлен.")).build()
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
@@ -116,11 +116,11 @@ class FilmControllerTest extends Specification {
         mvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(content().json(objectMapper.writeValueAsString(err)))
     }
 
-    def "Should return code 400 when update film on already added film"() {
+    def "Should return code 404 when update film on already added film"() {
         def film = Film.builder()
                 .id(2)
                 .name("Film")
@@ -129,13 +129,13 @@ class FilmControllerTest extends Specification {
                 .releaseDate(LocalDate.of(1977, 5, 25)).build()
 
         def err = FilmorateError.builder()
-                .status(400)
+                .status(404)
                 .errors(List.of("Данный фильм уже существует.")).build()
         expect:
         mvc.perform(MockMvcRequestBuilders.put("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(content().json(objectMapper.writeValueAsString(err)))
     }
 }
