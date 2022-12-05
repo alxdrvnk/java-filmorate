@@ -27,8 +27,9 @@ public class FilmService {
     public Film create(Film film) {
         validateReleaseDate(film);
         int id = getNextId();
-        films.put(id, film.withId(id));
-        return film;
+        Film newFilm = film.withId(id);
+        films.put(id, newFilm);
+        return newFilm;
     }
 
     public List<Film> getAllFilms() {

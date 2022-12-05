@@ -40,7 +40,7 @@ class FilmControllerTest extends Specification {
                 .releaseDate(LocalDate.of(1977, 5, 25)).build()
 
         def expected = Film.builder()
-                .id(0)
+                .id(1)
                 .name("Film")
                 .description("Film Description")
                 .duration(121)
