@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.With;
 
@@ -13,9 +14,11 @@ import java.time.LocalDate;
 
 @Value
 @Builder
+@EqualsAndHashCode
 public class Film {
 
     @With
+    @EqualsAndHashCode.Exclude
     int id;
     @NotNull
     @NotBlank(message = "Поле \"Имя\" должно быть заполнено")

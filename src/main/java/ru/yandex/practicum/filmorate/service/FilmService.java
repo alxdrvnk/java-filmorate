@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -26,6 +27,9 @@ public class FilmService {
 
     public Film create(Film film) {
         validateReleaseDate(film);
+        if (films.containsValue(film)) {
+            throw new FilmorateAlreadyExistException("Данный фильм уже добавлен.");
+        }
         int id = getNextId();
         Film newFilm = film.withId(id);
         films.put(id, newFilm);
@@ -46,6 +50,11 @@ public class FilmService {
 
     public Film update(Film film) {
         validateReleaseDate(film);
+
+        if (films.containsValue(film)) {
+            throw new FilmorateAlreadyExistException("Данный фильм уже существует.");
+        }
+
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             return film;

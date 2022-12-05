@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import ru.yandex.practicum.filmorate.error.FilmorateError
 import ru.yandex.practicum.filmorate.model.Film
 import spock.lang.Specification
 
@@ -94,5 +95,47 @@ class FilmControllerTest extends Specification {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(film)))
                 .andExpect(status().isBadRequest())
+    }
+
+    def "Should return code 400 when add already added film"() {
+        def film = Film.builder()
+                .name("Film")
+                .description("Film description")
+                .duration(1)
+                .releaseDate(LocalDate.of(1995, 12, 27)).build()
+        def err = FilmorateError.builder()
+                .status(400)
+                .errors(List.of("Данный фильм уже добавлен.")).build()
+        expect:
+        mvc.perform(MockMvcRequestBuilders.post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(film.withId(2))))
+
+        mvc.perform(MockMvcRequestBuilders.post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(objectMapper.writeValueAsString(err)))
+    }
+
+    def "Should return code 400 when update film on already added film"() {
+        def film = Film.builder()
+                .id(2)
+                .name("Film")
+                .description("Film Description")
+                .duration(121)
+                .releaseDate(LocalDate.of(1977, 5, 25)).build()
+
+        def err = FilmorateError.builder()
+                .status(400)
+                .errors(List.of("Данный фильм уже существует.")).build()
+        expect:
+        mvc.perform(MockMvcRequestBuilders.put("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(film)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(objectMapper.writeValueAsString(err)))
     }
 }
