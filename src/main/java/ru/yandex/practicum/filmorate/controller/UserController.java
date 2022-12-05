@@ -17,10 +17,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    public UserController() {
-        userService = new UserService();
-    }
-
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info(String.format("UserController: получен POST запрос. Data: %s", user));
