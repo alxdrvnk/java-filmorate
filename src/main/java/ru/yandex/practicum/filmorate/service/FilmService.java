@@ -51,10 +51,6 @@ public class FilmService {
     public Film update(Film film) {
         validateReleaseDate(film);
 
-        if (films.containsValue(film)) {
-            throw new FilmorateAlreadyExistException("Данный фильм уже существует.");
-        }
-
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             return film;

@@ -45,9 +45,9 @@ public class FilmorateExceptionHandler {
                                                               WebRequest request) {
         log.warn(String.format("Запрос %s завершился ошибкой: %s.", request.getDescription(false), exception.getMessage()));
         FilmorateError error = FilmorateError.builder()
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.CONFLICT.value())
                 .errors(List.of(exception.getMessage())).build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
