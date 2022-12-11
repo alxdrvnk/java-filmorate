@@ -19,7 +19,7 @@ public class Film {
 
     @With
     @EqualsAndHashCode.Exclude
-    int id;
+    Long id;
     @NotNull
     @NotBlank(message = "Поле \"Имя\" должно быть заполнено")
     String name;

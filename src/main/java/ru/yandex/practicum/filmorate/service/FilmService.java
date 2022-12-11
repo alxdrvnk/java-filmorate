@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,27 +15,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
-    private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
-
-    private final Map<Integer, Film> films = new HashMap<>();
-
-    private static Integer id = 1;
-
-    private static Integer getNextId() {
-        return id++;
-    }
+    private final FilmStorage storage;
 
     public Film create(Film film) {
-        validateReleaseDate(film);
-        if (films.containsValue(film)) {
-            throw new FilmorateAlreadyExistException("Данный фильм уже добавлен.");
-        }
-        int id = getNextId();
-        Film newFilm = film.withId(id);
-        films.put(id, newFilm);
-        return newFilm;
+        return storage.create(film);
     }
 
     public List<Film> getAllFilms() {
