@@ -87,4 +87,27 @@ class UserControllerTest extends Specification {
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(expectUser)))
     }
+
+    def "Should return 200 and json when add friend"() {
+        def userP = User.builder()
+                .birthday(LocalDate.of(1990, 1, 1))
+                .login("Pupa")
+                .email("pupa@mail.mail").build()
+
+        def userL = User.builder()
+                .birthday(LocalDate.of(1990, 1, 2))
+                .login("Lupa")
+                .email("lupa@nemail.mail").build()
+
+        def expectUserP = userP.withId(3).withName("Pupa")
+        expect:
+        userL.getFriends() == Collections.EMPTY_SET
+        userP.getFriends() == Collections.EMPTY_SET
+
+        mvc.perform(MockMvcRequestBuilders.post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userP)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(expectUserP)))
+    }
 }
