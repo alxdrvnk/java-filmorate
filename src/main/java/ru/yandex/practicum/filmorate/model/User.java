@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.With;
 
@@ -34,5 +33,7 @@ public class User {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     LocalDate birthday;
 
+    @With
+    @Builder.Default
     Set<Long> friends = new HashSet<>();
 }
