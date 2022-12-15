@@ -7,7 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import ru.yandex.practicum.filmorate.error.FilmorateError
 import ru.yandex.practicum.filmorate.model.Film
 import spock.lang.Specification
 
@@ -98,27 +97,44 @@ class FilmControllerTest extends Specification {
                 .andExpect(status().isBadRequest())
     }
 
-    def "Should return code 409 when add already added film"() {
+    def "Should return code 200 and film when user put like"() {
         given:
         def film = Film.builder()
-                .name("Film")
+                .name("Pupa Film")
                 .description("Film description")
-                .duration(1)
-                .releaseDate(LocalDate.of(1995, 12, 27)).build()
-        def err = FilmorateError.builder()
-                .status(409)
-                .errors(List.of("Данный фильм уже добавлен.")).build()
+                .duration(140)
+                .releaseDate(LocalDate.of(2022, 1, 1)).build()
+        def expectFilm = Film.builder()
+                .id(2)
+                .name("Pupa Film")
+                .description("Film description")
+                .duration(140)
+                .releaseDate(LocalDate.of(2022, 1, 1))
+                .likes(Set.of(3L)).build()
+
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(film)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(film.withId(2))))
 
-        mvc.perform(MockMvcRequestBuilders.post("/films")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isConflict())
-                .andExpect(content().json(objectMapper.writeValueAsString(err)))
+        mvc.perform(MockMvcRequestBuilders.put("/films/2/like/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(expectFilm)))
+    }
+
+    def "Should return code 200 and film when user delete like"() {
+        given:
+        def expectFilm = Film.builder()
+                .id(2)
+                .name("Pupa Film")
+                .description("Film description")
+                .duration(140)
+                .releaseDate(LocalDate.of(2022, 1, 1)).build()
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/films/2/like/3"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(expectFilm)))
     }
 }

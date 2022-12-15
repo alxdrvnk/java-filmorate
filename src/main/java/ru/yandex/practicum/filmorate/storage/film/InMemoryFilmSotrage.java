@@ -64,12 +64,16 @@ public class InMemoryFilmSotrage implements FilmStorage {
 
     @Override
     public Film addLike(Long filmId, Long userId) {
-        return null;
+        Film film = films.get(filmId);
+        film.getLikes().add(userId);
+        return film;
     }
 
     @Override
     public Film removeLike(Long filmId, Long userId) {
-        return null;
+        Film film = films.get(filmId);
+        film.getLikes().remove(userId);
+        return film;
     }
     private void validateReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(cinemaBirthday)) {

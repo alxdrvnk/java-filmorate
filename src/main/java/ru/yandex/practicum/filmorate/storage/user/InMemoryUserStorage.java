@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
+@Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
     private final HashMap<Long, User> users = new HashMap<>();
@@ -92,7 +92,7 @@ public class InMemoryUserStorage implements UserStorage {
         return  user.getFriends().stream().filter(f -> otherUser.getFriends().contains(f)).collect(Collectors.toList());
     }
 
-    private Long getNextId() {
+    private static Long getNextId() {
         return id++;
     }
     private void validateUserBirthday(User user) {

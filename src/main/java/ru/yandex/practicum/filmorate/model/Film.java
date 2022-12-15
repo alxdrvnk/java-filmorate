@@ -37,6 +37,7 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительной")
     int duration;
 
+    @Builder.Default
     Set<Long> likes = new HashSet<>();
 
 }

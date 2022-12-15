@@ -121,13 +121,11 @@ class UserControllerTest extends Specification {
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(expectUserL)))
 
-        mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/4")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/4"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(expectUserPWithFriend)))
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
     }
@@ -142,13 +140,11 @@ class UserControllerTest extends Specification {
                 .email("pupa@mail.mail").build()
 
         expect:
-        mvc.perform(MockMvcRequestBuilders.delete("/users/3/friends/4")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.delete("/users/3/friends/4"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(expectUserP)))
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(Collections.EMPTY_LIST)))
     }
@@ -164,18 +160,15 @@ class UserControllerTest extends Specification {
         mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/1"))
                 .andExpect(status().isOk())
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/3/friends")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/users/3/friends"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(userFriendsList)))
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/1/friends")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/users/1/friends"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
     }
@@ -185,8 +178,7 @@ class UserControllerTest extends Specification {
         def mutualFriends = List.of(3)
 
         expect:
-        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends/common/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends/common/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(mutualFriends)))
     }

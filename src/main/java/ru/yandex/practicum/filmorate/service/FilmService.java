@@ -32,4 +32,8 @@ public class FilmService {
     public Film setFilmLike(Long filmId, Long userId) {
         return storage.addLike(filmId, userId);
     }
+
+    public Film removeFilmLike(Long filmId, Long userId) {
+        return storage.removeLike(filmId, userId);
+    }
 }
