@@ -54,4 +54,9 @@ public class UserController {
     public Set<Long> getUserFriends(@PathVariable("id") Long id) {
         return userService.getUserFriends(id);
     }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<Long> getMutualFriends(@PathVariable("id") Long userId, @PathVariable("otherId") Long otherUserId) {
+        return userService.getMutualFriends(userId, otherUserId);
+    }
 }

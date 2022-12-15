@@ -41,4 +41,8 @@ public class UserService {
     public Set<Long> getUserFriends(Long userId) {
         return storage.getUserFriends(userId);
     }
+
+    public List<Long> getMutualFriends(Long userId, Long otherUserId) {
+        return storage.getMutualFriends(userId, otherUserId);
+    }
 }

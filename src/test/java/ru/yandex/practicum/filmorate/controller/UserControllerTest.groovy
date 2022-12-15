@@ -132,7 +132,7 @@ class UserControllerTest extends Specification {
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
     }
 
-    def "Sould retunr 200 and user when remove friend"() {
+    def "Should return 200 and user when remove friend"() {
         given:
         def expectUserP = User.builder()
                 .id(3)
@@ -179,7 +179,7 @@ class UserControllerTest extends Specification {
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
     }
-    //TODO: Implement ME!!!
+
     def "Should return 200 and list of mutual friends Ids"() {
         given:
         def mutualFriends = List.of(3)

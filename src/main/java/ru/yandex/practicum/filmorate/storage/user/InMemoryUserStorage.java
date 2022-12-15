@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -81,6 +82,14 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public Set<Long> getUserFriends(Long userId) {
         return users.get(userId).getFriends();
+    }
+
+    @Override
+    public List<Long> getMutualFriends(Long userId, Long otherUserId) {
+        User user = users.get(userId);
+        User otherUser = users.get(otherUserId);
+
+        return  user.getFriends().stream().filter(f -> otherUser.getFriends().contains(f)).collect(Collectors.toList());
     }
 
     private Long getNextId() {

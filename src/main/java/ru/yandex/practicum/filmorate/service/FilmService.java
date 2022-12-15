@@ -29,5 +29,7 @@ public class FilmService {
         return storage.update(film);
     }
 
-
+    public Film setFilmLike(Long filmId, Long userId) {
+        return storage.addLike(filmId, userId);
+    }
 }

@@ -85,6 +85,7 @@ class FilmControllerTest extends Specification {
     }
 
     def "Should return code 400 when add film with release date earlier than 1895-12-28"() {
+        given:
         def film = Film.builder()
                 .name("Film")
                 .description("Film description")
@@ -98,6 +99,7 @@ class FilmControllerTest extends Specification {
     }
 
     def "Should return code 409 when add already added film"() {
+        given:
         def film = Film.builder()
                 .name("Film")
                 .description("Film description")
