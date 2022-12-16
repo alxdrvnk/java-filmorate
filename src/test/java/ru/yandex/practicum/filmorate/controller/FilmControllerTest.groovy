@@ -137,4 +137,31 @@ class FilmControllerTest extends Specification {
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(expectFilm)))
     }
+
+    //TODO: IMPLEMENT ME!!!
+    def "Should return 200 and lsit of films when get popular films"() {
+        given:
+        def filmsList = new ArrayList()
+        for (int i = 1; i < 11; i++){
+            filmsList.add(
+                    Film.builder()
+                    .name("Film " + i)
+                    .description("Film " + i + "description")
+                    .duration(i*20)
+                    .releaseDate(LocalDate.of(2000 + i, i, i))
+                    .likes(Set.of(i as Long)).build()
+            )
+        }
+        expect:
+        for (final def i in filmsList) {
+            mvc.perform(MockMvcRequestBuilders.post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(i)))
+                .andExpect(status().isOk())
+        }
+
+        mvc.perform(MockMvcRequestBuilders.get("/films/popular?count=10"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(objectMapper.writeValueAsString(filmsList)))
+    }
 }
