@@ -12,6 +12,7 @@ import java.util.List;
 public class FilmService {
 
     private final FilmStorage storage;
+    private final UserService userService;
 
     public Film create(Film film) {
         return storage.create(film);
@@ -30,10 +31,18 @@ public class FilmService {
     }
 
     public Film setFilmLike(Long filmId, Long userId) {
+        userService.getUserBy(userId);
+        getFilmBy(filmId);
         return storage.addLike(filmId, userId);
     }
 
     public Film removeFilmLike(Long filmId, Long userId) {
+        userService.getUserBy(userId);
+        getFilmBy(filmId);
         return storage.removeLike(filmId, userId);
+    }
+
+    public List<Film> getPopularFilms(int count) {
+        return storage.getPopular(count);
     }
 }

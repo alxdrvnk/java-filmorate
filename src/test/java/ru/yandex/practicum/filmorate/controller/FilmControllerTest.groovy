@@ -104,13 +104,6 @@ class FilmControllerTest extends Specification {
                 .description("Film description")
                 .duration(140)
                 .releaseDate(LocalDate.of(2022, 1, 1)).build()
-        def expectFilm = Film.builder()
-                .id(2)
-                .name("Pupa Film")
-                .description("Film description")
-                .duration(140)
-                .releaseDate(LocalDate.of(2022, 1, 1))
-                .likes(Set.of(3L)).build()
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
@@ -120,7 +113,6 @@ class FilmControllerTest extends Specification {
 
         mvc.perform(MockMvcRequestBuilders.put("/films/2/like/3"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(expectFilm)))
     }
 
     def "Should return code 200 and film when user delete like"() {
@@ -138,30 +130,50 @@ class FilmControllerTest extends Specification {
                 .andExpect(content().string(objectMapper.writeValueAsString(expectFilm)))
     }
 
-    //TODO: IMPLEMENT ME!!!
-    def "Should return 200 and lsit of films when get popular films"() {
+    def "Should return code 200 and list of 5 films when get popular films"() {
         given:
         def filmsList = new ArrayList()
-        for (int i = 1; i < 11; i++){
+        for (int i = 1; i < 11; i++) {
             filmsList.add(
                     Film.builder()
-                    .name("Film " + i)
-                    .description("Film " + i + "description")
-                    .duration(i*20)
-                    .releaseDate(LocalDate.of(2000 + i, i, i))
-                    .likes(Set.of(i as Long)).build()
-            )
+                            .id(i + 2)
+                            .name("Film " + i)
+                            .description("Film " + i + "description")
+                            .duration(i * 20)
+                            .releaseDate(LocalDate.of(2000 + i, i, i)).build())
         }
         expect:
         for (final def i in filmsList) {
             mvc.perform(MockMvcRequestBuilders.post("/films")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(i)))
-                .andExpect(status().isOk())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(i)))
+                    .andExpect(status().isOk())
         }
 
-        mvc.perform(MockMvcRequestBuilders.get("/films/popular?count=10"))
-            .andExpect(status().isOk())
-            .andExpect(content().string(objectMapper.writeValueAsString(filmsList)))
+        mvc.perform(MockMvcRequestBuilders.get("/films/popular").param("count", "5"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return code 200 and list of 10 films when send request without params"() {
+        given:
+        def expectFilmsList = new ArrayList()
+        for (int i = 1; i < 11; i++) {
+            expectFilmsList.add(
+                    Film.builder()
+                            .id(i + 2)
+                            .name("Film " + i)
+                            .description("Film " + i + "description")
+                            .duration(i * 20)
+                            .releaseDate(LocalDate.of(2000 + i, i, i)).build())
+        }
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/films/popular"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return 404 when non-expect user put like to film"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.put("/films/2/like/9999"))
+                .andExpect(status().isNotFound())
     }
 }

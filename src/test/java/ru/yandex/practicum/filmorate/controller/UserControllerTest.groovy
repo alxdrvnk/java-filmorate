@@ -81,6 +81,7 @@ class UserControllerTest extends Specification {
                 .login("UserLogin")
                 .email("email@email.email").build()
         def expectUser = user.withName("UserLogin")
+
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -104,11 +105,7 @@ class UserControllerTest extends Specification {
         def expectUserP = userP.withId(3).withName("Pupa")
         def expectUserL = userL.withId(4).withName("Lupa")
 
-        def expectUserPWithFriend = expectUserP.withFriends(Set.of(4L))
         expect:
-        userL.getFriends() == Collections.EMPTY_SET
-        userP.getFriends() == Collections.EMPTY_SET
-
         mvc.perform(MockMvcRequestBuilders.post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userP)))
@@ -123,11 +120,12 @@ class UserControllerTest extends Specification {
 
         mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/4"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(expectUserPWithFriend)))
+
+        mvc.perform(MockMvcRequestBuilders.get("/users/3/friends"))
+                .andExpect(status().isOk())
 
         mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
     }
 
     def "Should return 200 and user when remove friend"() {
@@ -150,9 +148,6 @@ class UserControllerTest extends Specification {
     }
 
     def "Should return 200 and list of friends IDs"() {
-        given:
-        def userFriendsList = List.of(1, 4)
-
         expect:
         mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/4"))
                 .andExpect(status().isOk())
@@ -162,24 +157,26 @@ class UserControllerTest extends Specification {
 
         mvc.perform(MockMvcRequestBuilders.get("/users/3/friends"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(userFriendsList)))
 
         mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
-
-        mvc.perform(MockMvcRequestBuilders.get("/users/1/friends"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(List.of(3))))
     }
 
     def "Should return 200 and list of mutual friends Ids"() {
-        given:
-        def mutualFriends = List.of(3)
-
         expect:
         mvc.perform(MockMvcRequestBuilders.get("/users/4/friends/common/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(mutualFriends)))
+    }
+
+    def "Should return 404 when try to add non-exists user to friend"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/9999"))
+                .andExpect(status().isNotFound())
+    }
+
+    def "Should return 404 when try to delete non-exists user from friend"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/users/3/friends/9999"))
+                .andExpect(status().isNotFound())
     }
 }

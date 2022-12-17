@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
@@ -10,10 +9,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component("InMemoryUserStorage")
+@Component
 public class InMemoryUserStorage implements UserStorage {
 
     private final HashMap<Long, User> users = new HashMap<>();
@@ -25,7 +23,7 @@ public class InMemoryUserStorage implements UserStorage {
         validateUserBirthday(user);
         Long id = getNextId();
         User newUser = user.withId(id);
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             newUser = newUser.withName(user.getLogin());
         }
         users.put(id, newUser);
@@ -59,19 +57,18 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addFriend(Long userId, Long friendId) {
-        User user = users.get(userId);
-        User friend = users.get(friendId);
+        User user = get(userId);
+        User friend = get(friendId);
 
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
-
         return user;
     }
 
     @Override
     public User removeFriend(Long userId, Long friendId) {
-        User user = users.get(userId);
-        User friend = users.get(friendId);
+        User user = get(userId);
+        User friend = get(friendId);
 
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
@@ -80,16 +77,24 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Set<Long> getUserFriends(Long userId) {
-        return users.get(userId).getFriends();
+    public List<User> getUserFriends(Long userId) {
+        User user = get(userId);
+        return user.getFriends().stream()
+                .filter(users::containsKey)
+                .map(users::get)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Long> getMutualFriends(Long userId, Long otherUserId) {
-        User user = users.get(userId);
-        User otherUser = users.get(otherUserId);
+    public List<User> getMutualFriends(Long userId, Long otherUserId) {
+        User user = get(userId);
+        User otherUser = get(otherUserId);
 
-        return  user.getFriends().stream().filter(f -> otherUser.getFriends().contains(f)).collect(Collectors.toList());
+        return user.getFriends().stream()
+                .filter(f -> otherUser.getFriends().contains(f))
+                .map(users::get)
+                .collect(Collectors.toList());
+
     }
 
     private static Long getNextId() {

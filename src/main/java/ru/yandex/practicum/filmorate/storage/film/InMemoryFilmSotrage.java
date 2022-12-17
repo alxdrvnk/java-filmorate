@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryFilmSotrage implements FilmStorage {
@@ -59,7 +60,10 @@ public class InMemoryFilmSotrage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(int count) {
-        return null;
+        return films.values().stream()
+                .sorted(((o1, o2) -> o2.getLikes().size() - o1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     @Override
