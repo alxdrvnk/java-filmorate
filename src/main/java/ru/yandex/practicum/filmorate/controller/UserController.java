@@ -3,12 +3,13 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -21,12 +22,17 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info(String.format("UserController: получен POST запрос. Data: %s", user));
+
+        validateUserBirthday(user);
+        user = validateUserName(user);
         return userService.create(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info(String.format("UserController: получен PUT запрос. Data: %s", user));
+        validateUserBirthday(user);
+        user = validateUserName(user);
         return userService.update(user);
     }
 
@@ -41,7 +47,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId){
+    public User addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
         return userService.addFriend(id, friendId);
     }
 
@@ -58,5 +64,18 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable("id") Long userId, @PathVariable("otherId") Long otherUserId) {
         return userService.getMutualFriends(userId, otherUserId);
+    }
+
+    private void validateUserBirthday(User user) {
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            throw new FilmorateValidationException("День рождения не может быть в будущем.");
+        }
+    }
+
+    private User validateUserName(User user) {
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user = user.withName(user.getLogin());
+        }
+        return user;
     }
 }

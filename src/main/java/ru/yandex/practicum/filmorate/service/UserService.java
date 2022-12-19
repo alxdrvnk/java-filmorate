@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,21 @@ public class UserService {
     }
 
     public List<User> getMutualFriends(Long userId, Long otherUserId) {
-        return storage.getMutualFriends(userId, otherUserId);
+        User user = getUserBy(userId);
+        User otherUser = getUserBy(otherUserId);
+
+        return user.getFriends().stream()
+                .filter(f -> otherUser.getFriends().contains(f))
+                .map(this::getUserBy)
+                .collect(Collectors.toList());
+    }
+
+    public void addLikedFilm(Long userId, Long filmId) {
+        User user = getUserBy(userId);
+
+        if (user.getLikedFilms().stream()
+                .anyMatch(filmId::equals)) {
+            throw new FilmorateAlreadyExistException("Фильм уже добавлен в понравившиеся");
+        }
     }
 }

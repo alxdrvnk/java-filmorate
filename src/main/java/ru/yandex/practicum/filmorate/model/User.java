@@ -35,5 +35,7 @@ public class User {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     LocalDate birthday;
 
+    Set<Long> likedFilms = new HashSet<>();
+
     Set<Long> friends = new HashSet<>();
 }

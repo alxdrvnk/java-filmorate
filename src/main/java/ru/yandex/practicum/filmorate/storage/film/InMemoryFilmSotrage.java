@@ -27,7 +27,6 @@ public class InMemoryFilmSotrage implements FilmStorage {
     public Film create(Film film) {
         Long id = getNextId();
         Film newFilm = film.withId(id);
-        log.info("" + newFilm);
         films.put(id, newFilm);
         return newFilm;
     }
