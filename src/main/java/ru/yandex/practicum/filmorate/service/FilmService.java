@@ -22,7 +22,6 @@ public class FilmService {
         return storage.create(film);
     }
 
-
     public List<Film> getAllFilms() {
         return storage.getAllFilms();
     }

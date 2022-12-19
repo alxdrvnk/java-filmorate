@@ -39,12 +39,7 @@ class FilmControllerTest extends Specification {
                 .duration(121)
                 .releaseDate(LocalDate.of(1977, 5, 25)).build()
 
-        def expected = Film.builder()
-                .id(1)
-                .name("Film")
-                .description("Film Description")
-                .duration(121)
-                .releaseDate(LocalDate.of(1977, 5, 25)).build()
+        def expected = film.withId(1).withRate(0)
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
@@ -122,7 +117,8 @@ class FilmControllerTest extends Specification {
                 .name("Pupa Film")
                 .description("Film description")
                 .duration(140)
-                .releaseDate(LocalDate.of(2022, 1, 1)).build()
+                .releaseDate(LocalDate.of(2022, 1, 1))
+                .rate(0L).build()
 
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/2/like/3"))

@@ -1,25 +1,25 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
-import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class InMemoryFilmSotrage implements FilmStorage {
 
 
     private final HashMap<Long, Film> films = new HashMap<>();
 
-    private static Long id = 1L;
+    private Long id = 1L;
 
-    private static Long getNextId() {
+    private Long getNextId() {
         return id++;
     }
 
@@ -27,6 +27,7 @@ public class InMemoryFilmSotrage implements FilmStorage {
     public Film create(Film film) {
         Long id = getNextId();
         Film newFilm = film.withId(id);
+        log.info("" + newFilm);
         films.put(id, newFilm);
         return newFilm;
     }
@@ -58,7 +59,7 @@ public class InMemoryFilmSotrage implements FilmStorage {
     @Override
     public List<Film> getPopular(int count) {
         return films.values().stream()
-                .sorted(((o1, o2) -> o2.getLikes().size() - o1.getLikes().size()))
+                .sorted(((o1, o2) -> (int) (o2.getRate() - o1.getRate())))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -66,14 +67,16 @@ public class InMemoryFilmSotrage implements FilmStorage {
     @Override
     public Film addLike(Long filmId, Long userId) {
         Film film = films.get(filmId);
-        film.getLikes().add(userId);
-        return film;
+        Film newFilm = film.withRate(film.getRate() + 1);
+        films.put(filmId, newFilm);
+        return newFilm;
     }
 
     @Override
     public Film removeLike(Long filmId, Long userId) {
         Film film = films.get(filmId);
-        film.getLikes().remove(userId);
-        return film;
+        Film newFilm = film.withRate(film.getRate() - 1);
+        films.put(filmId, newFilm);
+        return newFilm;
     }
 }
