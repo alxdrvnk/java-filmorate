@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Component
 public class InMemoryFilmSotrage implements FilmStorage {
 
-    private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
 
     private final HashMap<Long, Film> films = new HashMap<>();
 
@@ -26,7 +25,6 @@ public class InMemoryFilmSotrage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        validateReleaseDate(film);
         Long id = getNextId();
         Film newFilm = film.withId(id);
         films.put(id, newFilm);
@@ -35,7 +33,6 @@ public class InMemoryFilmSotrage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        validateReleaseDate(film);
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             return film;
@@ -78,11 +75,5 @@ public class InMemoryFilmSotrage implements FilmStorage {
         Film film = films.get(filmId);
         film.getLikes().remove(userId);
         return film;
-    }
-    private void validateReleaseDate(Film film) {
-        if (film.getReleaseDate().isBefore(cinemaBirthday)) {
-            throw new FilmorateValidationException(
-                    String.format("Дата релиза не может быть раньше чем %s", cinemaBirthday));
-        }
     }
 }
