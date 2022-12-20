@@ -34,6 +34,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
+    // Стоит переписать метод, чтобы он возвращал Optional<User>? Как более правильно сделать?
     @Override
     public User get(Long id) {
         if (users.containsKey(id)) {

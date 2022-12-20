@@ -92,14 +92,7 @@ class FilmControllerTest extends Specification {
                 .andExpect(status().isBadRequest())
     }
 
-    def "Should return code 200 and film when user put like"() {
-        given:
-        def film = Film.builder()
-                .name("Pupa Film")
-                .description("Film description")
-                .duration(140)
-                .releaseDate(LocalDate.of(2022, 1, 1)).build()
-
+    def "Should return code 200 when user put like"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -110,20 +103,10 @@ class FilmControllerTest extends Specification {
                 .andExpect(status().isOk())
     }
 
-    def "Should return code 200 and film when user delete like"() {
-        given:
-        def expectFilm = Film.builder()
-                .id(2)
-                .name("Pupa Film")
-                .description("Film description")
-                .duration(140)
-                .releaseDate(LocalDate.of(2022, 1, 1))
-                .rate(0L).build()
-
+    def "Should return code 200 when user delete like"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/2/like/3"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(expectFilm)))
     }
 
     def "Should return code 200 and list of 5 films when get popular films"() {

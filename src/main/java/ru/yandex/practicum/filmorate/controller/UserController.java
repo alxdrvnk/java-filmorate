@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        log.info(String.format("UserController: получен POST запрос. Data: %s", user));
+        log.info(String.format("UserController: create User request. Data: %s", user));
 
         validateUserBirthday(user);
         user = validateUserName(user);
@@ -30,7 +30,7 @@ public class UserController {
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-        log.info(String.format("UserController: получен PUT запрос. Data: %s", user));
+        log.info(String.format("UserController: update User request. Data: %s", user));
         validateUserBirthday(user);
         user = validateUserName(user);
         return userService.update(user);
@@ -49,11 +49,14 @@ public class UserController {
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
         userService.addFriend(id, friendId);
+        log.info(String.format("UserController: User with %d id add friend with id %d", id, friendId));
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
          userService.removeFriend(id, friendId);
+         log.info(String.format("UserController: User with %d id remove friend with id %d", id, friendId));
+
     }
 
     @GetMapping("/{id}/friends")

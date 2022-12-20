@@ -33,7 +33,7 @@ public class UserService {
     }
 
     // Нужно ли чтобы методы добавления/удаления друга возвращали юзера?
-    // Если да, то тогда нужно возвращать копию изменного юзера?
+    // Если да, то тогда нужно возвращать копию измененного юзера?
     public void addFriend(Long userId, Long friendId) {
         User user = storage.get(userId);
         User friend = storage.get(friendId);

@@ -18,13 +18,13 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        log.info(String.format("FilmController: получен POST запрос. Data: %s", film));
+        log.info(String.format("FilmController: create film request. Data: %s", film));
         return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        log.info(String.format("FilmController: получен PUT запрос. Data: %s)", film));
+        log.info(String.format("FilmController: update film request. Data: %s)", film));
         return filmService.update(film);
     }
 
@@ -39,13 +39,15 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        return filmService.setFilmLike(id, userId);
+    public void setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        filmService.setFilmLike(id, userId);
+        log.info(String.format("FilmController: Add like for Film with %d id from User with %d id", id, userId));
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film deleteFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        return filmService.removeFilmLike(id, userId);
+    public void removeFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        filmService.removeFilmLike(id, userId);
+        log.info(String.format("FilmController: Remove like for Film with %d id from User with %d id", id, userId));
     }
 
     @GetMapping("/popular")

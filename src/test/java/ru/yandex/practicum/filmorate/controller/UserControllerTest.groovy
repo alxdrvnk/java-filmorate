@@ -73,7 +73,7 @@ class UserControllerTest extends Specification {
                 .andExpect(status().isBadRequest())
     }
 
-    def "Should set name from login value when name is empty"() {
+    def "Should return 200 and user with login name when name is empty"() {
         given:
         def user = User.builder()
                 .id(2)
@@ -90,7 +90,7 @@ class UserControllerTest extends Specification {
                 .andExpect(content().string(objectMapper.writeValueAsString(expectUser)))
     }
 
-    def "Should return 200 and json when add friend"() {
+    def "Should return 200 when add friend"() {
         given:
         def userP = User.builder()
                 .birthday(LocalDate.of(1990, 1, 1))

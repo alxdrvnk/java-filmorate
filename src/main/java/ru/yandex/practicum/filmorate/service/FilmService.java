@@ -35,16 +35,17 @@ public class FilmService {
         return storage.update(film);
     }
 
-    public Film setFilmLike(Long filmId, Long userId) {
+    // Лучше возвращать объект фильма при добавлении/удалении лайка?
+    public void setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         userService.addLikedFilm(userId, filmId);
-        return storage.addLike(film);
+        storage.addLike(film);
     }
 
-    public Film removeFilmLike(Long filmId, Long userId) {
+    public void removeFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         userService.removeLikedFilm(userId, filmId);
-        return storage.removeLike(film);
+        storage.removeLike(film);
     }
 
     public List<Film> getPopularFilms(int count) {
