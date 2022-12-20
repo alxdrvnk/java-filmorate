@@ -128,19 +128,10 @@ class UserControllerTest extends Specification {
                 .andExpect(status().isOk())
     }
 
-    def "Should return 200 and user when remove friend"() {
-        given:
-        def expectUserP = User.builder()
-                .id(3)
-                .birthday(LocalDate.of(1990, 1, 1))
-                .login("Pupa")
-                .name("Pupa")
-                .email("pupa@mail.mail").build()
-
+    def "Should return 200 when remove friend"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/users/3/friends/4"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(expectUserP)))
 
         mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
                 .andExpect(status().isOk())

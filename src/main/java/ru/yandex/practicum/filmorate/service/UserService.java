@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -31,12 +32,22 @@ public class UserService {
         return storage.update(user);
     }
 
-    public User addFriend(Long userId, Long friendId) {
-        return storage.addFriend(userId, friendId);
+    // Нужно ли чтобы методы добавления/удаления друга возвращали юзера?
+    // Если да, то тогда нужно возвращать копию изменного юзера?
+    public void addFriend(Long userId, Long friendId) {
+        User user = storage.get(userId);
+        User friend = storage.get(friendId);
+
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
     }
 
-    public User removeFriend(Long userId, Long friendId) {
-        return storage.removeFriend(userId, friendId);
+    public void removeFriend(Long userId, Long friendId) {
+        User user = storage.get(userId);
+        User friend = storage.get(friendId);
+
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
     }
 
     public List<User> getUserFriends(Long userId) {
@@ -44,8 +55,8 @@ public class UserService {
     }
 
     public List<User> getMutualFriends(Long userId, Long otherUserId) {
-        User user = getUserBy(userId);
-        User otherUser = getUserBy(otherUserId);
+        User user = storage.get(userId);
+        User otherUser = storage.get(otherUserId);
 
         return user.getFriends().stream()
                 .filter(f -> otherUser.getFriends().contains(f))
@@ -54,11 +65,24 @@ public class UserService {
     }
 
     public void addLikedFilm(Long userId, Long filmId) {
-        User user = getUserBy(userId);
+        User user = storage.get(userId);
 
         if (user.getLikedFilms().stream()
                 .anyMatch(filmId::equals)) {
-            throw new FilmorateAlreadyExistException("Фильм уже добавлен в понравившиеся");
+            throw new FilmorateAlreadyExistException("Фильм уже добавлен в понравившиеся.");
         }
+
+        user.getLikedFilms().add(filmId);
+    }
+
+    public void removeLikedFilm(Long userId, Long filmId) {
+        User user = storage.get(userId);
+
+        if (user.getLikedFilms().stream()
+                .noneMatch(filmId::equals)) {
+            throw new FilmorateNotFoundException("Фильм не добавлен в понравившиеся.");
+        }
+
+        user.getLikedFilms().remove(filmId);
     }
 }

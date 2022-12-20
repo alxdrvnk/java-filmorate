@@ -36,15 +36,15 @@ public class FilmService {
     }
 
     public Film setFilmLike(Long filmId, Long userId) {
-        userService.getUserBy(userId);
-        getFilmBy(filmId);
-        return storage.addLike(filmId, userId);
+        Film film = getFilmBy(filmId);
+        userService.addLikedFilm(userId, filmId);
+        return storage.addLike(film);
     }
 
     public Film removeFilmLike(Long filmId, Long userId) {
-        userService.getUserBy(userId);
-        getFilmBy(filmId);
-        return storage.removeLike(filmId, userId);
+        Film film = getFilmBy(filmId);
+        userService.removeLikedFilm(userId, filmId);
+        return storage.removeLike(film);
     }
 
     public List<Film> getPopularFilms(int count) {

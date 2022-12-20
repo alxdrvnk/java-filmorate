@@ -64,18 +64,16 @@ public class InMemoryFilmSotrage implements FilmStorage {
     }
 
     @Override
-    public Film addLike(Long filmId, Long userId) {
-        Film film = films.get(filmId);
+    public Film addLike(Film film) {
         Film newFilm = film.withRate(film.getRate() + 1);
-        films.put(filmId, newFilm);
+        films.put(film.getId(), newFilm);
         return newFilm;
     }
 
     @Override
-    public Film removeLike(Long filmId, Long userId) {
-        Film film = films.get(filmId);
+    public Film removeLike(Film film) {
         Film newFilm = film.withRate(film.getRate() - 1);
-        films.put(filmId, newFilm);
+        films.put(film.getId(), newFilm);
         return newFilm;
     }
 }
