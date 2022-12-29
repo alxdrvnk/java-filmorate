@@ -1,62 +1,88 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
-import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private final Map<Integer, User> users = new HashMap<>();
 
-    private static Integer id = 1;
-
-    private static Integer getNextId() {
-        return id++;
-    }
+    private final UserStorage storage;
 
     public User create(User user) {
-        validateUserBirthday(user);
-        int id = getNextId();
-        User newUser = user.withId(id);
-        if (user.getName() == null) {
-            newUser = newUser.withName(user.getLogin());
-        }
-        users.put(id, newUser);
-        return newUser;
+        return storage.create(user);
     }
 
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return storage.getAllUsers();
     }
 
-    public User getUserBy(int id) {
-        if (users.containsKey(id)) {
-            return users.get(id);
-        } else {
-            throw new FilmorateNotFoundException(String.format("Пользователь с id: %d не найден.", id));
-        }
+    public User getUserBy(Long id) {
+        return storage.get(id);
     }
 
     public User update(User user) {
-        validateUserBirthday(user);
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            return user;
-        } else {
-            throw new FilmorateNotFoundException(String.format("Пользователь с id: %d не найден.", user.getId()));
-        }
+        return storage.update(user);
     }
 
-    private void validateUserBirthday(User user) {
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new FilmorateValidationException("День рождения не может быть в будущем.");
+    // Нужно ли чтобы методы добавления/удаления друга возвращали юзера?
+    // Если да, то тогда нужно возвращать копию измененного юзера?
+    public void addFriend(Long userId, Long friendId) {
+        User user = storage.get(userId);
+        User friend = storage.get(friendId);
+
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
+    }
+
+    public void removeFriend(Long userId, Long friendId) {
+        User user = storage.get(userId);
+        User friend = storage.get(friendId);
+
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+    }
+
+    public List<User> getUserFriends(Long userId) {
+        return storage.getUserFriends(userId);
+    }
+
+    public List<User> getMutualFriends(Long userId, Long otherUserId) {
+        User user = storage.get(userId);
+        User otherUser = storage.get(otherUserId);
+
+        return user.getFriends().stream()
+                .filter(f -> otherUser.getFriends().contains(f))
+                .map(this::getUserBy)
+                .collect(Collectors.toList());
+    }
+
+    public void addLikedFilm(Long userId, Long filmId) {
+        User user = storage.get(userId);
+
+        if (user.getLikedFilms().stream()
+                .anyMatch(filmId::equals)) {
+            throw new FilmorateAlreadyExistException("Фильм уже добавлен в понравившиеся.");
         }
+
+        user.getLikedFilms().add(filmId);
+    }
+
+    public void removeLikedFilm(Long userId, Long filmId) {
+        User user = storage.get(userId);
+
+        if (user.getLikedFilms().stream()
+                .noneMatch(filmId::equals)) {
+            throw new FilmorateNotFoundException("Фильм не добавлен в понравившиеся.");
+        }
+
+        user.getLikedFilms().remove(filmId);
     }
 }

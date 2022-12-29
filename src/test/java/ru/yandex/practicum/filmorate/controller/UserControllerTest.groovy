@@ -73,18 +73,101 @@ class UserControllerTest extends Specification {
                 .andExpect(status().isBadRequest())
     }
 
-    def "Should set name from login value when name is empty"() {
+    def "Should return 200 and user with login name when name is empty"() {
+        given:
         def user = User.builder()
                 .id(2)
                 .birthday(LocalDate.of(1944, 5, 14))
                 .login("UserLogin")
                 .email("email@email.email").build()
         def expectUser = user.withName("UserLogin")
+
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(expectUser)))
+    }
+
+    def "Should return 200 when add friend"() {
+        given:
+        def userP = User.builder()
+                .birthday(LocalDate.of(1990, 1, 1))
+                .login("Pupa")
+                .email("pupa@mail.mail").build()
+
+        def userL = User.builder()
+                .birthday(LocalDate.of(1990, 1, 2))
+                .login("Lupa")
+                .email("lupa@nemail.mail").build()
+
+        def expectUserP = userP.withId(3).withName("Pupa")
+        def expectUserL = userL.withId(4).withName("Lupa")
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userP)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(expectUserP)))
+
+        mvc.perform(MockMvcRequestBuilders.post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userL)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(expectUserL)))
+
+        mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/4"))
+                .andExpect(status().isOk())
+
+        mvc.perform(MockMvcRequestBuilders.get("/users/3/friends"))
+                .andExpect(status().isOk())
+
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return 200 when remove friend"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/users/3/friends/4"))
+                .andExpect(status().isOk())
+
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(Collections.EMPTY_LIST)))
+    }
+
+    def "Should return 200 and list of friends IDs"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/4"))
+                .andExpect(status().isOk())
+
+        mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/1"))
+                .andExpect(status().isOk())
+
+        mvc.perform(MockMvcRequestBuilders.get("/users/3/friends"))
+                .andExpect(status().isOk())
+
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return 200 and list of mutual friends Ids"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/users/4/friends/common/1"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return 404 when try to add non-exists user to friend"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.put("/users/3/friends/9999"))
+                .andExpect(status().isNotFound())
+    }
+
+    def "Should return 404 when try to delete non-exists user from friend"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/users/3/friends/9999"))
+                .andExpect(status().isNotFound())
     }
 }

@@ -1,63 +1,57 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
-import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
     private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
-
-    private final Map<Integer, Film> films = new HashMap<>();
-
-    private static Integer id = 1;
-
-    private static Integer getNextId() {
-        return id++;
-    }
+    private final FilmStorage storage;
+    private final UserService userService;
 
     public Film create(Film film) {
         validateReleaseDate(film);
-        if (films.containsValue(film)) {
-            throw new FilmorateAlreadyExistException("Данный фильм уже добавлен.");
-        }
-        int id = getNextId();
-        Film newFilm = film.withId(id);
-        films.put(id, newFilm);
-        return newFilm;
+        return storage.create(film);
     }
 
     public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
+        return storage.getAllFilms();
     }
 
-    public Film getFilmBy(int id) {
-        if (films.containsKey(id)) {
-            return films.get(id);
-        } else {
-            throw new FilmorateNotFoundException(String.format("Фильм с id: %d не найден.", id));
-        }
+    public Film getFilmBy(Long id) {
+        return storage.get(id);
     }
 
     public Film update(Film film) {
         validateReleaseDate(film);
-
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            return film;
-        } else {
-            throw new FilmorateNotFoundException(String.format("Фильм с id: %d не найден.", film.getId()));
-        }
+        return storage.update(film);
     }
+
+    // Лучше возвращать объект фильма при добавлении/удалении лайка?
+    public void setFilmLike(Long filmId, Long userId) {
+        Film film = getFilmBy(filmId);
+        userService.addLikedFilm(userId, filmId);
+        storage.addLike(film);
+    }
+
+    public void removeFilmLike(Long filmId, Long userId) {
+        Film film = getFilmBy(filmId);
+        userService.removeLikedFilm(userId, filmId);
+        storage.removeLike(film);
+    }
+
+    public List<Film> getPopularFilms(int count) {
+        return storage.getPopular(count);
+    }
+
 
     private void validateReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(cinemaBirthday)) {

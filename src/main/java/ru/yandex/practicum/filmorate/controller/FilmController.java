@@ -18,13 +18,13 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        log.info(String.format("FilmController: получен POST запрос. Data: %s", film));
+        log.info(String.format("FilmController: create film request. Data: %s", film));
         return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        log.info(String.format("FilmController: получен PUT запрос. Data: %s)", film));
+        log.info(String.format("FilmController: update film request. Data: %s)", film));
         return filmService.update(film);
     }
 
@@ -34,7 +34,24 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film findFilmBy(@PathVariable("id") Integer id) {
+    public Film findFilmBy(@PathVariable("id") Long id) {
         return filmService.getFilmBy(id);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        filmService.setFilmLike(id, userId);
+        log.info(String.format("FilmController: Add like for Film with %d id from User with %d id", id, userId));
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        filmService.removeFilmLike(id, userId);
+        log.info(String.format("FilmController: Remove like for Film with %d id from User with %d id", id, userId));
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(name = "count", defaultValue = "10") int count) {
+        return filmService.getPopularFilms(count);
     }
 }

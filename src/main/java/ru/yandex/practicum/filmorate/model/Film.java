@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.With;
+import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -15,11 +16,12 @@ import java.time.LocalDate;
 @Value
 @Builder
 @EqualsAndHashCode
+@Jacksonized
 public class Film {
 
     @With
     @EqualsAndHashCode.Exclude
-    int id;
+    Long id;
     @NotNull
     @NotBlank(message = "Поле \"Имя\" должно быть заполнено")
     String name;
@@ -35,4 +37,7 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительной")
     int duration;
 
+    @With
+    @Builder.Default
+    Long rate = 0L;
 }

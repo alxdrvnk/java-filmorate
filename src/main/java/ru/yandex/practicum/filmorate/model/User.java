@@ -8,13 +8,16 @@ import lombok.With;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Value
 @Builder
 public class User {
     @With
-    int id;
+    Long id;
 
     @Email(regexp = "^[a-zA-Z0-9.]+[^._]@[^.\\-_]+[a-zA-Z0-9.]+[a-zA-Z0-9]$", message = "Email введен некорректно")
     @NotNull
@@ -22,6 +25,7 @@ public class User {
 
     @NotNull
     @NotBlank(message = "Поле Login не должно быть пустым")
+    @Pattern(regexp = "\\S+")
     String login;
 
     @With
@@ -30,4 +34,8 @@ public class User {
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     LocalDate birthday;
+
+    Set<Long> likedFilms = new HashSet<>();
+
+    Set<Long> friends = new HashSet<>();
 }
