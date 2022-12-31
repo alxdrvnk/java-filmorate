@@ -9,6 +9,6 @@ services:
       POSTGRES_PASSWORD: "flmrtPSWD"
       PGDAT: "/var/lib/postgresql/data/pgdata"
     volumes:
-      - ../src/main/resources:/docker-entrypoint-initdb.d
+      - ../src/main/resources/schema.sql:/docker-entrypoint-initdb.d/filmorate.sql
     ports:
       - "5432:5432"

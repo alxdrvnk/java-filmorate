@@ -1,4 +1,4 @@
-CREATE TABLE "user" (
+CREATE TABLE "users" (
   "id" integer PRIMARY KEY,
   "email" varchar,
   "login" varchar,
@@ -46,10 +46,10 @@ ALTER TABLE "filmgenres" ADD FOREIGN KEY ("film_id") REFERENCES "film" ("id");
 
 ALTER TABLE "film" ADD FOREIGN KEY ("mpa_id") REFERENCES "mpa" ("mpa_id");
 
-ALTER TABLE "friendslist" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+ALTER TABLE "friendslist" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
-ALTER TABLE "friendslist" ADD FOREIGN KEY ("friend_jd") REFERENCES "user" ("id");
+ALTER TABLE "friendslist" ADD FOREIGN KEY ("friend_jd") REFERENCES "users" ("id");
 
-ALTER TABLE "likes" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+ALTER TABLE "likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "likes" ADD FOREIGN KEY ("film_id") REFERENCES "film" ("id");
