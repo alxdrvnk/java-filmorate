@@ -5,13 +5,13 @@ import java.util.Optional;
 
 public interface FilmorateDao<T> {
 
-    Long create(T t);
+    T create(T t);
 
     Optional<T> getBy(Long id);
 
     List<T> getAll();
 
-    void update(T t);
+    T update(T t);
 
     void deleteBy(Long id);
 

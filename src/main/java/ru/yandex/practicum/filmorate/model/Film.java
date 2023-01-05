@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
@@ -26,7 +23,7 @@ public class Film {
 
     @NotNull
     @NotBlank(message = "Поле \"Название\" должно быть заполнено")
-    String title;
+    String name;
 
     @Size(max = 200, message = "Максимальное кол-во символов для описания: 200")
     String description;
@@ -40,7 +37,7 @@ public class Film {
     int duration;
 
     @With
-    int mpa;
+    Mpa mpa;
 
     @With
     Set<Genre> genres;

@@ -8,7 +8,4 @@ public interface FilmDao extends FilmorateDao<Film> {
 
     List<Film> getPopular(int count);
 
-    Long addLike(Film film);
-
-    Long removeLike(Film film);
 }

@@ -20,7 +20,7 @@ public class FilmService {
     private final FilmDao storage;
     private final UserService userService;
 
-    public Long create(Film film) {
+    public Film create(Film film) {
         validateReleaseDate(film);
         return storage.create(film);
     }
@@ -33,22 +33,22 @@ public class FilmService {
         return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Фильм с id: не найден."));
     }
 
-    public void update(Film film) {
+    public Film update(Film film) {
         validateReleaseDate(film);
-        storage.update(film);
+        return storage.update(film);
     }
 
     // Лучше возвращать объект фильма при добавлении/удалении лайка?
     public void setFilmLike(Long filmId, Long userId) {
-        Film film = getFilmBy(filmId);
-        userService.addLikedFilm(userId, filmId);
-        storage.addLike(film);
+//        Film film = getFilmBy(filmId);
+//        userService.addLikedFilm(userId, filmId);
+//        storage.addLike(film);
     }
 
     public void removeFilmLike(Long filmId, Long userId) {
-        Film film = getFilmBy(filmId);
-        userService.removeLikedFilm(userId, filmId);
-        storage.removeLike(film);
+//        Film film = getFilmBy(filmId);
+//        userService.removeLikedFilm(userId, filmId);
+//        storage.removeLike(film);
     }
 
     public List<Film> getPopularFilms(int count) {
@@ -61,5 +61,9 @@ public class FilmService {
             throw new FilmorateValidationException(
                     String.format("Дата релиза не может быть раньше чем %s", cinemaBirthday));
         }
+    }
+
+    public void deleteFilmBy(Long id) {
+        storage.deleteBy(id);
     }
 }

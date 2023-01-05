@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,66 +26,62 @@ public class FilmDbStorage implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Long create(Film film) {
+    public Film create(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("film")
+                .withTableName("films")
                 .usingGeneratedKeyColumns("id");
-        return simpleJdbcInsert.executeAndReturnKey(filmToParameters(film)).longValue();
+        Long filmId = simpleJdbcInsert.executeAndReturnKey(filmToParameters(film)).longValue();
+        return film.withId(filmId);
     }
 
     @Override
-    public void update(Film film) {
-        String sql = "UPDATE film SET title = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
+    public Film update(Film film) {
+        String sql = "UPDATE films SET title = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
         jdbcTemplate.update(sql,
-                film.getTitle(),
+                film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getMpa(),
+                film.getMpa().getId(),
                 film.getId());
+        return film;
     }
 
     @Override
     public void deleteBy(Long id) {
-        String sql = "DELETE FROM film WHERE id = ?";
+        String sql = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
 
     @Override
     public List<Film> getAll() {
-        String sql = "SELECT * FROM films AS f";
+        String sql =
+                "select f.*, m.name AS mpa_name FROM films AS f " +
+                        "JOIN mpa AS m On f.mpa_id = m.id";
         return jdbcTemplate.query(sql, new FilmMapper());
     }
 
     @Override
     public Optional<Film> getBy(Long id) {
-        String sql = "SELECT id, title, description, release_date, duration, mpa_id FROM film WHERE id = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new FilmMapper()));
+        String sql =
+                "SELECT f.*, m.name AS mpa_name FROM films AS f " +
+                        "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
+                        "WHERE f.id = ?";
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new Object[]{id}, new FilmMapper()));
     }
-
     @Override
     public List<Film> getPopular(int count) {
         return null;
     }
-
-    @Override
-    public Long addLike(Film film) {
-        return null;
-    }
-
-    @Override
-    public Long removeLike(Film film) {
-        return null;
-    }
-
     private Map<String, Object> filmToParameters(Film film) {
+        log.info(film.toString());
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", film.getId());
-        parameters.put("title", film.getTitle());
+        parameters.put("title", film.getName());
         parameters.put("description", film.getDescription());
         parameters.put("release_date", film.getReleaseDate());
         parameters.put("duration", film.getDuration());
-        parameters.put("map_id", film.getMpa());
+        parameters.put("map_id", film.getMpa().getId());
         return parameters;
     }
 
@@ -94,11 +91,19 @@ public class FilmDbStorage implements FilmDao {
         public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
             return Film.builder()
                     .id(rs.getLong("id"))
-                    .title(rs.getString("title"))
+                    .name(rs.getString("title"))
                     .description(rs.getString("description"))
                     .releaseDate(rs.getDate("release_date").toLocalDate())
                     .duration(rs.getInt("duration"))
-                    .mpa(rs.getInt("mpa_id")).build();
+                    .mpa(makeMpa(rs))
+                    .build();
+        }
+
+        private Mpa makeMpa(ResultSet rs) throws SQLException {
+            return Mpa.builder()
+                    .id(rs.getLong("mpa_id"))
+                    .name(rs.getString("mpa_name")).build();
         }
     }
+
 }
