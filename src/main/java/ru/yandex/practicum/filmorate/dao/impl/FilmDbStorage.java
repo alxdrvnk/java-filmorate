@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -74,7 +75,6 @@ public class FilmDbStorage implements FilmDao {
         return null;
     }
     private Map<String, Object> filmToParameters(Film film) {
-        log.info(film.toString());
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", film.getId());
         parameters.put("title", film.getName());
@@ -105,5 +105,4 @@ public class FilmDbStorage implements FilmDao {
                     .name(rs.getString("mpa_name")).build();
         }
     }
-
 }

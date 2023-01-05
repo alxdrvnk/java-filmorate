@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,7 +16,6 @@ public class FilmService {
 
     private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
 
-    @Qualifier("filmDBStorage")
     private final FilmDao storage;
     private final UserService userService;
 

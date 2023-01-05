@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,49 +14,47 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserStorage storage;
+    private final UserDao storage;
 
     public User create(User user) {
         return storage.create(user);
     }
 
     public List<User> getAllUsers() {
-        return storage.getAllUsers();
+        return storage.getAll();
     }
 
     public User getUserBy(Long id) {
-        return storage.get(id);
+        return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
     }
 
     public User update(User user) {
         return storage.update(user);
     }
 
-    // Нужно ли чтобы методы добавления/удаления друга возвращали юзера?
-    // Если да, то тогда нужно возвращать копию измененного юзера?
     public void addFriend(Long userId, Long friendId) {
-        User user = storage.get(userId);
-        User friend = storage.get(friendId);
+        User user = storage.getBy(userId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
+        User friend = storage.getBy(friendId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
 
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = storage.get(userId);
-        User friend = storage.get(friendId);
+        User user = storage.getBy(userId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
+        User friend = storage.getBy(friendId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
 
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
     }
 
     public List<User> getUserFriends(Long userId) {
-        return storage.getUserFriends(userId);
+        return null;
     }
 
     public List<User> getMutualFriends(Long userId, Long otherUserId) {
-        User user = storage.get(userId);
-        User otherUser = storage.get(otherUserId);
+        User user = storage.getBy(userId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
+        User otherUser = storage.getBy(otherUserId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
 
         return user.getFriends().stream()
                 .filter(f -> otherUser.getFriends().contains(f))
@@ -65,7 +63,7 @@ public class UserService {
     }
 
     public void addLikedFilm(Long userId, Long filmId) {
-        User user = storage.get(userId);
+        User user = storage.getBy(userId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
 
         if (user.getLikedFilms().stream()
                 .anyMatch(filmId::equals)) {
@@ -76,7 +74,7 @@ public class UserService {
     }
 
     public void removeLikedFilm(Long userId, Long filmId) {
-        User user = storage.get(userId);
+        User user = storage.getBy(userId).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
 
         if (user.getLikedFilms().stream()
                 .noneMatch(filmId::equals)) {
