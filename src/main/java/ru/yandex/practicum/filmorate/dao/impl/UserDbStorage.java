@@ -34,10 +34,11 @@ public class UserDbStorage implements UserDao {
         return user.withId(userId);
     }
 
+    //TODO: Переделать
     @Override
     public Optional<User> getBy(Long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new Object[]{id}, new UserMapper()));
+        return Optional.ofNullable(jdbcTemplate.query(sql, new UserMapper(), id).get(0));
     }
 
     @Override
@@ -62,11 +63,6 @@ public class UserDbStorage implements UserDao {
     public void deleteBy(Long id) {
         String sql = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(sql, id);
-    }
-
-    @Override
-    public List<Long> getFriends(Long id) {
-        return null;
     }
 
     private Map<String, Object> userToParameters(User user){

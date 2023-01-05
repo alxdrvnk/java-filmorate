@@ -20,7 +20,7 @@ CREATE TABLE "genre" (
   "name" VARCHAR
 );
 
-CREATE TABLE "filmgenres" (
+CREATE TABLE "film_genres" (
   "film_id" INTEGER,
   "genre_id" INTEGER
 );
@@ -30,9 +30,10 @@ CREATE TABLE "mpa" (
   "name" VARCHAR
 );
 
-CREATE TABLE "friendslist" (
+CREATE TABLE "friend_list" (
   "user_id" INTEGER,
-  "friend_jd" integer
+  "friend_id" INTEGER,
+  "state" BOOLEAN
 );
 
 CREATE TABLE "likes" (
@@ -40,15 +41,15 @@ CREATE TABLE "likes" (
   "film_id" INTEGER
 );
 
-ALTER TABLE "filmgenres" ADD FOREIGN KEY ("genre_id") REFERENCES "genre" ("id");
+ALTER TABLE "film_genres" ADD FOREIGN KEY ("genre_id") REFERENCES "genre" ("id");
 
-ALTER TABLE "filmgenres" ADD FOREIGN KEY ("film_id") REFERENCES "films" ("id");
+ALTER TABLE "film_genres" ADD FOREIGN KEY ("film_id") REFERENCES "films" ("id");
 
 ALTER TABLE "films" ADD FOREIGN KEY ("mpa_id") REFERENCES "mpa" ("id");
 
-ALTER TABLE "friendslist" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "friend_list" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
-ALTER TABLE "friendslist" ADD FOREIGN KEY ("friend_jd") REFERENCES "users" ("id");
+ALTER TABLE "friend_list" ADD FOREIGN KEY ("friend_jd") REFERENCES "users" ("id");
 
 ALTER TABLE "likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
