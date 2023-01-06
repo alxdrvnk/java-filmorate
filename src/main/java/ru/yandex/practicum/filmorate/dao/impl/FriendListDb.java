@@ -35,4 +35,19 @@ public class FriendListDb implements FriendListDao {
                              "WHERE fl.user_id = ?)";
         return jdbcTemplate.query(query, new UserMapper(), userId);
     }
+
+    @Override
+    public List<User> getCommonFriends(Long userId, Long otherUserId) {
+         String query =
+                 "SELECT * FROM users " +
+                 "WHERE id IN (SELECT fl.friend_id FROM friend_list AS fl " +
+                              "INNER JOIN " +
+                                  "(SELECT friend_id FROM friend_list " +
+                                  "WHERE user_id = ?) AS ffl " +
+                              "ON ffl.friend_id = fl.friend_id " +
+                              "WHERE fl.user_id = ?)";
+         return jdbcTemplate.query(query, new UserMapper(), userId, otherUserId);
+    }
+
+
 }

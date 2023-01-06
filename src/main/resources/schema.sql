@@ -22,7 +22,8 @@ CREATE TABLE "genre" (
 
 CREATE TABLE "film_genres" (
   "film_id" INTEGER,
-  "genre_id" INTEGER
+  "genre_id" INTEGER,
+  CONSTRAINT "pk_film_genres" PRIMARY KEY (film_id, genre_id)
 );
 
 CREATE TABLE "mpa" (
@@ -33,24 +34,27 @@ CREATE TABLE "mpa" (
 CREATE TABLE "friend_list" (
   "user_id" INTEGER,
   "friend_id" INTEGER,
-  "state" BOOLEAN
+  "state" BOOLEAN,
+  CONSTRAINT "pk_friend_list" PRIMARY KEY (user_id, friend_id)
 );
 
 CREATE TABLE "likes" (
   "user_id" INTEGER,
-  "film_id" INTEGER
+  "film_id" INTEGER,
+  CONSTRAINT "pk_likes" PRIMARY KEY (user_id, film_id)
+
 );
 
-ALTER TABLE "film_genres" ADD FOREIGN KEY ("genre_id") REFERENCES "genre" ("id");
+ALTER TABLE "film_genres" ADD FOREIGN KEY ("genre_id") REFERENCES "genre" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "film_genres" ADD FOREIGN KEY ("film_id") REFERENCES "films" ("id");
+ALTER TABLE "film_genres" ADD FOREIGN KEY ("film_id") REFERENCES "films" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "films" ADD FOREIGN KEY ("mpa_id") REFERENCES "mpa" ("id");
+ALTER TABLE "films" ADD FOREIGN KEY ("mpa_id") REFERENCES "mpa" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "friend_list" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "friend_list" ADD CONSTRAINT "fk_friend_list_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "friend_list" ADD FOREIGN KEY ("friend_id") REFERENCES "users" ("id");
+ALTER TABLE "friend_list" ADD CONSTRAINT "fk_friend_list_friend" FOREIGN KEY ("friend_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "likes" ADD FOREIGN KEY ("film_id") REFERENCES "films" ("id");
+ALTER TABLE "likes" ADD FOREIGN KEY ("film_id") REFERENCES "films" ("id") ON DELETE CASCADE;

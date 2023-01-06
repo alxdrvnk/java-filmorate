@@ -11,4 +11,6 @@ public interface FriendListDao {
     void removeFriend(Long userId, Long friendId);
 
     List<User> getFriends(Long userId);
+
+    List<User> getCommonFriends(Long userId, Long otherUserId);
 }

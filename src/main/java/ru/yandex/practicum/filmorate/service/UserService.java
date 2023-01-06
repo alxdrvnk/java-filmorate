@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,12 +52,8 @@ public class UserService {
     }
 
     public List<User> getMutualFriends(Long userId, Long otherUserId) {
-        User user = getUserBy(userId);
-        User otherUser = getUserBy(otherUserId);
-
-        return user.getFriends().stream()
-                .filter(f -> otherUser.getFriends().contains(f))
-                .map(this::getUserBy)
-                .collect(Collectors.toList());
+        getUserBy(userId);
+        getUserBy(otherUserId);
+        return friendListDb.getCommonFriends(userId, otherUserId);
     }
 }
