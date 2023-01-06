@@ -49,7 +49,7 @@ ALTER TABLE "films" ADD FOREIGN KEY ("mpa_id") REFERENCES "mpa" ("id");
 
 ALTER TABLE "friend_list" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
-ALTER TABLE "friend_list" ADD FOREIGN KEY ("friend_jd") REFERENCES "users" ("id");
+ALTER TABLE "friend_list" ADD FOREIGN KEY ("friend_id") REFERENCES "users" ("id");
 
 ALTER TABLE "likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 

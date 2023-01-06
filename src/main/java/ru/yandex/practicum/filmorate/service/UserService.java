@@ -31,6 +31,7 @@ public class UserService {
     }
 
     public User update(User user) {
+        getUserBy(user.getId());
         return storage.update(user);
     }
 
@@ -46,7 +47,7 @@ public class UserService {
         friendListDb.removeFriend(userId, friendId);
     }
 
-    public List<Long> getUserFriends(Long userId) {
+    public List<User> getUserFriends(Long userId) {
         getUserBy(userId);
         return friendListDb.getFriends(userId);
     }
