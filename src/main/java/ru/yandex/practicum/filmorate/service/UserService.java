@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserDao storage;
+
     private final FriendListDb friendListDb;
 
     public User create(User user) {

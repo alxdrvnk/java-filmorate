@@ -13,19 +13,19 @@ public class FriendListDb implements FriendListDao {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        String sql = "INSERT INTO friends_list (user_id, friend_id, state) VALUES (?, ?, FALSE)";
-        jdbcTemplate.update(sql, userId, friendId);
+        String query = "INSERT INTO friends_list (user_id, friend_id, state) VALUES (?, ?, FALSE)";
+        jdbcTemplate.update(query, userId, friendId);
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
-        String sql = "DELETE FROM friends_list WHERE user_id = ? AND friends_id = ?";
-        jdbcTemplate.update(sql, userId, friendId);
+        String query = "DELETE FROM friends_list WHERE user_id = ? AND friends_id = ?";
+        jdbcTemplate.update(query, userId, friendId);
     }
 
     @Override
     public List<Long> getFriends(Long userId) {
-        String sql = "SELECT friends_id FROM friends_list WHERE user_id = ?";
-        return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getLong("friend_id"), userId);
+        String query = "SELECT friends_id FROM friends_list WHERE user_id = ?";
+        return jdbcTemplate.query(query, (rs, rowNum) -> rs.getLong("friend_id"), userId);
     }
 }

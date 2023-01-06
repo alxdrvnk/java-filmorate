@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -34,23 +35,26 @@ public class UserDbStorage implements UserDao {
         return user.withId(userId);
     }
 
-    //TODO: Переделать
     @Override
     public Optional<User> getBy(Long id) {
-        String sql = "SELECT * FROM users WHERE id = ?";
-        return Optional.ofNullable(jdbcTemplate.query(sql, new UserMapper(), id).get(0));
+        String query = "SELECT * FROM users WHERE id = ?";
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(query, new UserMapper(), id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
     public List<User> getAll() {
-        String sql = "SELECT * FROM users";
-        return jdbcTemplate.query(sql, new UserMapper());
+        String query = "SELECT * FROM users";
+        return jdbcTemplate.query(query, new UserMapper());
     }
 
     @Override
     public User update(User user) {
-        String sql = "UPDATE users SET email = ?, login  = ?, name = ?, birthday = ? WHERE id = ?";
-        jdbcTemplate.update(sql,
+        String query = "UPDATE users SET email = ?, login  = ?, name = ?, birthday = ? WHERE id = ?";
+        jdbcTemplate.update(query,
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
@@ -61,8 +65,8 @@ public class UserDbStorage implements UserDao {
 
     @Override
     public void deleteBy(Long id) {
-        String sql = "DELETE FROM users WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        String query = "DELETE FROM users WHERE id = ?";
+        jdbcTemplate.update(query, id);
     }
 
     private Map<String, Object> userToParameters(User user){

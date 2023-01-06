@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -37,8 +38,8 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public Film update(Film film) {
-        String sql = "UPDATE films SET title = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
-        jdbcTemplate.update(sql,
+        String query = "UPDATE films SET title = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
+        jdbcTemplate.update(query,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
@@ -50,25 +51,29 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public void deleteBy(Long id) {
-        String sql = "DELETE FROM films WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        String query = "DELETE FROM films WHERE id = ?";
+        jdbcTemplate.update(query, id);
     }
 
     @Override
     public List<Film> getAll() {
-        String sql =
+        String query =
                 "select f.*, m.name AS mpa_name FROM films AS f " +
                         "JOIN mpa AS m On f.mpa_id = m.id";
-        return jdbcTemplate.query(sql, new FilmMapper());
+        return jdbcTemplate.query(query, new FilmMapper());
     }
 
     @Override
     public Optional<Film> getBy(Long id) {
-        String sql =
+        String query =
                 "SELECT f.*, m.name AS mpa_name FROM films AS f " +
                         "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
                         "WHERE f.id = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new Object[]{id}, new FilmMapper()));
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(query, new FilmMapper(), id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
     @Override
     public List<Film> getPopular(int count) {
