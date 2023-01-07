@@ -5,15 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
+import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +76,7 @@ public class FilmDbStorage implements FilmDao {
     public List<Film> getPopular(int count) {
         return null;
     }
+
     private Map<String, Object> filmToParameters(Film film) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", film.getId());
@@ -88,26 +86,5 @@ public class FilmDbStorage implements FilmDao {
         parameters.put("duration", film.getDuration());
         parameters.put("map_id", film.getMpa().getId());
         return parameters;
-    }
-
-    private static final class FilmMapper implements RowMapper<Film> {
-
-        @Override
-        public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return Film.builder()
-                    .id(rs.getLong("id"))
-                    .name(rs.getString("title"))
-                    .description(rs.getString("description"))
-                    .releaseDate(rs.getDate("release_date").toLocalDate())
-                    .duration(rs.getInt("duration"))
-                    .mpa(makeMpa(rs))
-                    .build();
-        }
-
-        private Mpa makeMpa(ResultSet rs) throws SQLException {
-            return Mpa.builder()
-                    .id(rs.getLong("mpa_id"))
-                    .name(rs.getString("mpa_name")).build();
-        }
     }
 }

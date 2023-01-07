@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import lombok.With;
 import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
@@ -9,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @Value
 @Builder
@@ -40,7 +43,7 @@ public class Film {
     Mpa mpa;
 
     @With
-    Set<Genre> genres;
+    List<Genre> genres;
 
     @With
     @Builder.Default
