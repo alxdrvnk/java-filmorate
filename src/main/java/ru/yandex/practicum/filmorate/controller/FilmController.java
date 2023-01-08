@@ -30,11 +30,13 @@ public class FilmController {
 
     @GetMapping
     public List<Film> findAll() {
+        log.info("FilmController: get all films request.");
         return filmService.getAllFilms();
     }
 
     @GetMapping("/{id}")
     public Film findFilmBy(@PathVariable("id") Long id) {
+        log.info(String.format("FilmController: get film with id: %d", id));
         return filmService.getFilmBy(id);
     }
 

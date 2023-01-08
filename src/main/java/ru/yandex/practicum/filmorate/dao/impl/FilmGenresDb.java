@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class FilmGenresDb implements FilmGenreDao {
 
@@ -23,16 +25,14 @@ public class FilmGenresDb implements FilmGenreDao {
     }
 
     @Override
-    public void addFilmGenres(Long filmId, List<Genre> genreIds) {
-        String query = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
+    public void updateFilmGenres(Long filmId, List<Genre> genreIds) {
+
+        String queryDel = "DELETE FROM film_genres WHERE film_id = ?";
+        jdbcTemplate.update(queryDel, filmId);
+
         if (!genreIds.isEmpty()) {
+            String query = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
             genreIds.forEach(i -> jdbcTemplate.update(query, filmId, i.getId()));
         }
-    }
-
-    @Override
-    public void removeFilmGenre(Long filmId, Long genreId) {
-        String query = "DELETE FROM film_genres WHERE film_id = ? AND genre_id = ?";
-        jdbcTemplate.update(query, filmId, genreId);
     }
 }

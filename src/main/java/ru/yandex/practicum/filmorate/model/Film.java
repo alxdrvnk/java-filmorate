@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Value
@@ -43,7 +44,8 @@ public class Film {
     Mpa mpa;
 
     @With
-    List<Genre> genres;
+    @Builder.Default
+    List<Genre> genres = Collections.emptyList();
 
     @With
     @Builder.Default

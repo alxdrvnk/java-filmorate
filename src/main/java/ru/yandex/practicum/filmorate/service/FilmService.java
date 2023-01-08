@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
+import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
@@ -12,74 +14,89 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FilmService {
 
     private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
 
     private final FilmDao storage;
-    private final FilmGenreDao filmGenresStorage;
-    private final MpaDao mpaStorage;
+
+    private final MpaDao mpaDao;
+    private final FilmLikeDao filmLikeDao;
+    private final FilmGenreDao filmGenresDao;
+    private final UserService userService;
 
 
     public Film create(Film film) {
         validateReleaseDate(film);
 
-        film = storage.create(film);
+        Film newFilm = storage.create(film);
 
-        filmGenresStorage.addFilmGenres(film.getId(), film.getGenres());
-        List<Genre> genres = filmGenresStorage.getFilmGenres(film.getId());
+        filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
+        List<Genre> genres = filmGenresDao.getFilmGenres(newFilm.getId());
 
-        Mpa mpa = mpaStorage.getBy(film.getMpa().getId()).orElseThrow(
+        Mpa mpa = mpaDao.getBy(film.getMpa().getId()).orElseThrow(
                 () -> new FilmorateNotFoundException("Mpa рейтинг не найден."));
-
-        return film.withGenres(genres).withMpa(mpa);
+        return newFilm.withGenres(genres).withMpa(mpa);
     }
 
     public List<Film> getAllFilms() {
-        return storage.getAll();
+        List<Film> films = new ArrayList<>();
+        storage.getAll().forEach(film -> films.add(film.withGenres(filmGenresDao.getFilmGenres(film.getId()))));
+        return films;
     }
 
     public Film getFilmBy(Long id) {
-        return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Фильм с id: не найден."));
+        Film film = storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Фильм с id: не найден."));
+        return film.withGenres(filmGenresDao.getFilmGenres(id));
     }
 
     public Film update(Film film) {
         validateReleaseDate(film);
         getFilmBy(film.getId());
-        return storage.update(film);
+
+        storage.update(film);
+        filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
+
+        List<Genre> genres = filmGenresDao.getFilmGenres(film.getId());
+        Mpa mpa = mpaDao.getBy(film.getMpa().getId()).orElseThrow(()->new FilmorateNotFoundException("Mpa рейтинг не найден."));
+
+        return film.withMpa(mpa).withGenres(genres);
     }
 
-    // Лучше возвращать объект фильма при добавлении/удалении лайка?
     public void setFilmLike(Long filmId, Long userId) {
-//        Film film = getFilmBy(filmId);
-//        userService.addLikedFilm(userId, filmId);
-//        storage.addLike(film);
+        getFilmBy(filmId);
+        userService.getUserBy(userId);
+        filmLikeDao.addFilmLike(filmId, userId);
     }
 
     public void removeFilmLike(Long filmId, Long userId) {
-//        Film film = getFilmBy(filmId);
-//        userService.removeLikedFilm(userId, filmId);
-//        storage.removeLike(film);
+        getFilmBy(filmId);
+        userService.getUserBy(userId);
+        filmLikeDao.removeFilmLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
-        return storage.getPopular(count);
+        List<Film> films = new ArrayList<>();
+        filmLikeDao.getPopularFilms(count).forEach(
+                film -> films.add(film.withGenres(filmGenresDao.getFilmGenres(film.getId()))));
+        return films;
     }
 
+    public void deleteFilmBy(Long id) {
+        getFilmBy(id);
+        storage.deleteBy(id);
+    }
 
     private void validateReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(cinemaBirthday)) {
             throw new FilmorateValidationException(
                     String.format("Дата релиза не может быть раньше чем %s", cinemaBirthday));
         }
-    }
-
-    public void deleteFilmBy(Long id) {
-        getFilmBy(id);
-        storage.deleteBy(id);
     }
 }

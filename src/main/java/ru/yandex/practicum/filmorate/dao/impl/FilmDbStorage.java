@@ -55,8 +55,9 @@ public class FilmDbStorage implements FilmDao {
     @Override
     public List<Film> getAll() {
         String query =
-                "select f.*, m.name AS mpa_name FROM films AS f " +
-                        "JOIN mpa AS m On f.mpa_id = m.id";
+                "SELECT f.*, m.name AS mpa_name FROM films AS f " +
+                        "JOIN mpa AS m On f.mpa_id = m.id " +
+                        "ORDER BY f.id";
         return jdbcTemplate.query(query, new FilmMapper());
     }
 
@@ -72,10 +73,6 @@ public class FilmDbStorage implements FilmDao {
             return Optional.empty();
         }
     }
-    @Override
-    public List<Film> getPopular(int count) {
-        return null;
-    }
 
     private Map<String, Object> filmToParameters(Film film) {
         Map<String, Object> parameters = new HashMap<>();
@@ -84,7 +81,7 @@ public class FilmDbStorage implements FilmDao {
         parameters.put("description", film.getDescription());
         parameters.put("release_date", film.getReleaseDate());
         parameters.put("duration", film.getDuration());
-        parameters.put("map_id", film.getMpa().getId());
+        parameters.put("mpa_id", film.getMpa().getId());
         return parameters;
     }
 }
