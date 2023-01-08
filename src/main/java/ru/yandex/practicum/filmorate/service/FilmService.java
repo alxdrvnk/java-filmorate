@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
-import ru.yandex.practicum.filmorate.dao.MpaDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -25,8 +24,8 @@ public class FilmService {
     private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
 
     private final FilmDao storage;
+    private final MpaService mpaService;
 
-    private final MpaDao mpaDao;
     private final FilmLikeDao filmLikeDao;
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;
@@ -40,14 +39,14 @@ public class FilmService {
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
         List<Genre> genres = filmGenresDao.getFilmGenres(newFilm.getId());
 
-        Mpa mpa = mpaDao.getBy(film.getMpa().getId()).orElseThrow(
-                () -> new FilmorateNotFoundException("Mpa рейтинг не найден."));
+        Mpa mpa = mpaService.getById(film.getMpa().getId());
         return newFilm.withGenres(genres).withMpa(mpa);
     }
 
     public List<Film> getAllFilms() {
         List<Film> films = new ArrayList<>();
-        storage.getAll().forEach(film -> films.add(film.withGenres(filmGenresDao.getFilmGenres(film.getId()))));
+        storage.getAll().forEach(
+                film -> films.add(film.withGenres(filmGenresDao.getFilmGenres(film.getId()))));
         return films;
     }
 
@@ -64,7 +63,7 @@ public class FilmService {
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
 
         List<Genre> genres = filmGenresDao.getFilmGenres(film.getId());
-        Mpa mpa = mpaDao.getBy(film.getMpa().getId()).orElseThrow(()->new FilmorateNotFoundException("Mpa рейтинг не найден."));
+        Mpa mpa = mpaService.getById(film.getMpa().getId());
 
         return film.withMpa(mpa).withGenres(genres);
     }
