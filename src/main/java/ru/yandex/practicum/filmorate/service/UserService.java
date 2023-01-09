@@ -18,9 +18,6 @@ public class UserService {
     private final FriendListDb friendListDb;
 
     public User create(User user) {
-        if (user.getName() == null) {
-            user = user.withName(user.getLogin());
-        }
         return storage.create(user);
     }
 
