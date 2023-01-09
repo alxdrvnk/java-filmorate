@@ -19,7 +19,7 @@ public class GenreDb implements GenreDao {
 
     @Override
     public List<Genre> getAll() {
-        String query = "SELECT * FROM genre";
+        String query = "SELECT * FROM genre ORDER BY id";
         return jdbcTemplate.query(query, new GenreMapper());
     }
 
