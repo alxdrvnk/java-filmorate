@@ -22,10 +22,8 @@ import java.util.List;
 public class FilmService {
 
     private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
-
     private final FilmDao storage;
     private final MpaService mpaService;
-
     private final FilmLikeDao filmLikeDao;
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;

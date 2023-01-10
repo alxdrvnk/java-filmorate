@@ -4,13 +4,11 @@ VALUES ('Комедия'),
        ('Мультфильм'),
        ('Триллер'),
        ('Документальный'),
-       ('Боевик')
-ON CONFLICT DO NOTHING;
+       ('Боевик');
 
 INSERT INTO mpa (name)
 VALUES ('G'),
       ('PG'),
       ('PG-13'),
       ('R'),
-      ('NC-17')
-ON CONFLICT DO NOTHING;
+      ('NC-17');
