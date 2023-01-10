@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 @Value
 @Builder
@@ -22,8 +24,9 @@ public class Film {
     @With
     @EqualsAndHashCode.Exclude
     Long id;
+
     @NotNull
-    @NotBlank(message = "Поле \"Имя\" должно быть заполнено")
+    @NotBlank(message = "Поле \"Название\" должно быть заполнено")
     String name;
 
     @Size(max = 200, message = "Максимальное кол-во символов для описания: 200")
@@ -36,6 +39,13 @@ public class Film {
     @NotNull
     @Positive(message = "Продолжительность фильма должна быть положительной")
     int duration;
+
+    @With
+    Mpa mpa;
+
+    @With
+    @Builder.Default
+    List<Genre> genres = Collections.emptyList();
 
     @With
     @Builder.Default

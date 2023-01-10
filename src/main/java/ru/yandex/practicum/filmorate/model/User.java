@@ -10,8 +10,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Value
 @Builder
@@ -34,8 +32,4 @@ public class User {
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     LocalDate birthday;
-
-    Set<Long> likedFilms = new HashSet<>();
-
-    Set<Long> friends = new HashSet<>();
 }
