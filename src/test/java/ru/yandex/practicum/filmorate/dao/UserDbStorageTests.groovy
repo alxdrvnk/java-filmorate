@@ -1,18 +1,15 @@
 package ru.yandex.practicum.filmorate.dao
 
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
-import ru.yandex.practicum.filmorate.FilmorateApplication
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage
 import ru.yandex.practicum.filmorate.model.User
 import spock.lang.Specification
 
 import java.time.LocalDate
-
 
 @SpringBootTest
 @AutoConfigureTestDatabase

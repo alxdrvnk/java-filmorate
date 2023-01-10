@@ -50,8 +50,9 @@ public class FilmLikeDb implements FilmLikeDao {
                 "FROM films AS flm " +
                 "INNER JOIN mpa ON mpa.id = flm.mpa_id " +
                 "LEFT JOIN (SELECT lk.film_id, COUNT(user_id) AS film_likes " +
-                "FROM likes AS lk " +
-                "GROUP BY lk.film_id) AS fl ON fl.film_id = flm.id " +
+                           "FROM likes AS lk " +
+                           "GROUP BY lk.film_id) AS fl " +
+                "ON fl.film_id = flm.id " +
                 "ORDER BY likes DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(query, new FilmMapper(), count);
