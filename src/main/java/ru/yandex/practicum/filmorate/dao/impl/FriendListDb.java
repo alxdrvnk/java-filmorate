@@ -42,23 +42,26 @@ public class FriendListDb implements FriendListDao {
 
     @Override
     public List<User> getFriends(Long userId) {
-        String query = "SELECT * FROM users " +
-                "WHERE id IN(SELECT fl.friend_id " +
-                             "FROM friend_list AS fl " +
-                             "WHERE fl.user_id = ?)";
-        return jdbcTemplate.query(query, new UserMapper(), userId);
+        String query =
+                "SELECT * FROM users " +
+                "WHERE id IN(SELECT fl.friend_id FROM friend_list AS fl " +
+                            "WHERE fl.user_id = ? " +
+                            "UNION  " +
+                            "SELECT fl.user_id FROM friend_list AS fl " +
+                            "WHERE fl.friend_id = ? AND fl.state = true)";
+        return jdbcTemplate.query(query, new UserMapper(), userId, userId);
     }
 
     @Override
     public List<User> getCommonFriends(Long userId, Long otherUserId) {
-         String query =
-                 "SELECT * FROM users " +
-                         "WHERE id IN (SELECT fl.friend_id FROM friend_list AS fl " +
-                         "INNER JOIN " +
-                         "(SELECT friend_id FROM friend_list " +
-                         "WHERE user_id = ?) AS ffl " +
-                         "ON ffl.friend_id = fl.friend_id " +
-                         "WHERE fl.user_id = ?)";
+        String query =
+                "SELECT * FROM users " +
+                        "WHERE id IN (SELECT fl.friend_id FROM friend_list AS fl " +
+                        "INNER JOIN " +
+                        "(SELECT friend_id FROM friend_list " +
+                        "WHERE user_id = ?) AS ffl " +
+                        "ON ffl.friend_id = fl.friend_id " +
+                        "WHERE fl.user_id = ?)";
         return jdbcTemplate.query(query, new UserMapper(), userId, otherUserId);
     }
 

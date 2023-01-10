@@ -80,6 +80,11 @@ public class FilmService {
         filmLikeDao.removeFilmLike(filmId, userId);
     }
 
+    public int getFilmsLikesCount(Long filmId) {
+        getFilmBy(filmId);
+        return filmLikeDao.getFilmLikesCount(filmId).orElse(0);
+    }
+
     public List<Film> getPopularFilms(int count) {
         List<Film> films = new ArrayList<>();
         filmLikeDao.getPopularFilms(count).forEach(

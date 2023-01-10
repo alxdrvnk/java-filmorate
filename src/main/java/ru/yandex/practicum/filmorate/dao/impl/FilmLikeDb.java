@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -35,6 +36,12 @@ public class FilmLikeDb implements FilmLikeDao {
     public void removeFilmLike(Long filmId, Long userId) {
         String query = "DELETE FROM likes WHERE user_id = ? AND film_id = ?";
         jdbcTemplate.update(query, userId, filmId);
+    }
+
+    @Override
+    public Optional<Integer> getFilmLikesCount(Long filmId) {
+        String query = "SELECT COUNT(user_id) FROM likes WHERE film_id = ?";
+        return Optional.ofNullable(jdbcTemplate.queryForObject(query, new Object[]{filmId}, Integer.class));
     }
 
     @Override
