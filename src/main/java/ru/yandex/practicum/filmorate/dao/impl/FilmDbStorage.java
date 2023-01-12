@@ -2,26 +2,24 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.dao.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import javax.sql.RowSet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.spi.LocaleServiceProvider;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -63,36 +61,55 @@ public class FilmDbStorage implements FilmDao {
     @Override
     public List<Film> getAll() {
         String query =
-                "SELECT f.*, m.name AS mpa_name FROM films AS f " +
-                        "JOIN mpa AS m On f.mpa_id = m.id " +
+                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
+                        "JOIN mpa AS m ON f.mpa_id = m.id " +
+                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
                         "ORDER BY f.id";
-        return jdbcTemplate.query(query, this::makeFilm);
+        try {
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query);
+            return makeFilm(rowSet);
+        } catch (SQLException e){
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public Optional<Film> getBy(Long id) {
         String query =
-                "SELECT f.*, m.name AS mpa_name FROM films AS f " +
+                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
                         "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
+                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
                         "WHERE f.id = ?";
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(query, new FilmMapper(), id));
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, id);
+            return makeFilm(rowSet).stream().findAny();
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public List<Film> getPopularFilms(int count) {
-        String query = "SELECT *, mpa.name AS mpa_name FROM films AS flm " +
-                       "INNER JOIN mpa ON mpa.id = flm.mpa_id " +
-                       "ORDER BY flm.rate DESC " +
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
+                       "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                       "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                       "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                       "ORDER BY f.rate DESC " +
                        "LIMIT ?";
-
-        return jdbcTemplate.query(query, new FilmMapper(), count);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
+        try {
+            return makeFilm(rowSet);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private Film makeFilm(ResultSet rs,int rowNum) throws SQLException {
+    private List<Film> makeFilm(SqlRowSet rs) throws SQLException {
+
         Map<Long, Film> filmById = new HashMap<>();
 
         while (rs.next()) {
@@ -102,7 +119,18 @@ public class FilmDbStorage implements FilmDao {
             LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
             int duration = rs.getInt("duration");
             int rate = rs.getInt("rate");
-            Mpa mpa = new MpaMapper().mapRow(rs, rowNum);
+            long mpaID = rs.getLong("mpa_id");
+            String name = rs.getString("MPA_NAME");
+            Mpa mpa = Mpa.builder()
+                    .id(rs.getLong("mpa_id"))
+                    .name(rs.getString("mpa_name"))
+                    .build();
+
+            Genre genre = Genre.builder()
+                    .id(rs.getLong("genre_id"))
+                    .name(rs.getString("genre_name"))
+                    .build();
+
             Film film = filmById.get(id);
 
             if (film == null) {
@@ -116,7 +144,13 @@ public class FilmDbStorage implements FilmDao {
                         .mpa(mpa).build();
                 filmById.put(film.getId(), film);
             }
+            if (genre.getId() != 0) {
+                List<Genre> genres = new ArrayList<>(film.getGenres());
+                genres.add(genre);
+                filmById.put(film.getId(), film.withGenres(genres));
+            }
         }
+        return new ArrayList<>(filmById.values());
     }
 
     private Map<String, Object> filmToParameters(Film film) {

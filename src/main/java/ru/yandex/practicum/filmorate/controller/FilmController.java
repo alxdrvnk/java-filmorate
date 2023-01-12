@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> findAll() {
+    public List<Film> findAll() throws SQLException {
         log.info("FilmController: get all films request.");
         return filmService.getAllFilms();
     }

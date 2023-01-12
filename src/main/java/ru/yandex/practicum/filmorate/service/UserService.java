@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -21,7 +22,7 @@ public class UserService {
         return storage.create(user);
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(){
         return storage.getAll();
     }
 

@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +42,8 @@ public class FilmService {
         return newFilm.withGenres(genres).withMpa(mpa);
     }
 
-    public List<Film> getAllFilms() {
-        List<Film> films = new ArrayList<>();
-        storage.getAll().forEach(
-                film -> films.add(film.withGenres(filmGenresDao.getFilmGenres(film.getId()))));
-        return films;
+    public List<Film> getAllFilms() throws SQLException {
+        return storage.getAll();
     }
 
     public Film getFilmBy(Long id) {
@@ -66,20 +64,25 @@ public class FilmService {
         return film.withMpa(mpa).withGenres(genres);
     }
 
-    public void setFilmLike(Long filmId, Long userId) {
-        filmLikeDao.addFilmLike(filmId, userId);
+    public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
-        update(film.withRate(film.getRate() + 1));
+        filmLikeDao.addFilmLike(filmId, userId);
+
+        int likes = film.getRate() + 1;
+        update(film.withRate(likes));
+        return likes;
     }
 
-    public void removeFilmLike(Long filmId, Long userId) {
+    public int removeFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
-        update(film.withRate(film.getRate()-1));
+        int likes = film.getRate()-1;
+        update(film.withRate(likes));
+        return likes;
     }
 
-    public Long getFilmsLikesCount(Long filmId) {
+    public int getFilmsLikesCount(Long filmId) {
         return getFilmBy(filmId).getRate();
     }
 
