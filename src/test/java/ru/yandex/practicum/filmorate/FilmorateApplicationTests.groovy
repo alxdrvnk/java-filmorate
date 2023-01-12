@@ -97,7 +97,7 @@ class FilmorateApplicationTests extends Specification {
 
     def "can add like to film"() {
         given:
-        def likesCount = filmService.getFilmsLikesCount(3)
+        def likesCount = filmService.getFilmBy(3).getRate()
 
         expect:
         likesCount == 0
@@ -106,7 +106,7 @@ class FilmorateApplicationTests extends Specification {
         filmService.setFilmLike(3, 1)
 
         then:
-        def likesCountUpdate = filmService.getFilmsLikesCount(3)
+        def likesCountUpdate = filmService.getFilmBy(3).getRate()
         likesCountUpdate == 1
 
     }

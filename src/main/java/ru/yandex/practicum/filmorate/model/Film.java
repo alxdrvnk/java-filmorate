@@ -49,5 +49,5 @@ public class Film {
 
     @With
     @Builder.Default
-    Long rate = 0L;
+    int rate = 0;
 }
