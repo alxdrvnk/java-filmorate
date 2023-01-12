@@ -13,6 +13,6 @@ public interface FilmorateDao<T> {
 
     T update(T t);
 
-    void deleteBy(Long id);
+    int deleteBy(Long id);
 
 }

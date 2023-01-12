@@ -91,8 +91,10 @@ public class FilmService {
     }
 
     public void deleteFilmBy(Long id) {
-        getFilmBy(id);
-        storage.deleteBy(id);
+        if (storage.deleteBy(id) == 0) {
+            throw new FilmorateNotFoundException(
+                    String.format("Фмльм с id: %d не найден", id));
+        }
     }
 
     private void validateReleaseDate(Film film) {

@@ -62,9 +62,9 @@ public class UserDbStorage implements UserDao {
     }
 
     @Override
-    public void deleteBy(Long id) {
+    public int deleteBy(Long id) {
         String query = "DELETE FROM users WHERE id = ?";
-        jdbcTemplate.update(query, id);
+        return jdbcTemplate.update(query, id);
     }
 
     private Map<String, Object> userToParameters(User user){

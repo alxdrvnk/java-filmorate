@@ -82,9 +82,9 @@ class UserControllerTest extends Specification {
         def user = User.builder()
                 .id(2)
                 .birthday(LocalDate.of(1944, 5, 14))
-                .login("UserLogin")
+                .login("User_Login")
                 .email("email@email.email").build()
-        def expectUser = user.withName("UserLogin")
+        def expectUser = user.withName("User_Login")
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/users")

@@ -14,7 +14,7 @@ import java.time.LocalDate
 @SpringBootTest
 @AutoConfigureTestDatabase
 @TestPropertySource(locations = "/application-integrationtest.properties")
-class filmDbStorageTests extends Specification {
+class FilmDbStorageTests extends Specification {
 
     @Autowired
     private FilmDbStorage filmDbStorage

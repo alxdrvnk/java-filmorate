@@ -47,9 +47,9 @@ public class FilmDbStorage implements FilmDao {
     }
 
     @Override
-    public void deleteBy(Long id) {
+    public int deleteBy(Long id) {
         String query = "DELETE FROM films WHERE id = ?";
-        jdbcTemplate.update(query, id);
+        return jdbcTemplate.update(query, id);
     }
 
     @Override
