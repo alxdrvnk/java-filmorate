@@ -67,25 +67,25 @@ public class FilmService {
     }
 
     public void setFilmLike(Long filmId, Long userId) {
-        getFilmBy(filmId);
-        userService.getUserBy(userId);
         filmLikeDao.addFilmLike(filmId, userId);
+        Film film = getFilmBy(filmId);
+        update(film.withRate(film.getRate() + 1));
     }
 
     public void removeFilmLike(Long filmId, Long userId) {
-        getFilmBy(filmId);
+        Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
+        update(film.withRate(film.getRate()-1));
     }
 
-    public int getFilmsLikesCount(Long filmId) {
-        getFilmBy(filmId);
-        return filmLikeDao.getFilmLikesCount(filmId).orElse(0);
+    public Long getFilmsLikesCount(Long filmId) {
+        return getFilmBy(filmId).getRate();
     }
 
     public List<Film> getPopularFilms(int count) {
         List<Film> films = new ArrayList<>();
-        filmLikeDao.getPopularFilms(count).forEach(
+        storage.getPopularFilms(count).forEach(
                 film -> films.add(film.withGenres(filmGenresDao.getFilmGenres(film.getId()))));
         return films;
     }

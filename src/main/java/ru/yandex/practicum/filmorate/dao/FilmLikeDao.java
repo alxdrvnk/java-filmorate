@@ -11,7 +11,4 @@ public interface FilmLikeDao {
 
     void removeFilmLike(Long filmId, Long userId);
 
-    Optional<Integer>getFilmLikesCount(Long filmId);
-
-    List<Film> getPopularFilms(int count);
 }

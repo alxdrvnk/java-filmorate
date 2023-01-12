@@ -35,8 +35,6 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
-        getUserBy(userId);
-        getUserBy(friendId);
         friendListDb.addFriend(userId, friendId);
     }
 

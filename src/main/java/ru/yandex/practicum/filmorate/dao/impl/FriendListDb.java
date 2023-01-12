@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FriendListDao;
 import ru.yandex.practicum.filmorate.dao.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.HashMap;
@@ -31,6 +33,9 @@ public class FriendListDb implements FriendListDao {
                     String.format("FriendList: trying to add duplicate friend User id: %d and Friend id: %d",
                             userId,
                             friendId));
+        } catch (DataIntegrityViolationException e) {
+            throw new FilmorateNotFoundException(
+                    String.format("Пользователь с id: %d или id: %d не найден.", userId, friendId));
         }
     }
 

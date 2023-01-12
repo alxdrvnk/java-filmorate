@@ -17,6 +17,7 @@ public class FilmMapper implements RowMapper<Film> {
                 .description(rs.getString("description"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
+                .rate(rs.getLong("rate"))
                 .mpa(makeMpa(rs))
                 .build();
     }
