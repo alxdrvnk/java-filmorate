@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,20 +28,17 @@ public class FilmService {
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;
 
-
     public Film create(Film film) {
         validateReleaseDate(film);
 
         Film newFilm = storage.create(film);
 
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
-        List<Genre> genres = filmGenresDao.getFilmGenres(newFilm.getId());
 
-        Mpa mpa = mpaService.getById(film.getMpa().getId());
-        return newFilm.withGenres(genres).withMpa(mpa);
+        return getFilmBy(newFilm.getId());
     }
 
-    public List<Film> getAllFilms() throws SQLException {
+    public List<Film> getAllFilms() {
         return storage.getAll();
     }
 
@@ -74,9 +70,11 @@ public class FilmService {
     }
 
     public int removeFilmLike(Long filmId, Long userId) {
+
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
+
         int likes = film.getRate()-1;
         update(film.withRate(likes));
         return likes;
@@ -87,10 +85,7 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        List<Film> films = new ArrayList<>();
-        storage.getPopularFilms(count).forEach(
-                film -> films.add(film.withGenres(filmGenresDao.getFilmGenres(film.getId()))));
-        return films;
+        return storage.getPopularFilms(count);
     }
 
     public void deleteFilmBy(Long id) {

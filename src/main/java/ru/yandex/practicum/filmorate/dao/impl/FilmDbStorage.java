@@ -110,25 +110,24 @@ public class FilmDbStorage implements FilmDao {
 
     private List<Film> makeFilm(SqlRowSet rs) throws SQLException {
 
-        Map<Long, Film> filmById = new HashMap<>();
+        Map<Long, Film> filmById = new LinkedHashMap<>( );
 
         while (rs.next()) {
-            Long id = rs.getLong("id");
-            String title = rs.getString("title");
-            String description = rs.getString("description");
-            LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-            int duration = rs.getInt("duration");
-            int rate = rs.getInt("rate");
-            long mpaID = rs.getLong("mpa_id");
-            String name = rs.getString("MPA_NAME");
+            Long id = rs.getLong("ID");
+            String title = rs.getString("TITLE");
+            String description = rs.getString("DESCRIPTION");
+            LocalDate releaseDate = rs.getDate("RELEASE_DATE").toLocalDate();
+            int duration = rs.getInt("DURATION");
+            int rate = rs.getInt("RATE");
+
             Mpa mpa = Mpa.builder()
-                    .id(rs.getLong("mpa_id"))
-                    .name(rs.getString("mpa_name"))
+                    .id(rs.getLong("MPA_ID"))
+                    .name(rs.getString("MPA_NAME"))
                     .build();
 
             Genre genre = Genre.builder()
-                    .id(rs.getLong("genre_id"))
-                    .name(rs.getString("genre_name"))
+                    .id(rs.getLong("GENRE_ID"))
+                    .name(rs.getString("GENRE_NAME"))
                     .build();
 
             Film film = filmById.get(id);
