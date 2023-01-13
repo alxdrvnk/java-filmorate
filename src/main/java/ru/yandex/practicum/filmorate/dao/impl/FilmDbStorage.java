@@ -66,16 +66,14 @@ public class FilmDbStorage implements FilmDao {
                         "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                         "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
                         "ORDER BY f.id";
-        try {
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query);
-            return makeFilm(rowSet);
-        } catch (SQLException e){
-            return Collections.emptyList();
-        }
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query);
+        return FilmMapper.makeFilmList(rowSet);
     }
 
     @Override
     public Optional<Film> getBy(Long id) {
+
         String query =
                 "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
                         "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
@@ -84,72 +82,24 @@ public class FilmDbStorage implements FilmDao {
                         "WHERE f.id = ?";
         try {
             SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, id);
-            return makeFilm(rowSet).stream().findAny();
+            return FilmMapper.makeFilmList(rowSet).stream().findAny();
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
     @Override
     public List<Film> getPopularFilms(int count) {
+
         String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
-                       "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
-                       "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
-                       "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                       "ORDER BY f.rate DESC " +
-                       "LIMIT ?";
+                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "ORDER BY f.rate DESC " +
+                "LIMIT ?";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
-        try {
-            return makeFilm(rowSet);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    private List<Film> makeFilm(SqlRowSet rs) throws SQLException {
-
-        Map<Long, Film> filmById = new LinkedHashMap<>( );
-
-        while (rs.next()) {
-            Long id = rs.getLong("ID");
-            String title = rs.getString("TITLE");
-            String description = rs.getString("DESCRIPTION");
-            LocalDate releaseDate = rs.getDate("RELEASE_DATE").toLocalDate();
-            int duration = rs.getInt("DURATION");
-            int rate = rs.getInt("RATE");
-
-            Mpa mpa = Mpa.builder()
-                    .id(rs.getLong("MPA_ID"))
-                    .name(rs.getString("MPA_NAME"))
-                    .build();
-
-            Genre genre = Genre.builder()
-                    .id(rs.getLong("GENRE_ID"))
-                    .name(rs.getString("GENRE_NAME"))
-                    .build();
-
-            Film film = filmById.get(id);
-
-            if (film == null) {
-                film = Film.builder()
-                        .id(id)
-                        .name(title)
-                        .description(description)
-                        .releaseDate(releaseDate)
-                        .duration(duration)
-                        .rate(rate)
-                        .mpa(mpa).build();
-                filmById.put(film.getId(), film);
-            }
-            if (genre.getId() != 0) {
-                List<Genre> genres = new ArrayList<>(film.getGenres());
-                genres.add(genre);
-                filmById.put(film.getId(), film.withGenres(genres));
-            }
-        }
-        return new ArrayList<>(filmById.values());
+        return FilmMapper.makeFilmList(rowSet);
     }
 
     private Map<String, Object> filmToParameters(Film film) {
