@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -48,6 +47,10 @@ public class UserService {
     public List<User> getUserFriends(Long userId) {
         getUserBy(userId);
         return friendListDb.getFriends(userId);
+    }
+
+    public void approveFriend(Long userId, Long friendID) {
+        friendListDb.approveFriend(userId, friendID);
     }
 
     public List<User> getMutualFriends(Long userId, Long otherUserId) {

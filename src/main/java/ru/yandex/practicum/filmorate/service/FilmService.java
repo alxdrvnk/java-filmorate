@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,7 +20,6 @@ public class FilmService {
 
     private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
     private final FilmDao storage;
-    private final MpaService mpaService;
     private final FilmLikeDao filmLikeDao;
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;
@@ -43,8 +39,7 @@ public class FilmService {
     }
 
     public Film getFilmBy(Long id) {
-        Film film = storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Фильм с id: не найден."));
-        return film.withGenres(filmGenresDao.getFilmGenres(id));
+        return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Фильм с id: не найден."));
     }
 
     public Film update(Film film) {
@@ -54,10 +49,7 @@ public class FilmService {
         storage.update(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
 
-        List<Genre> genres = filmGenresDao.getFilmGenres(film.getId());
-        Mpa mpa = mpaService.getById(film.getMpa().getId());
-
-        return film.withMpa(mpa).withGenres(genres);
+        return getFilmBy(film.getId());
     }
 
     public int setFilmLike(Long filmId, Long userId) {

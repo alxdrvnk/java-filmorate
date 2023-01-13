@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -30,7 +29,7 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> findAll() throws SQLException {
+    public List<Film> findAll() {
         log.info("FilmController: get all films request.");
         return filmService.getAllFilms();
     }
@@ -42,15 +41,15 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        filmService.setFilmLike(id, userId);
-        log.info(String.format("FilmController: Add like for Film with %d id from User with %d id", id, userId));
+    public int setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        log.info(String.format("FilmController: Adding like for Film with %d id from User with %d id", id, userId));
+        return filmService.setFilmLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        filmService.removeFilmLike(id, userId);
-        log.info(String.format("FilmController: Remove like for Film with %d id from User with %d id", id, userId));
+    public int removeFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        log.info(String.format("FilmController: Removing like for Film with %d id from User with %d id", id, userId));
+        return filmService.removeFilmLike(id, userId);
     }
 
     @DeleteMapping("/{id}")

@@ -57,6 +57,11 @@ public class FriendListDb implements FriendListDao {
         return jdbcTemplate.query(query, new UserMapper(), userId, userId);
     }
 
+    public void approveFriend(Long userId, Long friendId) {
+        String query = "UPDATE friend_list SET state = ? WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(query, true, userId, friendId);
+    }
+
     @Override
     public List<User> getCommonFriends(Long userId, Long otherUserId) {
         String query =

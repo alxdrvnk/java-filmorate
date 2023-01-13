@@ -56,7 +56,12 @@ public class UserController {
     public void deleteFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
          userService.removeFriend(id, friendId);
          log.info(String.format("UserController: User with %d id remove friend with id %d", id, friendId));
+    }
 
+    @PutMapping("/{id}/friends/{friedId}/approve")
+    public void approveFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+        userService.approveFriend(id, friendId);
+        log.info(String.format("UserController: User with id: %d approve friend with id: %d", id, friendId));
     }
 
     @GetMapping("/{id}/friends")
