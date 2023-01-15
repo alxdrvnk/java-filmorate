@@ -1,11 +1,15 @@
 package ru.yandex.practicum.filmorate
 
-
+import com.github.springtestdbunit.DbUnitTestExecutionListener
+import com.github.springtestdbunit.annotation.DbUnitConfiguration
+import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestPropertySource
-import org.springframework.test.context.jdbc.Sql
+import org.springframework.test.context.TestExecutionListeners
+import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import ru.yandex.practicum.filmorate.dao.impl.GenreDb
 import ru.yandex.practicum.filmorate.dao.impl.MpaDb
 import ru.yandex.practicum.filmorate.model.User
@@ -15,10 +19,9 @@ import spock.lang.Specification
 
 import java.time.LocalDate
 
-
 @SpringBootTest
 @AutoConfigureTestDatabase
-@TestPropertySource(locations = "/application-integrationtest.properties")
+@DbUnitConfiguration(databaseConnection = "dbUnit")
 class FilmorateApplicationTests extends Specification {
 
     @Autowired
@@ -33,7 +36,6 @@ class FilmorateApplicationTests extends Specification {
     @Autowired
     private MpaDb mpaStorage
 
-    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "can add friends"() {
         given:
         def user = User.builder()

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <films
+            id = "1"
+            title = "Test Film Name"
+            description = "Test film description"
+            release_date = "2000-01-01"
+            duration = "100"
+            rate = "0"
+            mpa_id = "3"
+    />
+    <mpa id = "3" name = "PG-13"/>
+</dataset>

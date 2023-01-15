@@ -1,13 +1,24 @@
 package ru.yandex.practicum.filmorate.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.springtestdbunit.DatabaseConnections
+import com.github.springtestdbunit.DbUnitTestExecutionListener
+import com.github.springtestdbunit.annotation.DatabaseSetup
+import com.github.springtestdbunit.annotation.DbUnitConfiguration
+import org.dbunit.database.DatabaseConnection
+import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
+import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import ru.yandex.practicum.filmorate.model.Film
@@ -20,10 +31,10 @@ import java.time.LocalDate
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@SpringBootTest
 @AutoConfigureMockMvc
+@SpringBootTest
 @AutoConfigureTestDatabase
-@TestPropertySource(locations = "/application-integrationtest.properties")
+@DbUnitConfiguration(databaseConnection = "dbUnit")
 class FilmControllerTest extends Specification {
 
     @Autowired
@@ -32,7 +43,6 @@ class FilmControllerTest extends Specification {
     @Autowired
     private ObjectMapper objectMapper
 
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     def "Should return code 400 when try get not available film"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.get("/films/9999"))
