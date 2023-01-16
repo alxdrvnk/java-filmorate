@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestExecutionListeners
+import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener
@@ -27,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @AutoConfigureTestDatabase
-@DbUnitConfiguration(databaseConnection = "dbUnit")
+@TestPropertySource(locations = "/application-integrationtest.properties")
 class UserControllerTest extends Specification {
 
     @Autowired
@@ -36,6 +38,7 @@ class UserControllerTest extends Specification {
     @Autowired
     private ObjectMapper objectMapper
 
+    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     def "Should add user then return code 200 and json object"() {
         given:
         def user = User.builder()

@@ -1,39 +1,27 @@
 package ru.yandex.practicum.filmorate.dao
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DatabaseSetup
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
+
 import com.github.springtestdbunit.annotation.ExpectedDatabase
-import com.github.springtestdbunit.assertion.DatabaseAssertionMode
-import org.springframework.beans.factory.annotation.Autowire
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestExecutionListeners
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.jdbc.Sql
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage
 import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Mpa
 import spock.lang.Specification
 
 import java.time.LocalDate
+
 @SpringBootTest
+@TestPropertySource(locations = "/application-integrationtest.properties")
 @AutoConfigureTestDatabase
-@TestExecutionListeners([ DependencyInjectionTestExecutionListener.class,
-    DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class,
-    DbUnitTestExecutionListener.class ])
-@DbUnitConfiguration(databaseConnection = "dbUnit")
 class FilmDbStorageTests extends Specification {
 
     @Autowired
     private FilmDbStorage filmDbStorage
 
-    @ExpectedDatabase(value = "/dbunit/data.xml", table = "films", assertionMode = DatabaseAssertionMode.NON_STRICT)
     def "can insert a film object"(){
         given:
         def film = Film.builder()
@@ -43,16 +31,18 @@ class FilmDbStorageTests extends Specification {
         .duration(100)
         .mpa(Mpa.builder().id(1).build()).build()
 
-        def filmDB= filmDbStorage.create(film)
+        def filmId = filmDbStorage.create(film).getId()
+
+        def filmDB = filmDbStorage.getBy(filmId)
 
         expect:
-        with(filmDB){
-            id == 1
+        with(filmDB.get()){
+            id == 4
             name == "Test Film Name"
             description == "Test film description"
             releaseDate == LocalDate.of(2000,01,01)
             mpa.id == 1
-            mpa.name == null
+            mpa.name == "G"
         }
     }
 
@@ -63,7 +53,7 @@ class FilmDbStorageTests extends Specification {
 
         expect:
         with(film.get()) {
-            name == "Test Film Name"
+            name == "SW"
         }
 
     }

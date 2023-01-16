@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @AutoConfigureTestDatabase
-@DbUnitConfiguration(databaseConnection = "dbUnit")
+@TestPropertySource(locations = "/application-integrationtest.properties")
 class FilmControllerTest extends Specification {
 
     @Autowired
@@ -112,17 +112,7 @@ class FilmControllerTest extends Specification {
     }
 
     def "Should return code 200 when user put like"() {
-        given:
-        def userP = User.builder()
-                .birthday(LocalDate.of(1990, 1, 1))
-                .login("Pupa")
-                .email("pupa@mail.mail").build()
         expect:
-        mvc.perform(MockMvcRequestBuilders.post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userP)))
-                .andExpect(status().isOk())
-
         mvc.perform(MockMvcRequestBuilders.put("/films/1/like/1"))
                 .andExpect(status().isOk())
     }

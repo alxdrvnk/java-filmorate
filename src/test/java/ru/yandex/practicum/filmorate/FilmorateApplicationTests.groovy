@@ -7,11 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestExecutionListeners
+import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import ru.yandex.practicum.filmorate.dao.impl.GenreDb
 import ru.yandex.practicum.filmorate.dao.impl.MpaDb
+import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException
+import ru.yandex.practicum.filmorate.model.Film
+import ru.yandex.practicum.filmorate.model.Mpa
 import ru.yandex.practicum.filmorate.model.User
 import ru.yandex.practicum.filmorate.service.FilmService
 import ru.yandex.practicum.filmorate.service.UserService
@@ -21,7 +26,7 @@ import java.time.LocalDate
 
 @SpringBootTest
 @AutoConfigureTestDatabase
-@DbUnitConfiguration(databaseConnection = "dbUnit")
+@TestPropertySource(locations = "/application-integrationtest.properties")
 class FilmorateApplicationTests extends Specification {
 
     @Autowired
@@ -36,6 +41,7 @@ class FilmorateApplicationTests extends Specification {
     @Autowired
     private MpaDb mpaStorage
 
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "can add friends"() {
         given:
         def user = User.builder()
@@ -98,6 +104,7 @@ class FilmorateApplicationTests extends Specification {
     }
 
     def "can add like to film"() {
+
         given:
         def likesCount = filmService.getFilmBy(3).getRate()
 
@@ -141,5 +148,32 @@ class FilmorateApplicationTests extends Specification {
         with(popularFilms) {
             id == [3,1,2]
         }
+    }
+
+    def "should return 404 when deleting unknown film from database"() {
+        when:
+        filmService.deleteFilmBy(9999)
+        then:
+        def e = thrown(FilmorateNotFoundException)
+        e.message == "Фильм с id: 9999 не найден."
+    }
+
+    def "should return 404 when updating unknown film" () {
+        given:
+        def film = Film.builder()
+        .id(9999)
+        .name("Unknown")
+        .description("None")
+        .rate(9)
+        .duration(10)
+        .releaseDate(LocalDate.of(2000,01,01))
+        .mpa(Mpa.builder().id(1).build()).build()
+
+        when:
+        filmService.update(film)
+
+        then:
+        def e = thrown(FilmorateNotFoundException)
+        e.message == "Фильм с id: 9999 не найден."
     }
 }

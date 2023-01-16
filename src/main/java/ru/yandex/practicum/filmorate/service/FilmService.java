@@ -39,7 +39,8 @@ public class FilmService {
     }
 
     public Film getFilmBy(Long id) {
-        return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Фильм с id: не найден."));
+        return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException(
+                String.format("Фильм с id: %d не найден.", id)));
     }
 
     public Film update(Film film) {
@@ -83,7 +84,7 @@ public class FilmService {
     public void deleteFilmBy(Long id) {
         if (storage.deleteBy(id) == 0) {
             throw new FilmorateNotFoundException(
-                    String.format("Фмльм с id: %d не найден", id));
+                    String.format("Фильм с id: %d не найден.", id));
         }
     }
 

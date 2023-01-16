@@ -6,7 +6,7 @@ VALUES ('user1@email.mail', 'user1-login', 'user1-name', '1944-05-14'),
 INSERT INTO films (title, description, release_date, duration, rate, mpa_id)
 VALUES ('SW', 'SW description', '1977-05-25', 121, 0, 2),
        ('Indiana Jones and the Raiders of the Lost Ark', 'Indiana Jones description', '1981-06-12', 115, 0, 4),
-       ('The Shawshank Redemption', 'The Shawshank Redemption description', '1994-09-10', 142, 0, 4);
+       ('The Shawshank Redemption', 'The Shawshank Redemption description', '1994-09-10', 142, 0, 1);
 
 INSERT INTO film_genres (film_id, genre_id)
 VALUES (3, 2),
