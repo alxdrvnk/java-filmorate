@@ -1,57 +1,92 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
+import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
+import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
+import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FilmService {
 
     private static final LocalDate cinemaBirthday = LocalDate.of(1895, 12, 28);
-    private final FilmStorage storage;
+    private final FilmDao storage;
+    private final FilmLikeDao filmLikeDao;
+    private final FilmGenreDao filmGenresDao;
     private final UserService userService;
 
     public Film create(Film film) {
         validateReleaseDate(film);
-        return storage.create(film);
+
+        Film newFilm = storage.create(film);
+
+        filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
+
+        return getFilmBy(newFilm.getId());
     }
 
     public List<Film> getAllFilms() {
-        return storage.getAllFilms();
+        return storage.getAll();
     }
 
     public Film getFilmBy(Long id) {
-        return storage.get(id);
+        return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException(
+                String.format("Фильм с id: %d не найден.", id)));
     }
 
     public Film update(Film film) {
         validateReleaseDate(film);
-        return storage.update(film);
+        getFilmBy(film.getId());
+
+        storage.update(film);
+        filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
+
+        return getFilmBy(film.getId());
     }
 
-    // Лучше возвращать объект фильма при добавлении/удалении лайка?
-    public void setFilmLike(Long filmId, Long userId) {
+    public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
-        userService.addLikedFilm(userId, filmId);
-        storage.addLike(film);
+        filmLikeDao.addFilmLike(filmId, userId);
+
+        int likes = film.getRate() + 1;
+        update(film.withRate(likes));
+        return likes;
     }
 
-    public void removeFilmLike(Long filmId, Long userId) {
+    public int removeFilmLike(Long filmId, Long userId) {
+
         Film film = getFilmBy(filmId);
-        userService.removeLikedFilm(userId, filmId);
-        storage.removeLike(film);
+        userService.getUserBy(userId);
+        filmLikeDao.removeFilmLike(filmId, userId);
+
+        int likes = film.getRate()-1;
+        update(film.withRate(likes));
+        return likes;
+    }
+
+    public int getFilmsLikesCount(Long filmId) {
+        return getFilmBy(filmId).getRate();
     }
 
     public List<Film> getPopularFilms(int count) {
-        return storage.getPopular(count);
+        return storage.getPopularFilms(count);
     }
 
+    public void deleteFilmBy(Long id) {
+        if (storage.deleteBy(id) == 0) {
+            throw new FilmorateNotFoundException(
+                    String.format("Фильм с id: %d не найден.", id));
+        }
+    }
 
     private void validateReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(cinemaBirthday)) {

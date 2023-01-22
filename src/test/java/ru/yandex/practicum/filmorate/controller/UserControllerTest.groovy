@@ -1,10 +1,21 @@
 package ru.yandex.practicum.filmorate.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.springtestdbunit.DbUnitTestExecutionListener
+import com.github.springtestdbunit.annotation.DatabaseSetup
+import com.github.springtestdbunit.annotation.DbUnitConfiguration
+import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestExecutionListeners
+import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import ru.yandex.practicum.filmorate.model.User
@@ -15,8 +26,10 @@ import java.time.LocalDate
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@SpringBootTest
 @AutoConfigureMockMvc
+@SpringBootTest
+@AutoConfigureTestDatabase
+@TestPropertySource(locations = "/application-integrationtest.properties")
 class UserControllerTest extends Specification {
 
     @Autowired
@@ -25,6 +38,7 @@ class UserControllerTest extends Specification {
     @Autowired
     private ObjectMapper objectMapper
 
+    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     def "Should add user then return code 200 and json object"() {
         given:
         def user = User.builder()
@@ -78,9 +92,9 @@ class UserControllerTest extends Specification {
         def user = User.builder()
                 .id(2)
                 .birthday(LocalDate.of(1944, 5, 14))
-                .login("UserLogin")
+                .login("User_Login")
                 .email("email@email.email").build()
-        def expectUser = user.withName("UserLogin")
+        def expectUser = user.withName("User_Login")
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/users")

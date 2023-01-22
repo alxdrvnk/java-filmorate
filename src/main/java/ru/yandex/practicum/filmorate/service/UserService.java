@@ -2,87 +2,60 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
+import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserStorage storage;
+    private final UserDao storage;
+
+    private final FriendListDb friendListDb;
 
     public User create(User user) {
         return storage.create(user);
     }
 
-    public List<User> getAllUsers() {
-        return storage.getAllUsers();
+    public List<User> getAllUsers(){
+        return storage.getAll();
     }
 
     public User getUserBy(Long id) {
-        return storage.get(id);
+        return storage.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Пользователь не найден."));
     }
 
     public User update(User user) {
+        getUserBy(user.getId());
         return storage.update(user);
     }
 
-    // Нужно ли чтобы методы добавления/удаления друга возвращали юзера?
-    // Если да, то тогда нужно возвращать копию измененного юзера?
     public void addFriend(Long userId, Long friendId) {
-        User user = storage.get(userId);
-        User friend = storage.get(friendId);
-
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        friendListDb.addFriend(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = storage.get(userId);
-        User friend = storage.get(friendId);
-
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        getUserBy(userId);
+        getUserBy(friendId);
+        friendListDb.removeFriend(userId, friendId);
     }
 
     public List<User> getUserFriends(Long userId) {
-        return storage.getUserFriends(userId);
+        getUserBy(userId);
+        return friendListDb.getFriends(userId);
+    }
+
+    public void approveFriend(Long userId, Long friendID) {
+        friendListDb.approveFriend(userId, friendID);
     }
 
     public List<User> getMutualFriends(Long userId, Long otherUserId) {
-        User user = storage.get(userId);
-        User otherUser = storage.get(otherUserId);
-
-        return user.getFriends().stream()
-                .filter(f -> otherUser.getFriends().contains(f))
-                .map(this::getUserBy)
-                .collect(Collectors.toList());
-    }
-
-    public void addLikedFilm(Long userId, Long filmId) {
-        User user = storage.get(userId);
-
-        if (user.getLikedFilms().stream()
-                .anyMatch(filmId::equals)) {
-            throw new FilmorateAlreadyExistException("Фильм уже добавлен в понравившиеся.");
-        }
-
-        user.getLikedFilms().add(filmId);
-    }
-
-    public void removeLikedFilm(Long userId, Long filmId) {
-        User user = storage.get(userId);
-
-        if (user.getLikedFilms().stream()
-                .noneMatch(filmId::equals)) {
-            throw new FilmorateNotFoundException("Фильм не добавлен в понравившиеся.");
-        }
-
-        user.getLikedFilms().remove(filmId);
+        getUserBy(userId);
+        getUserBy(otherUserId);
+        return friendListDb.getCommonFriends(userId, otherUserId);
     }
 }

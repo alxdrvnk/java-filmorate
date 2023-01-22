@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  db:
+    container_name: "filmorateDB"
+    image: postgres
+    environment:
+      POSTGRES_DB: "filmorate"
+      POSTGRES_USER: "filmorateUser"
+      POSTGRES_PASSWORD: "flmrtPSWD"
+    volumes:
+      - ../src/main/resources/docker/:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"

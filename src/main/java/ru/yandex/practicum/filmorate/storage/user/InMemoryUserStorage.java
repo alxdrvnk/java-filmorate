@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -34,7 +33,6 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
-    // Стоит переписать метод, чтобы он возвращал Optional<User>? Как более правильно сделать?
     @Override
     public User get(Long id) {
         if (users.containsKey(id)) {
@@ -51,11 +49,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getUserFriends(Long userId) {
-        User user = get(userId);
-        return user.getFriends().stream()
-                .filter(users::containsKey)
-                .map(users::get)
-                .collect(Collectors.toList());
+//        User user = get(userId);
+//        return user.getFriends().stream()
+//                .filter(users::containsKey)
+//                .map(users::get)
+//                .collect(Collectors.toList());
+        return null;
     }
 
     private Long getNextId() {

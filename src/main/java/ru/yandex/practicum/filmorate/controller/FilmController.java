@@ -30,24 +30,32 @@ public class FilmController {
 
     @GetMapping
     public List<Film> findAll() {
+        log.info("FilmController: get all films request.");
         return filmService.getAllFilms();
     }
 
     @GetMapping("/{id}")
     public Film findFilmBy(@PathVariable("id") Long id) {
+        log.info(String.format("FilmController: get film with id: %d", id));
         return filmService.getFilmBy(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        filmService.setFilmLike(id, userId);
-        log.info(String.format("FilmController: Add like for Film with %d id from User with %d id", id, userId));
+    public int setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        log.info(String.format("FilmController: Adding like for Film with %d id from User with %d id", id, userId));
+        return filmService.setFilmLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        filmService.removeFilmLike(id, userId);
-        log.info(String.format("FilmController: Remove like for Film with %d id from User with %d id", id, userId));
+    public int removeFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        log.info(String.format("FilmController: Removing like for Film with %d id from User with %d id", id, userId));
+        return filmService.removeFilmLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilmBy(@PathVariable("id") Long id) {
+        filmService.deleteFilmBy(id);
+        log.info(String.format("FilmController: Remove film with id: %d.", id));
     }
 
     @GetMapping("/popular")

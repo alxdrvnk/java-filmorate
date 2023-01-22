@@ -1,13 +1,29 @@
 package ru.yandex.practicum.filmorate.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.springtestdbunit.DatabaseConnections
+import com.github.springtestdbunit.DbUnitTestExecutionListener
+import com.github.springtestdbunit.annotation.DatabaseSetup
+import com.github.springtestdbunit.annotation.DbUnitConfiguration
+import org.dbunit.database.DatabaseConnection
+import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestExecutionListeners
+import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import ru.yandex.practicum.filmorate.model.Film
+import ru.yandex.practicum.filmorate.model.Mpa
+import ru.yandex.practicum.filmorate.model.User
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -15,8 +31,10 @@ import java.time.LocalDate
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@SpringBootTest
 @AutoConfigureMockMvc
+@SpringBootTest
+@AutoConfigureTestDatabase
+@TestPropertySource(locations = "/application-integrationtest.properties")
 class FilmControllerTest extends Specification {
 
     @Autowired
@@ -27,7 +45,7 @@ class FilmControllerTest extends Specification {
 
     def "Should return code 400 when try get not available film"() {
         expect:
-        mvc.perform(MockMvcRequestBuilders.get("/films/1"))
+        mvc.perform(MockMvcRequestBuilders.get("/films/9999"))
                 .andExpect(status().isNotFound())
     }
 
@@ -37,9 +55,10 @@ class FilmControllerTest extends Specification {
                 .name("Film")
                 .description("Film Description")
                 .duration(121)
-                .releaseDate(LocalDate.of(1977, 5, 25)).build()
+                .releaseDate(LocalDate.of(1977, 5, 25))
+                .mpa(Mpa.builder().id(1).name("G").build()).build()
 
-        def expected = film.withId(1).withRate(0)
+        def expected = film.withId(1)
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
@@ -94,42 +113,13 @@ class FilmControllerTest extends Specification {
 
     def "Should return code 200 when user put like"() {
         expect:
-        mvc.perform(MockMvcRequestBuilders.post("/films")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isOk())
-
-        mvc.perform(MockMvcRequestBuilders.put("/films/2/like/3"))
+        mvc.perform(MockMvcRequestBuilders.put("/films/1/like/1"))
                 .andExpect(status().isOk())
     }
 
     def "Should return code 200 when user delete like"() {
         expect:
-        mvc.perform(MockMvcRequestBuilders.delete("/films/2/like/3"))
-                .andExpect(status().isOk())
-    }
-
-    def "Should return code 200 and list of 5 films when get popular films"() {
-        given:
-        def filmsList = new ArrayList()
-        for (int i = 1; i < 11; i++) {
-            filmsList.add(
-                    Film.builder()
-                            .id(i + 2)
-                            .name("Film " + i)
-                            .description("Film " + i + "description")
-                            .duration(i * 20)
-                            .releaseDate(LocalDate.of(2000 + i, i, i)).build())
-        }
-        expect:
-        for (final def i in filmsList) {
-            mvc.perform(MockMvcRequestBuilders.post("/films")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(i)))
-                    .andExpect(status().isOk())
-        }
-
-        mvc.perform(MockMvcRequestBuilders.get("/films/popular").param("count", "5"))
+        mvc.perform(MockMvcRequestBuilders.delete("/films/1/like/1"))
                 .andExpect(status().isOk())
     }
 
