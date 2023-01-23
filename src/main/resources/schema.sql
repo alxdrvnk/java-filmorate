@@ -90,5 +90,5 @@ CREATE TABLE IF NOT EXISTS events (
 
     CONSTRAINT fk_event_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_event_type_id FOREIGN KEY (type) REFERENCES event_types (id) ON DELETE CASCADE,
-    CONSTRAINT fk_event_operation_id FOREIGN KEY (operation) REFERENCES operations (id) ON DELETE CASCADE,
+    CONSTRAINT fk_event_operation_id FOREIGN KEY (operation) REFERENCES operations (id) ON DELETE CASCADE
 );
