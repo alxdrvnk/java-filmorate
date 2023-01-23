@@ -106,3 +106,13 @@ CREATE TABLE IF NOT EXISTS film_directors (
     CONSTRAINT fk_film_directors_director_id FOREIGN KEY (director_id) REFERENCES directors (id) ON DELETE CASCADE,
     CONSTRAINT fk_film_directors_film_id FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS review_likes (
+    user_id INTEGER,
+    review_id INTEGER,
+    value BOOLEAN,
+
+    CONSTRAINT pk_review_likes PRIMARY KEY (user_id, review_id),
+    CONSTRAINT fk_review_likes_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_review_likes_review_id FOREIGN KEY (review_id) REFERENCES reviews (id) ON DELETE CASCADE
+);
