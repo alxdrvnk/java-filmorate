@@ -9,9 +9,7 @@ import java.sql.SQLException;
 public class DirectorMapper implements RowMapper<Director> {
     @Override
     public Director mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Director director = new Director();
-        director.setId(rs.getInt("ID"));
-        director.setName(rs.getString("NAME"));
+        Director director = new Director((rs.getInt("ID")),(rs.getString("NAME")));
         return director;
     }
 }

@@ -1,15 +1,19 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.dao.mapper.DirectorMapper;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Repository
@@ -38,7 +42,7 @@ public class DirectorDbStorage implements DirectorDao {
 
     @Override
     public Director createDirector(Director director) {
-        try {
+/*        try {
             Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
             String query = "INSERT INTO DIRECTORS (NAME) VALUES ( ? );";
             try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -53,7 +57,19 @@ public class DirectorDbStorage implements DirectorDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return director;
+        return director;*/
+
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("DIRECTORS")
+                .usingGeneratedKeyColumns("ID");
+        Integer directorId = simpleJdbcInsert.executeAndReturnKey(directorToParameters(director)).intValue();
+        return director.withId(directorId);
+    }
+    private Map<String, Object> directorToParameters(Director director){
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id", director.getId());
+        parameters.put("name", director.getName());
+        return parameters;
     }
 
     @Override
