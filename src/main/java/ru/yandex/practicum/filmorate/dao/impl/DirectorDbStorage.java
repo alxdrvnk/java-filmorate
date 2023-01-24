@@ -7,9 +7,11 @@ import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.dao.mapper.DirectorMapper;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.*;
 import java.util.List;
+import java.util.Objects;
+
 @Repository
 public class DirectorDbStorage implements DirectorDao {
     private final JdbcTemplate jdbcTemplate;
@@ -36,16 +38,34 @@ public class DirectorDbStorage implements DirectorDao {
 
     @Override
     public Director createDirector(Director director) {
-        return null;
+        try {
+            Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
+            String query = "INSERT INTO DIRECTORS (NAME) VALUES ( ? );";
+            try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+                statement.setString(1, director.getName());
+                statement.executeUpdate();
+                try (ResultSet keys = statement.getGeneratedKeys()) {
+                    keys.next();
+                    int id = keys.getInt(1);
+                    director.setId(id);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return director;
     }
 
     @Override
     public Director updateDirector(Director director) {
-        return null;
+        String sql = "UPDATE DIRECTORS SET NAME = ? WHERE ID = ?";
+        jdbcTemplate.update(sql, director.getName(), director.getId());
+        return director;
     }
 
     @Override
     public void deleteDirectorById(Integer id) {
-
+        String sql = "DELETE FROM DIRECTORS WHERE ID = ?";
+        jdbcTemplate.update(sql, id);
     }
 }

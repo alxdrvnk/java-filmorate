@@ -16,26 +16,30 @@ public class DirectorService {
     private final DirectorDao directorDao;
     private final FilmDao filmDao;
     public List<Director> getAllDirectors() {
-        directorDao.getAllDirectors();
-        return null;
+        log.info("Получен запрос на список всех режиссёров");
+        List<Director> directors = directorDao.getAllDirectors();
+        return directors;
+
     }
 
     public Director getDirectorById(Integer id) {
-        directorDao.getDirectorById(id);
-        return null;
+        log.info("Получен запрос на получение режиссёра по id = " + id);
+        return directorDao.getDirectorById(id);
     }
 
     public Director createDirector(Director director) {
-        directorDao.createDirector(director);
-        return null;
+        log.info("Получен запрос на добавление режиссёра");
+       return directorDao.createDirector(director);
     }
 
     public Director updateDirector(Director director) {
+        log.info("Получен запрос на обновление режиссёра с id = " + director.getId());
         directorDao.updateDirector(director);
         return null;
     }
 
     public void deleteDirectorById(Integer id) {
-    directorDao.deleteDirectorById(id);
+        log.info("Получен запрос на удаление режиссёра по id = " + id);
+        directorDao.deleteDirectorById(id);
     }
 }
