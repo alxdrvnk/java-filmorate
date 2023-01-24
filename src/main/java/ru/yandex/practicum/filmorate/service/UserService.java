@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.aspects.HandleFilmorateEvent;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
@@ -34,6 +35,7 @@ public class UserService {
         return storage.update(user);
     }
 
+    @HandleFilmorateEvent(eventType = "FRIENDS", eventOperation = "ADD")
     public void addFriend(Long userId, Long friendId) {
         friendListDb.addFriend(userId, friendId);
     }

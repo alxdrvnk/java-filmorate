@@ -2,16 +2,12 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.ObjectError;
 import ru.yandex.practicum.filmorate.dao.EventDao;
 import ru.yandex.practicum.filmorate.dao.mapper.EventMapper;
-import ru.yandex.practicum.filmorate.dao.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.*;
@@ -77,7 +73,7 @@ public class EventsDbStorage implements EventDao {
 
     @Override
     public int deleteBy(Long id) {
-        String query = "DELETE FROM event WHER id = ?";
+        String query = "DELETE FROM event WHERE id = ?";
         return jdbcTemplate.update(query, id);
     }
 }
