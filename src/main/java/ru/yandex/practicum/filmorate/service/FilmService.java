@@ -94,4 +94,9 @@ public class FilmService {
                     String.format("Дата релиза не может быть раньше чем %s", cinemaBirthday));
         }
     }
+
+    public List<Film> findFilmBy(String query, String by) {
+        
+        return null;
+    }
 }
