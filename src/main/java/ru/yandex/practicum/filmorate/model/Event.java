@@ -13,9 +13,8 @@ public class Event {
     @With
     Long id;
     Long userId;
-    int type;
-    int operation;
     Long entityId;
-    int useful;
+    String type;
+    String operation;
     Timestamp timestamp;
 }

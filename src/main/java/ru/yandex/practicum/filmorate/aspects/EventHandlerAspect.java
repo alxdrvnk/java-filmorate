@@ -3,14 +3,16 @@ package ru.yandex.practicum.filmorate.aspects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.impl.EventsDbStorage;
+import ru.yandex.practicum.filmorate.model.Event;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 @Aspect
@@ -27,11 +29,21 @@ public class EventHandlerAspect {
 
     @AfterReturning("eventPointcut()")
     public void addFilmorateEvent(JoinPoint joinPoint) {
-        log.info(Arrays.toString(joinPoint.getArgs()));
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        HandleFilmorateEvent annotation = Arrays.stream(signature.getMethod().getAnnotationsByType(HandleFilmorateEvent.class)).findAny().get();
-        log.info(annotation.eventOperation());
-        log.info(annotation.eventType());
-    }
+        Long userId = (Long) joinPoint.getArgs()[0];
+        Long entityId = (Long) joinPoint.getArgs()[1];
 
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        HandleFilmorateEvent annotation =
+                Arrays.stream(signature.getMethod().getAnnotationsByType(HandleFilmorateEvent.class)).findAny().get();
+
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(entityId)
+                .type(String.valueOf(annotation.eventType()))
+                .operation(String.valueOf(annotation.eventOperation()))
+                .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+        event = eventsDbStorage.create(event);
+        log.info(String.format("EventHandler: Add Event. Data: %s", event));
+    }
 }

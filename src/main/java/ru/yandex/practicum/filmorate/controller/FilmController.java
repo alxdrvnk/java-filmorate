@@ -43,13 +43,13 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public int setFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
         log.info(String.format("FilmController: Adding like for Film with %d id from User with %d id", id, userId));
-        return filmService.setFilmLike(id, userId);
+        return filmService.setFilmLike(userId, id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public int removeFilmLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
         log.info(String.format("FilmController: Removing like for Film with %d id from User with %d id", id, userId));
-        return filmService.removeFilmLike(id, userId);
+        return filmService.removeFilmLike(userId, id);
     }
 
     @DeleteMapping("/{id}")

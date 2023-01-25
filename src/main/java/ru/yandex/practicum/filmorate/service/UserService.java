@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.utils.FilmorateEventOperation;
+import ru.yandex.practicum.filmorate.utils.FilmorateEventType;
 
 import java.util.List;
 
@@ -35,11 +37,12 @@ public class UserService {
         return storage.update(user);
     }
 
-    @HandleFilmorateEvent(eventType = "FRIENDS", eventOperation = "ADD")
+    @HandleFilmorateEvent(eventType = FilmorateEventType.FRIEND, eventOperation = FilmorateEventOperation.ADD)
     public void addFriend(Long userId, Long friendId) {
         friendListDb.addFriend(userId, friendId);
     }
 
+    @HandleFilmorateEvent(eventType = FilmorateEventType.FRIEND, eventOperation = FilmorateEventOperation.REMOVE)
     public void removeFriend(Long userId, Long friendId) {
         getUserBy(userId);
         getUserBy(friendId);

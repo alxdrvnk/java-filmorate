@@ -13,9 +13,9 @@ public class EventMapper implements RowMapper<Event> {
         return Event.builder()
                 .id(rs.getLong("id"))
                 .userId(rs.getLong("user_id"))
-                .type(rs.getInt("type"))
-                .operation(rs.getInt("operation"))
+                .type(rs.getString("type"))
+                .operation(rs.getString("operation"))
                 .entityId(rs.getLong("entity_id"))
-                .useful(rs.getInt("useful")).build();
+                .build();
     }
 }

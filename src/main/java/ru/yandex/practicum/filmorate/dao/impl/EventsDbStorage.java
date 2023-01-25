@@ -31,11 +31,10 @@ public class EventsDbStorage implements EventDao {
     private Map<String, Object> eventToParameters(Event event) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", event.getId());
-        parameters.put("userId", event.getUserId());
+        parameters.put("user_id", event.getUserId());
         parameters.put("type", event.getType());
         parameters.put("operation", event.getOperation());
-        parameters.put("entityId", event.getEntityId());
-        parameters.put("useful", event.getUseful());
+        parameters.put("entity_id", event.getEntityId());
         parameters.put("timestamp", event.getTimestamp());
         return parameters;
     }
@@ -60,13 +59,12 @@ public class EventsDbStorage implements EventDao {
 
     @Override
     public Event update(Event event) {
-        String query = "UPDATE events SET userId = ?, type = ?, operation = ?, entityId = ?, useful = ?, timestamp = ?";
+        String query = "UPDATE events SET userId = ?, type = ?, operation = ?, entityId = ?, timestamp = ?";
         jdbcTemplate.update(query,
                 event.getUserId(),
                 event.getType(),
                 event.getOperation(),
                 event.getEntityId(),
-                event.getUseful(),
                 event.getTimestamp());
         return event;
     }
