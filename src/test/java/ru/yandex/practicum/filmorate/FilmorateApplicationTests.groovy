@@ -1,17 +1,11 @@
 package ru.yandex.practicum.filmorate
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
-import org.junit.runner.RunWith
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import ru.yandex.practicum.filmorate.dao.impl.GenreDb
 import ru.yandex.practicum.filmorate.dao.impl.MpaDb
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException
@@ -112,7 +106,7 @@ class FilmorateApplicationTests extends Specification {
         likesCount == 0
 
         when:
-        filmService.setFilmLike(3, 1)
+        filmService.setFilmLike(1, 3)
 
         then:
         def likesCountUpdate = filmService.getFilmBy(3).getRate()
@@ -128,7 +122,7 @@ class FilmorateApplicationTests extends Specification {
         likesCount == 1
 
         when:
-        filmService.removeFilmLike(3, 1)
+        filmService.removeFilmLike(1, 3)
 
         then:
         def likesCountUpdate = filmService.getFilmsLikesCount(3)
@@ -137,9 +131,9 @@ class FilmorateApplicationTests extends Specification {
 
     def "can get popular films"() {
         given:
-        filmService.setFilmLike(3, 1)
-        filmService.setFilmLike(3, 2)
         filmService.setFilmLike(1, 3)
+        filmService.setFilmLike(2, 3)
+        filmService.setFilmLike(3, 1)
 
         when:
         def popularFilms = filmService.getPopularFilms(3)

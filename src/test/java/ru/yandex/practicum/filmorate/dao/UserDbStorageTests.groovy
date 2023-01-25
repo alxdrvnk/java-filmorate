@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.dao
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DatabaseSetup
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
-import org.junit.runner.RunWith
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest

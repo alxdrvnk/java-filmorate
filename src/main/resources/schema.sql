@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS events (
                                       entity_id INTEGER NOT NULL,
                                       timestamp TIMESTAMP NOT NULL,
 
-                                      CONSTRAINT fk_event_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+                                      CONSTRAINT fk_event_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS directors (
