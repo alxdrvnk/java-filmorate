@@ -7,10 +7,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FilmMapper {
 
@@ -44,16 +42,15 @@ public class FilmMapper {
             }
 
             if (genre.getId() != 0) {
-                List<Genre> genres = new ArrayList<>(film.getGenres());
+                Set<Genre> genres = new HashSet<>(film.getGenres());
                 genres.add(genre);
-                filmById.put(film.getId(), film.withGenres(genres));
+                filmById.put(film.getId(), film.withGenres(genres.stream().collect(Collectors.toList())));
             }
             if (director.getId() != 0) {
-                List<Director> directors = new ArrayList<>(film.getDirectors());
-                if (!directors.contains(directors)){
+                Set<Director> directors = new HashSet<>(film.getDirectors());
                     directors.add(director);
-                }
-                filmById.put(film.getId(), film.withDirectors(directors));
+                Film f = filmById.get(film.getId());
+                filmById.put(f.getId(), f.withDirectors(directors.stream().collect(Collectors.toList())));
             }
         }
         return new ArrayList<>(filmById.values());
