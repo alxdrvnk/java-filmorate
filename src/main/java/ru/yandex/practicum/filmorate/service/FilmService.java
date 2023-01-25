@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
@@ -23,14 +24,13 @@ public class FilmService {
     private final FilmLikeDao filmLikeDao;
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;
+    private final DirectorDao directorDao;
 
     public Film create(Film film) {
         validateReleaseDate(film);
-
         Film newFilm = storage.create(film);
-
+        storage.addDirectorForFilm(newFilm);
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
-
         return getFilmBy(newFilm.getId());
     }
 

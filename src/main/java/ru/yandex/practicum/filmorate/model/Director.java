@@ -3,14 +3,15 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-@Data
+@Value
 @Builder
-@AllArgsConstructor
+@EqualsAndHashCode
 public class Director {
     @With
     private int id;
-    @NonNull
+    @NotNull
     @NotBlank
     private String name;
 }

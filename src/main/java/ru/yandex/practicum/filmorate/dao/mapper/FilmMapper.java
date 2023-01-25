@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.mapper;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -26,6 +27,7 @@ public class FilmMapper {
             int rate = rs.getInt("RATE");
             Mpa mpa = makeMpa(rs);
             Genre genre = makeGenre(rs);
+            Director director = makeDirector(rs);
 
             Film film = filmById.get(id);
 
@@ -46,6 +48,13 @@ public class FilmMapper {
                 genres.add(genre);
                 filmById.put(film.getId(), film.withGenres(genres));
             }
+            if (director.getId() != 0) {
+                List<Director> directors = new ArrayList<>(film.getDirectors());
+                if (!directors.contains(directors)){
+                    directors.add(director);
+                }
+                filmById.put(film.getId(), film.withDirectors(directors));
+            }
         }
         return new ArrayList<>(filmById.values());
     }
@@ -61,6 +70,12 @@ public class FilmMapper {
         return Genre.builder()
                 .id(rs.getLong("GENRE_ID"))
                 .name(rs.getString("GENRE_NAME"))
+                .build();
+    }
+    private static Director makeDirector(SqlRowSet rs) {
+        return Director.builder()
+                .id(rs.getInt("DIRECTOR_ID"))
+                .name(rs.getString("DIRECTOR_NAME"))
                 .build();
     }
 }

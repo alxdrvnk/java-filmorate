@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.HashMap;
@@ -70,12 +71,19 @@ public class FilmDbStorage implements FilmDao {
     @Override
     public Optional<Film> getBy(Long id) {
 
-        String query =
+        /*String query =
                 "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
                         "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
                         "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                         "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                        "WHERE f.id = ?";
+                        "WHERE f.id = ?";*/
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
+                "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID WHERE f.id = ?;";
         try {
             SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, id);
             return FilmMapper.makeFilmList(rowSet).stream().findAny();
@@ -108,6 +116,14 @@ public class FilmDbStorage implements FilmDao {
         parameters.put("rate", film.getRate());
         parameters.put("mpa_id", film.getMpa().getId());
         return parameters;
+    }
+    @Override
+    public void addDirectorForFilm(Film film){
+        if (film.getDirectors().size() != 0){
+            for (Director director: film.getDirectors()) {
+            jdbcTemplate.update("INSERT INTO FILM_DIRECTORS (DIRECTOR_ID, FILM_ID) VALUES ( ?, ? )", director.getId(), film.getId());
+            }
+        }
     }
 
 }

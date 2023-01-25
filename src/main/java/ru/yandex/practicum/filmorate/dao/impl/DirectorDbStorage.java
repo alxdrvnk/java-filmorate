@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.dao.mapper.DirectorMapper;
@@ -29,10 +29,11 @@ public class DirectorDbStorage implements DirectorDao {
 
     @Override
     public Director getDirectorById(Integer id) {
-        SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM DIRECTORS WHERE ID=?", id);
-        if (directorRows.next()) {
-            return new Director(directorRows.getInt("ID"), directorRows.getString("NAME"));
-        } else {
+        String query = "SELECT * FROM DIRECTORS WHERE ID=?";
+        try {
+            Director director = jdbcTemplate.queryForObject(query, new DirectorMapper(), id);
+            return director;
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }

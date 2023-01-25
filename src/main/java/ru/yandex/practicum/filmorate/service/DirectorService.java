@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
-import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.List;
@@ -36,11 +35,7 @@ public class DirectorService {
 
     public Director createDirector(Director director) {
         log.info("Получен запрос на добавление режиссёра");
-        if (director.getName().isBlank()){
-            throw new FilmorateValidationException("Имя режисера не может быть пустым");
-        } else {
-            return directorDao.createDirector(director);
-        }
+        return directorDao.createDirector(director);
     }
 
     public Director updateDirector(Director director) {

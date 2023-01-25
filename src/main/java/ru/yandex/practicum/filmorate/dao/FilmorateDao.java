@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.dao;
 
+import ru.yandex.practicum.filmorate.model.Film;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
