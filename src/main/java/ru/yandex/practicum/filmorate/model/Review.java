@@ -1,16 +1,27 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
-@Data
+@Value
+@Builder
+@EqualsAndHashCode
+@Jacksonized
 public class Review {
-    private Long id;
+    @With
+    @EqualsAndHashCode.Exclude
+    Long reviewId;
+    @NotNull Long userId;
+    @NotNull Long filmId;
     @NotNull
-    private final User user;
-    private final Film film;
-    private String content;
-    private Boolean isPositive;
-    private int useful;
+    @NotBlank(message = "Поле \"Содержание\" должно быть заполнено")
+    String content;
+    @NotNull Boolean isPositive;
+    @Builder.Default
+    @With
+    int useful = 0;
 }
