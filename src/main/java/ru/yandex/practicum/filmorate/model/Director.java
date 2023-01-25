@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @Builder
@@ -11,6 +11,6 @@ public class Director {
     @With
     private int id;
     @NonNull
-    @NotEmpty
+    @NotBlank
     private String name;
 }
