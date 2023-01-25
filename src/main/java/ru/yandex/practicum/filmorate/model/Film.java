@@ -47,6 +47,9 @@ public class Film {
     @With
     @Builder.Default
     List<Genre> genres = Collections.emptyList();
+    @With
+    @Builder.Default
+    List<Director> directors = Collections.emptyList();
 
     @With
     @Builder.Default
