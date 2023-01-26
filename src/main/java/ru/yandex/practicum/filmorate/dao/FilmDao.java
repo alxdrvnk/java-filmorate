@@ -10,5 +10,9 @@ public interface FilmDao extends FilmorateDao<Film> {
 
     void addDirectorForFilm(Film film);
 
-    void deleteDirectorForFilm(Film film);
+    void deleteDirectorForFilm(Long filmId);
+
+    List<Film> getDirectorFilmSortedByLike(int directorId);
+
+    List<Film> getDirectorFilmSortedByYear(int directorId);
 }

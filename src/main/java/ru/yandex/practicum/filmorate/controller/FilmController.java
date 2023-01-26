@@ -71,10 +71,9 @@ public class FilmController {
     public Collection<Film> getFilmsDirectorBySort(@PathVariable Integer directorId,
                                                    @RequestParam(value = "sortBy") String sort) throws SQLException {
         if (sort.equals("likes")) {
-            return null;//filmService.getDirectorFilmSortedByLike(directorId);
-        } else if (sort.equals("year")){
-            return null;//filmService.getDirectorFilmSortedByYear(directorId);
+            return filmService.getDirectorFilmSortedByLike(directorId);
+        } else /* (sort.equals("year"))*/{
+            return filmService.getDirectorFilmSortedByYear(directorId);
         }
-        return null;
     }
 }
