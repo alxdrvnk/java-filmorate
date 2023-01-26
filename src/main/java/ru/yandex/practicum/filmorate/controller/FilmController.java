@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -62,6 +64,17 @@ public class FilmController {
     public List<Film> getPopularFilms(@RequestParam(name = "count", defaultValue = "10") int count) {
         return filmService.getPopularFilms(count);
     }
-    // GIR: class Directors
 
+    // GIR: class Directors
+    //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsDirectorBySort(@PathVariable Integer directorId,
+                                                   @RequestParam(value = "sortBy") String sort) throws SQLException {
+        if (sort.equals("likes")) {
+            return null;//filmService.getDirectorFilmSortedByLike(directorId);
+        } else if (sort.equals("year")){
+            return null;//filmService.getDirectorFilmSortedByYear(directorId);
+        }
+        return null;
+    }
 }

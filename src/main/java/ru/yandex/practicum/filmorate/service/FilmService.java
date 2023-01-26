@@ -46,10 +46,10 @@ public class FilmService {
     public Film update(Film film) {
         validateReleaseDate(film);
         getFilmBy(film.getId());
-
         storage.update(film);
+        storage.deleteDirectorForFilm(film);
+        storage.addDirectorForFilm(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
-
         return getFilmBy(film.getId());
     }
 

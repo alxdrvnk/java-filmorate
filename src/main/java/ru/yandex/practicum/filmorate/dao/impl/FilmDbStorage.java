@@ -57,12 +57,19 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public List<Film> getAll() {
-        String query =
+        /*String query =
                 "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
                         "JOIN mpa AS m ON f.mpa_id = m.id " +
                         "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                         "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                        "ORDER BY f.id";
+                        "ORDER BY f.id";*/
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f JOIN mpa AS m ON f.mpa_id = m.id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                "ORDER BY f.id";
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query);
         return FilmMapper.makeFilmList(rowSet);
@@ -124,6 +131,10 @@ public class FilmDbStorage implements FilmDao {
             jdbcTemplate.update("INSERT INTO FILM_DIRECTORS (DIRECTOR_ID, FILM_ID) VALUES ( ?, ? )", director.getId(), film.getId());
             }
         }
+    }
+    @Override
+    public void deleteDirectorForFilm(Film film){
+        jdbcTemplate.update("DELETE FROM FILM_DIRECTORS WHERE FILM_ID = ?", film.getId());
     }
 
 }

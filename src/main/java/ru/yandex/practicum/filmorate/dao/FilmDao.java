@@ -9,4 +9,6 @@ public interface FilmDao extends FilmorateDao<Film> {
 
 
     void addDirectorForFilm(Film film);
+
+    void deleteDirectorForFilm(Film film);
 }
