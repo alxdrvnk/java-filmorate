@@ -48,7 +48,6 @@ class EventDaoSpec extends Specification {
                 .build()
 
         when:
-
         def id = eventDao.create(event).getId()
 
         then:

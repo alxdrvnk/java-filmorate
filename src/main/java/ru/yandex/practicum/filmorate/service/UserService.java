@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.aspects.HandleFilmorateEvent;
+import ru.yandex.practicum.filmorate.dao.EventDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.utils.FilmorateEventOperation;
 import ru.yandex.practicum.filmorate.utils.FilmorateEventType;
@@ -17,6 +19,7 @@ import java.util.List;
 public class UserService {
 
     private final UserDao storage;
+    private final EventDao eventStorage;
 
     private final FriendListDb friendListDb;
 
@@ -38,12 +41,12 @@ public class UserService {
     }
 
     @HandleFilmorateEvent(eventType = FilmorateEventType.FRIEND, eventOperation = FilmorateEventOperation.ADD)
-    public void addFriend(Long userId, Long friendId) {
+    public void addFriend(Long friendId, Long userId) {
         friendListDb.addFriend(userId, friendId);
     }
 
     @HandleFilmorateEvent(eventType = FilmorateEventType.FRIEND, eventOperation = FilmorateEventOperation.REMOVE)
-    public void removeFriend(Long userId, Long friendId) {
+    public void removeFriend(Long friendId, Long userId) {
         getUserBy(userId);
         getUserBy(friendId);
         friendListDb.removeFriend(userId, friendId);
@@ -62,5 +65,9 @@ public class UserService {
         getUserBy(userId);
         getUserBy(otherUserId);
         return friendListDb.getCommonFriends(userId, otherUserId);
+    }
+
+    public List<Event> getFeed(Long userId) {
+        return eventStorage.getFeedList(userId);
     }
 }

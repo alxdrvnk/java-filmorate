@@ -57,7 +57,7 @@ public class FilmService {
     }
 
     @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.ADD)
-    public int setFilmLike(Long userId, Long filmId) {
+    public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         filmLikeDao.addFilmLike(filmId, userId);
 
@@ -67,7 +67,7 @@ public class FilmService {
     }
 
     @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.REMOVE)
-    public int removeFilmLike(Long userId, Long filmId) {
+    public int removeFilmLike(Long filmId, Long userId) {
 
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);

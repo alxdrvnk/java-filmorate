@@ -28,6 +28,19 @@ public class EventsDbStorage implements EventDao {
         return event.withId(eventId);
     }
 
+    @Override
+    public List<Event> getFeedList(Long userId) {
+        String query =
+                "SELECT * from events AS e " +
+                        "WHERE e.user_id IN " +
+                        "(SELECT fl.friend_id FROM friend_list AS fl " +
+                        "WHERE fl.user_id = ?" +
+                        "UNION " +
+                        "SELECT fl.user_id FROM friend_list AS fl " +
+                        "WHERE fl.friend_id = ? AND fl.state = true)";
+        return jdbcTemplate.query(query, new EventMapper(), userId, userId);
+    }
+
     private Map<String, Object> eventToParameters(Event event) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", event.getId());
@@ -37,41 +50,5 @@ public class EventsDbStorage implements EventDao {
         parameters.put("entity_id", event.getEntityId());
         parameters.put("timestamp", event.getTimestamp());
         return parameters;
-    }
-
-    @Override
-    public Optional<Event> getBy(Long id) {
-        String query =
-                "SELECT * FROM events WHERE id = ?";
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(query, new EventMapper(), id));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-
-    }
-
-    @Override
-    public List<Event> getAll() {
-        String query = "SELECT * FROM events";
-        return jdbcTemplate.query(query, new EventMapper());
-    }
-
-    @Override
-    public Event update(Event event) {
-        String query = "UPDATE events SET userId = ?, type = ?, operation = ?, entityId = ?, timestamp = ?";
-        jdbcTemplate.update(query,
-                event.getUserId(),
-                event.getType(),
-                event.getOperation(),
-                event.getEntityId(),
-                event.getTimestamp());
-        return event;
-    }
-
-    @Override
-    public int deleteBy(Long id) {
-        String query = "DELETE FROM event WHERE id = ?";
-        return jdbcTemplate.update(query, id);
     }
 }

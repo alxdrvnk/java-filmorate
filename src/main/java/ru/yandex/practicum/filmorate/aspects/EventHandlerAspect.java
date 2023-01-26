@@ -29,8 +29,8 @@ public class EventHandlerAspect {
 
     @AfterReturning("eventPointcut()")
     public void addFilmorateEvent(JoinPoint joinPoint) {
-        Long userId = (Long) joinPoint.getArgs()[0];
-        Long entityId = (Long) joinPoint.getArgs()[1];
+        Long userId = (Long) joinPoint.getArgs()[1];
+        Long entityId = (Long) joinPoint.getArgs()[0];
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         HandleFilmorateEvent annotation =

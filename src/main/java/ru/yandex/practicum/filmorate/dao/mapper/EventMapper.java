@@ -5,9 +5,11 @@ import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class EventMapper implements RowMapper<Event> {
 
+    //TODO: Add LocalDateTime Formatting
     @Override
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
@@ -16,6 +18,7 @@ public class EventMapper implements RowMapper<Event> {
                 .type(rs.getString("type"))
                 .operation(rs.getString("operation"))
                 .entityId(rs.getLong("entity_id"))
+                .timestamp(Timestamp.valueOf("timestamp"))
                 .build();
     }
 }

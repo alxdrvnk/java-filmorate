@@ -1,5 +1,12 @@
 package ru.yandex.practicum.filmorate.dao;
 
+
 import ru.yandex.practicum.filmorate.model.Event;
 
-public interface EventDao extends FilmorateDao<Event>{}
+import java.util.List;
+
+public interface EventDao {
+    Event create(Event event);
+
+    List<Event> getFeedList(Long userId);
+}
