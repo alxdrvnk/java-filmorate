@@ -174,6 +174,13 @@ class FilmorateApplicationTests extends Specification {
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql"])
     def "Should add event if user add friend"() {
         given:
+        def film = Film.builder()
+                .name("testFilm")
+                .description("test")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(199)
+                .mpa(Mpa.builder().id(1).build()).build()
+
         def user = User.builder()
                 .name("userName")
                 .login("loginUser")
@@ -197,12 +204,14 @@ class FilmorateApplicationTests extends Specification {
         def userId = userService.create(user).getId()
         def friendId = userService.create(friendUser).getId()
         def friendOfFriendId = userService.create(friendOfFriendUser).getId()
-        userService.addFriend(friendId as Long, userId as Long)
-        userService.addFriend(friendOfFriendId as Long, friendId as Long)
+
+        def filmID = filmService.create(film).getId()
+        userService.addFriend(friendId, userId)
+        userService.addFriend(friendOfFriendId, friendId)
+        filmService.setFilmLike(filmID, friendId)
 
         then:
         def eventList = userService.getFeed(userId as Long)
-        eventList.size() == 1
-
+        eventList.size() == 2
     }
 }
