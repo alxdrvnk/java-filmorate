@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -72,8 +73,11 @@ public class FilmController {
                                                    @RequestParam(value = "sortBy") String sort) throws SQLException {
         if (sort.equals("likes")) {
             return filmService.getDirectorFilmSortedByLike(directorId);
-        } else /* (sort.equals("year"))*/{
+        }
+        if (sort.equals("year")){
             return filmService.getDirectorFilmSortedByYear(directorId);
+        } else {
+            throw new FilmorateNotFoundException("Неверный запрос");
         }
     }
 }

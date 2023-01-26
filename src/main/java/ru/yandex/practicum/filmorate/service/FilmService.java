@@ -90,11 +90,19 @@ public class FilmService {
     }
 
     public List<Film> getDirectorFilmSortedByLike(int directorId){
-        return storage.getDirectorFilmSortedByLike(directorId);
+        List<Film> films = storage.getDirectorFilmSortedByLike(directorId);
+        if (films.size() == 0){
+            throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
+        }
+        return films;
     }
 
     public List<Film> getDirectorFilmSortedByYear(int directorId){
-        return storage.getDirectorFilmSortedByYear(directorId);
+        List<Film> films = storage.getDirectorFilmSortedByYear(directorId);
+        if (films.size() == 0){
+         throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
+        }
+        return films;
     }
 
     private void validateReleaseDate(Film film) {
