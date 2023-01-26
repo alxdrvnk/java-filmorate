@@ -48,7 +48,7 @@ public class FilmMapper {
             }
             if (director.getId() != 0) {
                 Set<Director> directors = new HashSet<>(film.getDirectors());
-                    directors.add(director);
+                directors.add(director);
                 Film f = filmById.get(film.getId());
                 filmById.put(f.getId(), f.withDirectors(directors.stream().collect(Collectors.toList())));
             }
@@ -69,6 +69,7 @@ public class FilmMapper {
                 .name(rs.getString("GENRE_NAME"))
                 .build();
     }
+
     private static Director makeDirector(SqlRowSet rs) {
         return Director.builder()
                 .id(rs.getInt("DIRECTOR_ID"))

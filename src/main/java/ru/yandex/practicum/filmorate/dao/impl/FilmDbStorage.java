@@ -88,22 +88,14 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public List<Film> getPopularFilms(int count) {
-
-/*        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
                 "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
                 "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                "ORDER BY f.rate DESC " +
-                "LIMIT ?";*/
-        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
-                "FROM films AS f " +
-                "INNER JOIN mpa AS m ON m.id = f.mpa_id  " +
-                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id  " +
-                "LEFT JOIN genre AS g ON g.id = fg.genre_id  " +
-                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID  " +
-                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID  " +
-                "ORDER BY f.rate  " +
-                "DESC LIMIT ?;";
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                "RIGHT JOIN (SELECT id from films order by rate DESC LIMIT ?) as flm ON flm.id = f.id";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
 
         return FilmMapper.makeFilmList(rowSet);

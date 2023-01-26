@@ -74,7 +74,7 @@ public class FilmController {
         if (sort.equals("likes")) {
             return filmService.getDirectorFilmSortedByLike(directorId);
         }
-        if (sort.equals("year")){
+        if (sort.equals("year")) {
             return filmService.getDirectorFilmSortedByYear(directorId);
         } else {
             throw new FilmorateNotFoundException("Неверный запрос");
