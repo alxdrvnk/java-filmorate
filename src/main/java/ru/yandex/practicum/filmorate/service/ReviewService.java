@@ -21,7 +21,7 @@ public class ReviewService {
         userService.getUserBy(review.getUserId());
         filmService.getFilmBy(review.getFilmId());
 
-        if (review.getUseful() != 0){
+        if (review.getUseful() != 0) {
             review.withUseful(0);
         }
 
@@ -54,29 +54,45 @@ public class ReviewService {
 
     public void addLike(Long id, Long userId) {
         Review review = get(id);
-        boolean isAdd = reviewLikeDao.addLike(id, userId);
 
-        if (isAdd){
+        boolean isRemoved = reviewLikeDao.removeDislike(id, userId);
+        if (isRemoved) {
             int useful = review.getUseful() + 1;
-            reviewDao.update(review.withUseful(useful));
+            review = review.withUseful(useful);
         }
+
+        boolean isAdd = reviewLikeDao.addLike(id, userId);
+        if (isAdd) {
+            int useful = review.getUseful() + 1;
+            review = review.withUseful(useful);
+        }
+
+        reviewDao.update(review);
     }
 
     public void addDislike(Long id, Long userId) {
         Review review = get(id);
+
+        boolean isRemoved = reviewLikeDao.removeLike(id, userId);
+        if (isRemoved) {
+            int useful = review.getUseful() - 1;
+            review = review.withUseful(useful);
+        }
         boolean isAdd = reviewLikeDao.addDislike(id, userId);
 
-        if (isAdd){
+        if (isAdd) {
             int useful = review.getUseful() - 1;
-            reviewDao.update(review.withUseful(useful));
+            review = review.withUseful(useful);
         }
+
+        reviewDao.update(review);
     }
 
     public void removeLike(Long id, Long userId) {
         Review review = get(id);
-        boolean isRemove = reviewLikeDao.removeLike(id, userId);
 
-        if (isRemove){
+        boolean isRemoved = reviewLikeDao.removeLike(id, userId);
+        if (isRemoved) {
             int useful = review.getUseful() - 1;
             reviewDao.update(review.withUseful(useful));
         }
@@ -84,9 +100,9 @@ public class ReviewService {
 
     public void removeDislike(Long id, Long userId) {
         Review review = get(id);
-        boolean isRemove = reviewLikeDao.removeDislike(id, userId);
 
-        if (isRemove){
+        boolean isRemoved = reviewLikeDao.removeDislike(id, userId);
+        if (isRemoved) {
             int useful = review.getUseful() + 1;
             reviewDao.update(review.withUseful(useful));
         }

@@ -49,13 +49,13 @@ public class ReviewLikeDb implements ReviewLikeDao {
 
     @Override
     public boolean removeLike(Long reviewId, Long userId) {
-        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
+        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND value_st = true";
         return jdbcTemplate.update(query, reviewId, userId) == 1;
     }
 
     @Override
     public boolean removeDislike(Long reviewId, Long userId) {
-        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
+        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND value_st = false";
         return jdbcTemplate.update(query, reviewId, userId) == 1;
     }
 
