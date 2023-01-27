@@ -174,11 +174,12 @@ public class FilmControllerForDirectorTest {
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getDirectors().contains(director1)).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index1).getDirectors().contains(director1)).isTrue();
     }
+
     @Test
     @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Популярные фильмы")
-    void getPopularFilms(){
+    void getPopularFilms() {
         initDirectors();
         initFilms();
         final int count = 1;
