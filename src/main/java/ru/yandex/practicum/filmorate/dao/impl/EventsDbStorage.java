@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -10,6 +9,7 @@ import ru.yandex.practicum.filmorate.dao.EventDao;
 import ru.yandex.practicum.filmorate.dao.mapper.EventMapper;
 import ru.yandex.practicum.filmorate.model.Event;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -48,7 +48,7 @@ public class EventsDbStorage implements EventDao {
         parameters.put("type", event.getType());
         parameters.put("operation", event.getOperation());
         parameters.put("entity_id", event.getEntityId());
-        parameters.put("timestamp", event.getTimestamp());
+        parameters.put("timestamp", event.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         return parameters;
     }
 }

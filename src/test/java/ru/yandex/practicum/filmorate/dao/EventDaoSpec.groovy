@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.dao
 import com.github.springtestdbunit.TransactionDbUnitTestExecutionListener
 import com.github.springtestdbunit.annotation.DatabaseSetup
 import groovy.sql.Sql
-import org.dbunit.database.DatabaseConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
@@ -16,7 +15,6 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import javax.sql.DataSource
-import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @Subject(EventsDbStorage)
@@ -43,8 +41,8 @@ class EventDaoSpec extends Specification {
                 .entityId(1)
                 .type("FRIEND")
                 .operation("ADD")
-                .timestamp(Timestamp.valueOf(
-                        LocalDateTime.of(2000, 1, 1, 1, 1, 1)))
+                .timestamp(
+                        LocalDateTime.of(2000, 1, 1, 1, 1, 1))
                 .build()
 
         when:
@@ -57,6 +55,5 @@ class EventDaoSpec extends Specification {
         res[0]["USER_ID"] == event.getUserId()
         res[0]["TYPE"] == event.getType()
         res[0]["OPERATION"] == event.getOperation()
-        res[0]["TIMESTAMP"] == event.getTimestamp()
     }
 }

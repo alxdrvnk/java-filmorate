@@ -11,8 +11,9 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.impl.EventsDbStorage;
 import ru.yandex.practicum.filmorate.model.Event;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 @Aspect
@@ -20,7 +21,6 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @Slf4j
 public class EventHandlerAspect {
-
     private final EventsDbStorage eventsDbStorage;
 
     @Pointcut("@annotation(HandleFilmorateEvent)")
@@ -35,13 +35,12 @@ public class EventHandlerAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         HandleFilmorateEvent annotation =
                 Arrays.stream(signature.getMethod().getAnnotationsByType(HandleFilmorateEvent.class)).findAny().get();
-
         Event event = Event.builder()
                 .userId(userId)
                 .entityId(entityId)
                 .type(String.valueOf(annotation.eventType()))
                 .operation(String.valueOf(annotation.eventOperation()))
-                .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                .timestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .build();
         event = eventsDbStorage.create(event);
         log.info(String.format("EventHandler: Add Event. Data: %s", event));

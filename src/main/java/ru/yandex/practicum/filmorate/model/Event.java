@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.With;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Value
 @Builder
@@ -16,5 +16,5 @@ public class Event {
     Long entityId;
     String type;
     String operation;
-    Timestamp timestamp;
+    LocalDateTime timestamp;
 }
