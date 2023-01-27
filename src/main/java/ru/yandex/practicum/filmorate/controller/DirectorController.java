@@ -50,6 +50,4 @@ public class DirectorController {
         directorService.deleteDirectorById(id);
     }
 
-    //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
-    //Возвращает список фильмов режиссера отсортированных по количеству лайков или году выпуска.
 }

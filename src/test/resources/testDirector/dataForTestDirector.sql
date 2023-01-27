@@ -12,11 +12,11 @@ VALUES ('user1@email.mail', 'user1-login', 'user1-name', '1944-05-14'),
        ('user6@email.mail', 'user6-login', 'user6-name', '2001-07-19');
 
 INSERT INTO FILMS (title, description, release_date, duration, rate, mpa_id)
-VALUES ('Фильм-1', 'film1', '1987-02-01', 50, 0, 1);
+VALUES ('Фильм-1', 'film1', '1987-02-01', 50, 5, 1);
 INSERT INTO FILMS (title, description, release_date, duration, rate, mpa_id)
-VALUES ('Фильм-2', 'film2', '1988-03-07', 150, 0, 2);
+VALUES ('Фильм-2', 'film2', '1988-03-07', 150, 2, 2);
 INSERT INTO FILMS (title, description, release_date, duration, rate, mpa_id)
-VALUES ('Фильм-3', 'film3', '1989-04-09', 134, 0, 3);
+VALUES ('Фильм-3', 'film3', '1989-04-09', 134, 1, 3);
 INSERT INTO FILMS (title, description, release_date, duration, rate, mpa_id)
 VALUES ('Фильм-4', 'film4', '1990-05-12', 12, 0, 4);
 INSERT INTO FILMS (title, description, release_date, duration, rate, mpa_id)
