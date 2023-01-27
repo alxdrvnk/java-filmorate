@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,16 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmDao {
 
     private final JdbcTemplate jdbcTemplate;
+
+    private static final String SELECT_FILMS = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, " +
+            "d.id AS director_id, d.name AS director_name " +
+            "FROM films AS f INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+            "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+            "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+            "LEFT JOIN film_directors AS fd ON fd.film_id = f.id " +
+            "LEFT JOIN directors d ON fd.director_id = d.id " +
+            "%s " +
+            "%s;";
 
     @Override
     public Film create(Film film) {
@@ -56,13 +69,7 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public List<Film> getAll() {
-        String query =
-                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
-                        "JOIN mpa AS m ON f.mpa_id = m.id " +
-                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
-                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                        "ORDER BY f.id";
-
+        String query = String.format(SELECT_FILMS, "ORDER BY f.id", "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query);
         return FilmMapper.makeFilmList(rowSet);
     }
@@ -70,12 +77,7 @@ public class FilmDbStorage implements FilmDao {
     @Override
     public Optional<Film> getBy(Long id) {
 
-        String query =
-                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
-                        "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
-                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
-                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                        "WHERE f.id = ?";
+        String query = String.format(SELECT_FILMS, "WHERE f.id = ?", "");
         try {
             SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, id);
             return FilmMapper.makeFilmList(rowSet).stream().findAny();
@@ -87,14 +89,19 @@ public class FilmDbStorage implements FilmDao {
     @Override
     public List<Film> getPopularFilms(int count) {
 
-        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
-                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
-                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
-                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                "ORDER BY f.rate DESC " +
-                "LIMIT ?";
+        String query = String.format(SELECT_FILMS, "ORDER BY f.rate DESC ", "LIMIT ?");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
 
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public List<Film> findFilmsBy(String query, String where) {
+        String sql = String.format(SELECT_FILMS, where, "ORDER BY f.rate DESC");
+        NamedParameterJdbcTemplate jdbc = new NamedParameterJdbcTemplate(jdbcTemplate);
+        SqlParameterSource namedParameter = new MapSqlParameterSource().addValue("query", query);
+        System.out.println(sql);
+        SqlRowSet rowSet = jdbc.queryForRowSet(sql, namedParameter);
         return FilmMapper.makeFilmList(rowSet);
     }
 

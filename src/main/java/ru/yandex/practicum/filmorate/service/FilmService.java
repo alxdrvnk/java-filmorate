@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -95,8 +96,21 @@ public class FilmService {
         }
     }
 
-    public List<Film> findFilmBy(String query, String by) {
-        
-        return null;
+    public List<Film> findFilmsBy(String query, String by) {
+        query = "%" + query.toLowerCase() + "%";
+        by = by.toLowerCase();
+        StringBuilder where = new StringBuilder("WHERE ");
+        if (by.contains("director")) {
+            where.append("lower(d.name) LIKE :query OR ");
+        }
+        if (by.contains("title")) {
+            where.append("lower(title) LIKE :query OR ");
+        }
+        if (where.length() > 6) {
+            where.delete(where.length() - 3, where.length());
+            return storage.findFilmsBy(query, where.toString());
+        } else {
+            return new ArrayList<>();
+        }
     }
 }
