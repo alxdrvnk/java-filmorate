@@ -85,14 +85,25 @@ public class FilmDbStorage implements FilmDao {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(int count, Integer genreId, Integer year) {
+        String genreIdFilter =
+                "INNER JOIN (" +
+                        "SELECT film_id FROM film_genres " +
+                        String.format("WHERE genre_id = %d ", genreId) +
+                        ") AS flmgnr ON flmgnr.film_id = f.id";
 
         String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
                 "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
                 "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                "ORDER BY f.rate DESC " +
-                "LIMIT ?";
+                "RIGHT JOIN ( " +
+                "SELECT id FROM films " +
+                (year != null ?
+                        String.format("WHERE EXTRACT(YEAR FROM release_date) = %d ", year) : "") +
+                "ORDER BY rate DESC LIMIT ? " +
+                ") as flm ON flm.id = f.id " +
+                (genreId != null ?
+                        genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
 
         return FilmMapper.makeFilmList(rowSet);

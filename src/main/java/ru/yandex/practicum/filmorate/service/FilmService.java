@@ -68,7 +68,7 @@ public class FilmService {
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
 
-        int likes = film.getRate()-1;
+        int likes = film.getRate() - 1;
         update(film.withRate(likes));
         return likes;
     }
@@ -77,8 +77,8 @@ public class FilmService {
         return getFilmBy(filmId).getRate();
     }
 
-    public List<Film> getPopularFilms(int count) {
-        return storage.getPopularFilms(count);
+    public List<Film> getPopularFilms(int count, Integer genreId, Integer year) {
+        return storage.getPopularFilms(count, genreId, year);
     }
 
     public void deleteFilmBy(Long id) {
