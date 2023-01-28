@@ -58,4 +58,10 @@ public class UserService {
         getUserBy(otherUserId);
         return friendListDb.getCommonFriends(userId, otherUserId);
     }
+    public void deleteUserBy(Long id) {
+        if (storage.deleteBy(id) == 0) {
+            throw new FilmorateNotFoundException(
+                    String.format("Пользователь с id: %d не найден.", id));
+        }
+    }
 }

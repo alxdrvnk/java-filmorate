@@ -145,4 +145,17 @@ class FilmControllerTest extends Specification {
         mvc.perform(MockMvcRequestBuilders.put("/films/2/like/9999"))
                 .andExpect(status().isNotFound())
     }
+
+
+    def "Should delete film by id then return code 200"(){
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return code 400 because of deleting non exist film"(){
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
+                .andExpect(status().isNotFound())
+    }
 }

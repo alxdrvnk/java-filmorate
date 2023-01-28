@@ -86,4 +86,10 @@ public class UserController {
         }
         return user;
     }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUserBy(@PathVariable("userId") Long userId) {
+        userService.deleteUserBy(userId);
+        log.info(String.format("FilmController: Remove user with id: %d.", userId));
+    }
 }
