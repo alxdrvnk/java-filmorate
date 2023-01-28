@@ -26,6 +26,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class FilmControllerForDirectorTest {
     private final FilmController filmController;
     private final FilmDao filmDao;
@@ -57,8 +59,7 @@ public class FilmControllerForDirectorTest {
     }
 
     @Test
-    @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+
     @DisplayName("Проверка списка директоров при поиске фильма по id ")
     void findFilmByIdWithADirectorsTest() {
         initDirectors();
@@ -71,8 +72,6 @@ public class FilmControllerForDirectorTest {
     }
 
     @Test
-    @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Проверка списка директоров при обновлении фильма")
     void updateFilmDirectorTest() {
         initDirectors();
@@ -96,8 +95,6 @@ public class FilmControllerForDirectorTest {
     }
 
     @Test
-    @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Получение всех фильмов")
     void findAllFilmDirectorTest() {
         initDirectors();
@@ -120,8 +117,6 @@ public class FilmControllerForDirectorTest {
     }
 
     @Test
-    @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Удаление директоров у фильма фильма")
     void deleteFilmByDirectorTest() {
         initDirectors();
@@ -140,8 +135,6 @@ public class FilmControllerForDirectorTest {
     }
 
     @Test
-    @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Сортировка фильмов по кол-ву лайков и id директора")
     void getFilmsDirectorBySortLikesTest() throws SQLException {
         initDirectors();
@@ -158,8 +151,6 @@ public class FilmControllerForDirectorTest {
     }
 
     @Test
-    @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Сортировка фильмов по годам и id директора")
     void getFilmsDirectorBySortYearTest() throws SQLException {
         initDirectors();
@@ -176,8 +167,6 @@ public class FilmControllerForDirectorTest {
     }
 
     @Test
-    @Sql(value = {"classpath:testDirector/dataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Популярные фильмы")
     void getPopularFilms() {
         initDirectors();

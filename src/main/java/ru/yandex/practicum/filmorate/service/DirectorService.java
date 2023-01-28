@@ -25,12 +25,8 @@ public class DirectorService {
 
     public Director getDirectorById(Integer id) {
         log.info("Получен запрос на получение режиссёра по id = " + id);
-        Director directorGetById = directorDao.getDirectorById(id);
-        if (Objects.isNull(directorGetById)) {
-            log.warn("Ошибка поиска режиссера по id= " + id);
-            throw new FilmorateNotFoundException("Не удалось найти режиссера с id " + id + ", его нет в списке");
-        }
-        return directorGetById;
+        return directorDao.getDirectorById(id).orElseThrow(() -> new FilmorateNotFoundException(
+                String.format("Не удалось найти режиссера с id " + id + ", его нет в списке")));
     }
 
     public Director createDirector(Director director) {
