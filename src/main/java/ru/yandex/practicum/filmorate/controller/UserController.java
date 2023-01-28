@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -54,8 +55,8 @@ public class UserController {
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
-         userService.removeFriend(id, friendId);
-         log.info(String.format("UserController: User with %d id remove friend with id %d", id, friendId));
+        userService.removeFriend(id, friendId);
+        log.info(String.format("UserController: User with %d id remove friend with id %d", id, friendId));
     }
 
     @PutMapping("/{id}/friends/{friedId}/approve")
@@ -72,6 +73,11 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable("id") Long userId, @PathVariable("otherId") Long otherUserId) {
         return userService.getMutualFriends(userId, otherUserId);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> findRecommendations(@PathVariable Long id) {
+        return userService.getRecommendations(id);
     }
 
     private void validateUserBirthday(User user) {

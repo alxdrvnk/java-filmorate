@@ -5,9 +5,12 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +24,7 @@ public class UserService {
         return storage.create(user);
     }
 
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         return storage.getAll();
     }
 
@@ -57,5 +60,21 @@ public class UserService {
         getUserBy(userId);
         getUserBy(otherUserId);
         return friendListDb.getCommonFriends(userId, otherUserId);
+    }
+
+    public List<Film> getRecommendations(Long userId) {
+        getUserBy(userId);
+        Map<Long, List<Long>> likes = storage.getAllLikes();
+        Map<Long, Map<Long, Integer>> freq = new HashMap<>();
+        for (Map.Entry<Long, List<Long>> pair : likes.entrySet()) {
+            for (Long filmId : pair.getValue()) {
+                if (!freq.containsKey(filmId)) {
+                    freq.put(filmId, new HashMap<>());
+                }
+
+
+            }
+        }
+        return null;
     }
 }
