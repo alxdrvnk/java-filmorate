@@ -26,11 +26,8 @@ public class FilmService {
 
     public Film create(Film film) {
         validateReleaseDate(film);
-
-        Film newFilm = storage.create(film);
-
+        Film newFilm = storage.create(film.withRate(0));
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
-
         return getFilmBy(newFilm.getId());
     }
 
@@ -47,18 +44,29 @@ public class FilmService {
         validateReleaseDate(film);
         getFilmBy(film.getId());
 
+        storage.update(film.withRate(0));
+        //защита от внешнего воздействия на лайки, но нужен отдельный класс для добавления/удаления лайков
+        filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
+
+        return getFilmBy(film.getId());
+    }
+
+    public Film updateLikes(Film film) {
+        validateReleaseDate(film);
+        getFilmBy(film.getId());
         storage.update(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
 
         return getFilmBy(film.getId());
     }
+    //да, тут повтор кода, но если создавать ещё один класс, то получится ещё больше строк
 
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         filmLikeDao.addFilmLike(filmId, userId);
 
         int likes = film.getRate() + 1;
-        update(film.withRate(likes));
+        updateLikes(film.withRate(likes));
         return likes;
     }
 
@@ -69,7 +77,7 @@ public class FilmService {
         filmLikeDao.removeFilmLike(filmId, userId);
 
         int likes = film.getRate()-1;
-        update(film.withRate(likes));
+        updateLikes(film.withRate(likes));
         return likes;
     }
 

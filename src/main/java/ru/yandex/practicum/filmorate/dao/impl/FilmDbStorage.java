@@ -12,10 +12,8 @@ import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -88,14 +86,14 @@ public class FilmDbStorage implements FilmDao {
     public List<Film> getPopularFilms(int count) {
 
         String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
-                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "JOIN mpa AS m ON f.mpa_id = m.id " +
                 "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                "ORDER BY f.rate DESC " +
-                "LIMIT ?";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
+                "ORDER BY f.rate DESC ";
+        // LIMIT не подходит, так как в этой таблице фильмы повторяются несколько раз по количеству жанров
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query);
 
-        return FilmMapper.makeFilmList(rowSet);
+        return FilmMapper.makeFilmList(rowSet).stream().limit(count).collect(Collectors.toList());
     }
 
     private Map<String, Object> filmToParameters(Film film) {
