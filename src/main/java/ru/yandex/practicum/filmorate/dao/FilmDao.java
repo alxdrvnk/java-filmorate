@@ -6,4 +6,13 @@ import java.util.List;
 
 public interface FilmDao extends FilmorateDao<Film> {
     List<Film> getPopularFilms(int count);
+
+
+    void addDirectorForFilm(Film film);
+
+    void deleteDirectorForFilm(Long filmId);
+
+    List<Film> getDirectorFilmSortedByLike(int directorId);
+
+    List<Film> getDirectorFilmSortedByYear(int directorId);
 }
