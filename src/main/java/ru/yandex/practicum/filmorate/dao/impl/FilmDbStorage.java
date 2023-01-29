@@ -44,14 +44,6 @@ public class FilmDbStorage implements FilmDao {
                 .withTableName("films")
                 .usingGeneratedKeyColumns("id");
         long filmId = simpleJdbcInsert.executeAndReturnKey(filmToParameters(film)).longValue();
-        jdbcTemplate.batchUpdate("INSERT INTO film_directors (director_id, film_id) " +
-                        "VALUES (?, ?)",
-                film.getDirectors(),
-                100,
-                (PreparedStatement ps, Director director) -> {
-                    ps.setInt(1, director.getId());
-                    ps.setLong(2, filmId);
-                });
         return film.withId(filmId);
     }
 

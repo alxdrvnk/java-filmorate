@@ -42,12 +42,14 @@ public class FilmMapper {
             }
 
             if (genre.getId() != 0) {
+                film = filmById.get(id);
                 List<Genre> genres = new ArrayList<>(film.getGenres());
                 genres.add(genre);
                 filmById.put(film.getId(), film.withGenres(genres));
             }
 
             if (director != null && director.getId() != 0) {
+                film = filmById.get(id);
                 List<Director> directors = new ArrayList<>(film.getDirectors());
                 directors.add(director);
                 filmById.put(film.getId(), film.withDirectors(directors));

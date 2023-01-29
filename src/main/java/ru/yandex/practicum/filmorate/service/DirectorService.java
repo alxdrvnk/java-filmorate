@@ -34,8 +34,7 @@ public class DirectorService {
 
     public Director updateDirector(Director director) {
         log.info("Получен запрос на обновление режиссёра с id = " + director.getId());
-        directorDao.updateDirector(director);
-        return null;
+        return directorDao.updateDirector(director);
     }
 
     public void deleteDirectorById(Integer id) {

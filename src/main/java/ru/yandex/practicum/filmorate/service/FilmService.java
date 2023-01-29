@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
+import ru.yandex.practicum.filmorate.dao.FilmDirectorDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
@@ -24,6 +25,7 @@ public class FilmService {
     private final FilmLikeDao filmLikeDao;
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;
+    private final FilmDirectorDao filmDirectorsDao;
 
     public Film create(Film film) {
         validateReleaseDate(film);
@@ -31,6 +33,7 @@ public class FilmService {
         Film newFilm = storage.create(film);
 
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
+        filmDirectorsDao.createFilmDirectors(newFilm);
 
         return getFilmBy(newFilm.getId());
     }
@@ -50,6 +53,7 @@ public class FilmService {
 
         storage.update(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
+        filmDirectorsDao.updateFilmDirectors(film);
 
         return getFilmBy(film.getId());
     }
