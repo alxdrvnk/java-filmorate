@@ -47,7 +47,7 @@ public class FilmMapper {
                 filmById.put(film.getId(), film.withGenres(genres));
             }
 
-            if (director.getId() != 0) {
+            if (director != null && director.getId() != 0) {
                 List<Director> directors = new ArrayList<>(film.getDirectors());
                 directors.add(director);
                 filmById.put(film.getId(), film.withDirectors(directors));
@@ -71,10 +71,14 @@ public class FilmMapper {
     }
 
     private static Director makeDirector(SqlRowSet rs) {
-        return  Director.builder()
-                .id(rs.getInt("DIRECTOR_ID"))
-                .name(rs.getString("DIRECTOR_NAME"))
-                .build();
+        try {
+            return  Director.builder()
+                    .id(rs.getInt("DIRECTOR_ID"))
+                    .name(Objects.requireNonNull(rs.getString("DIRECTOR_NAME")))
+                    .build();
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 }
 
