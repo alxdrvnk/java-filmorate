@@ -12,10 +12,7 @@ import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -95,6 +92,21 @@ public class FilmDbStorage implements FilmDao {
                 "LIMIT ?";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
 
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public List<Film> getByIds(Collection<Long> filmIds) {
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String query = String.format(
+                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
+                        "JOIN mpa AS m ON f.mpa_id = m.id " +
+                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                        "WHERE f.id in (%s) " +
+                        "ORDER BY f.id", inSql);
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmIds.toArray());
         return FilmMapper.makeFilmList(rowSet);
     }
 

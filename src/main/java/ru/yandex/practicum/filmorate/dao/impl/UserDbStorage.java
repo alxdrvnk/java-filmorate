@@ -6,14 +6,15 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.dao.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,21 +67,7 @@ public class UserDbStorage implements UserDao {
         return jdbcTemplate.update(query, id);
     }
 
-    @Override
-    public Map<Long, List<Long>> getAllLikes() {
-        String query = "SELECT * FROM likes";
-
-        Map<Long, List<Long>> filmMap = new HashMap<>();
-        jdbcTemplate.query(query, rs -> {
-            long id = rs.getLong("user_id");
-            long filmId = rs.getLong("film_id");
-            filmMap.putIfAbsent(id, new ArrayList<>());
-            filmMap.get(id).add(filmId);
-        });
-        return filmMap;
-    }
-
-    private Map<String, Object> userToParameters(User user){
+    private Map<String, Object> userToParameters(User user) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", user.getId());
         parameters.put("email", user.getEmail());
