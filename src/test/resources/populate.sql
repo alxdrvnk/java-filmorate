@@ -13,3 +13,9 @@ VALUES (3, 2),
        (1, 6),
        (2, 6),
        (2, 1);
+
+INSERT INTO likes(user_id, film_id)
+VALUES (1, 3),
+       (2, 3),
+       (2, 2),
+       (3, 3);

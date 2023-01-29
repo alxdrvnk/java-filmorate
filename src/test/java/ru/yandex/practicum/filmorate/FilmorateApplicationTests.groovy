@@ -1,17 +1,11 @@
 package ru.yandex.practicum.filmorate
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
-import org.junit.runner.RunWith
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import ru.yandex.practicum.filmorate.dao.impl.GenreDb
 import ru.yandex.practicum.filmorate.dao.impl.MpaDb
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException
@@ -175,5 +169,24 @@ class FilmorateApplicationTests extends Specification {
         then:
         def e = thrown(FilmorateNotFoundException)
         e.message == "Фильм с id: 9999 не найден."
+    }
+
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
+    def "should return 200 and list of recommendations"() {
+        when:
+        def films = userService.getRecommendations(1)
+
+        then:
+        with(films) {
+            id == [2]
+        }
+    }
+
+    def "should return 200 and empty list of recommendations"() {
+        when:
+        def films = userService.getRecommendations(2)
+
+        then:
+        films.size() == 0
     }
 }
