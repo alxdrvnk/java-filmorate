@@ -1,15 +1,13 @@
 package ru.yandex.practicum.filmorate.dao.mapper;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FilmMapper {
 
@@ -26,6 +24,7 @@ public class FilmMapper {
             int rate = rs.getInt("RATE");
             Mpa mpa = makeMpa(rs);
             Genre genre = makeGenre(rs);
+            Director director = makeDirector(rs);
 
             Film film = filmById.get(id);
 
@@ -37,7 +36,8 @@ public class FilmMapper {
                         .releaseDate(releaseDate)
                         .duration(duration)
                         .rate(rate)
-                        .mpa(mpa).build();
+                        .mpa(mpa)
+                        .build();
                 filmById.put(film.getId(), film);
             }
 
@@ -45,6 +45,12 @@ public class FilmMapper {
                 List<Genre> genres = new ArrayList<>(film.getGenres());
                 genres.add(genre);
                 filmById.put(film.getId(), film.withGenres(genres));
+            }
+
+            if (director.getId() != 0) {
+                List<Director> directors = new ArrayList<>(film.getDirectors());
+                directors.add(director);
+                filmById.put(film.getId(), film.withDirectors(directors));
             }
         }
         return new ArrayList<>(filmById.values());
@@ -61,6 +67,13 @@ public class FilmMapper {
         return Genre.builder()
                 .id(rs.getLong("GENRE_ID"))
                 .name(rs.getString("GENRE_NAME"))
+                .build();
+    }
+
+    private static Director makeDirector(SqlRowSet rs) {
+        return  Director.builder()
+                .id(rs.getInt("DIRECTOR_ID"))
+                .name(rs.getString("DIRECTOR_NAME"))
                 .build();
     }
 }

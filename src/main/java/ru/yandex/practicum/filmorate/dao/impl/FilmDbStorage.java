@@ -13,8 +13,10 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +45,15 @@ public class FilmDbStorage implements FilmDao {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("id");
-        Long filmId = simpleJdbcInsert.executeAndReturnKey(filmToParameters(film)).longValue();
+        long filmId = simpleJdbcInsert.executeAndReturnKey(filmToParameters(film)).longValue();
+        jdbcTemplate.batchUpdate("INSERT INTO film_directors (director_id, film_id) " +
+                        "VALUES (?, ?)",
+                film.getDirectors(),
+                100,
+                (PreparedStatement ps, Director director) -> {
+                    ps.setInt(1, director.getId());
+                    ps.setLong(2, filmId);
+                });
         return film.withId(filmId);
     }
 
