@@ -19,19 +19,6 @@ VALUES (3, 2),
        (2, 6),
        (2, 1);
 
-INSERT INTO DIRECTORS (id, name)
-VALUES (1, 'Стивен Спилберг'),
-       (2, 'Питер Джексон'),
-       (3, 'Джеймс Кэмерон');
-
-INSERT INTO LIKES(USER_ID, FILM_ID)
-VALUES ( 1, 1 ),
-       ( 2, 1 ),
-       ( 3, 1 );
-
-INSERT INTO LIKES(USER_ID, FILM_ID)
-VALUES ( 1, 2 ),
-       ( 2, 2 );
 
 INSERT INTO likes(user_id, film_id)
 VALUES (1, 3),

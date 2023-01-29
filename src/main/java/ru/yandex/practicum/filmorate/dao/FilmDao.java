@@ -16,4 +16,6 @@ public interface FilmDao extends FilmorateDao<Film> {
     List<Film> getDirectorFilmSortedByLike(int directorId);
 
     List<Film> getDirectorFilmSortedByYear(int directorId);
+
+    List<Film> getByIds(Collection<Long> filmIds);
 }
