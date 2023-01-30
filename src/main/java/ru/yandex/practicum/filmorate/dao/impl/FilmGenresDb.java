@@ -24,7 +24,7 @@ public class FilmGenresDb implements FilmGenreDao {
     @Override
     public List<Genre> getFilmGenres(Long filmId) {
         String query = "SELECT * FROM genre " +
-                       "WHERE id IN (SELECT genre_id FROM film_genres WHERE film_id = ?)";
+                "WHERE id IN (SELECT genre_id FROM film_genres WHERE film_id = ?)";
         return jdbcTemplate.query(query, new GenreMapper(), filmId);
     }
 

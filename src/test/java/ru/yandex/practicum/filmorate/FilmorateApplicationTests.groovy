@@ -1,17 +1,11 @@
 package ru.yandex.practicum.filmorate
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
-import org.junit.runner.RunWith
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import ru.yandex.practicum.filmorate.dao.impl.GenreDb
 import ru.yandex.practicum.filmorate.dao.impl.MpaDb
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException
@@ -19,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Mpa
 import ru.yandex.practicum.filmorate.model.User
 import ru.yandex.practicum.filmorate.service.FilmService
+import ru.yandex.practicum.filmorate.service.ReviewService
 import ru.yandex.practicum.filmorate.service.UserService
 import spock.lang.Specification
 
@@ -34,6 +29,9 @@ class FilmorateApplicationTests extends Specification {
 
     @Autowired
     private FilmService filmService
+
+    @Autowired
+    private ReviewService reviewService
 
     @Autowired
     private GenreDb genreStorage
@@ -57,7 +55,7 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         with(friends) {
-            id == [1,2]
+            id == [1, 2]
         }
     }
 
@@ -87,7 +85,7 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         with(genres) {
-            id == [1,2,3,4,5,6]
+            id == [1, 2, 3, 4, 5, 6]
             name == ["Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик"]
         }
     }
@@ -98,7 +96,7 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         with(mpa) {
-            id == [1,2,3,4,5]
+            id == [1, 2, 3, 4, 5]
             name == ["G", "PG", "PG-13", "R", "NC-17"]
         }
     }
@@ -120,7 +118,7 @@ class FilmorateApplicationTests extends Specification {
 
     }
 
-    def "can remove like from film"(){
+    def "can remove like from film"() {
         given:
         def likesCount = filmService.getFilmsLikesCount(3)
 
@@ -146,7 +144,7 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         with(popularFilms) {
-            id == [3,1,2]
+            id == [3, 1, 2]
         }
     }
 
@@ -158,16 +156,16 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Фильм с id: 9999 не найден."
     }
 
-    def "should return 404 when updating unknown film" () {
+    def "should return 404 when updating unknown film"() {
         given:
         def film = Film.builder()
-        .id(9999)
-        .name("Unknown")
-        .description("None")
-        .rate(9)
-        .duration(10)
-        .releaseDate(LocalDate.of(2000,01,01))
-        .mpa(Mpa.builder().id(1).build()).build()
+                .id(9999)
+                .name("Unknown")
+                .description("None")
+                .rate(9)
+                .duration(10)
+                .releaseDate(LocalDate.of(2000, 01, 01))
+                .mpa(Mpa.builder().id(1).build()).build()
 
         when:
         filmService.update(film)
@@ -175,5 +173,77 @@ class FilmorateApplicationTests extends Specification {
         then:
         def e = thrown(FilmorateNotFoundException)
         e.message == "Фильм с id: 9999 не найден."
+    }
+
+    def "can add like to review"() {
+        when:
+        reviewService.addLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 1
+    }
+
+    def "cannot add like twice"() {
+        when:
+        reviewService.addLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 1
+    }
+
+    def "can remove like from review"() {
+        when:
+        reviewService.removeLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 0
+    }
+
+    def "cannot remove like twice"() {
+        when:
+        reviewService.removeLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 0
+    }
+
+    def "can add dislike to review"() {
+        when:
+        reviewService.addDislike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == -1
+    }
+
+    def "cannot add dislike twice"() {
+        when:
+        reviewService.addDislike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == -1
+    }
+
+    def "can remove dislike from review"() {
+        when:
+        reviewService.removeDislike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 0
+    }
+
+    def "cannot remove dislike twice"() {
+        when:
+        reviewService.removeDislike(1, 1)
+
+        then:
+        def likeCount = reviewService.get(1).getUseful()
+        likeCount == 0
     }
 }
