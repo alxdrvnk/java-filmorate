@@ -112,21 +112,6 @@ public class FilmDbStorage implements FilmDao {
         return parameters;
     }
 
-    @Override
-
-    public int getRate(Long id) {
-        String query = "SELECT rate FROM films WHERE id = ?";
-        try {
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, id);
-            if (rowSet.next()) {
-                return rowSet.getInt("rate");
-            }
-        } catch (EmptyResultDataAccessException e) {
-            return 0;
-        }
-        return 0;
-    }
-
     public void addDirectorForFilm(Film film) {
         if (film.getDirectors().size() != 0) {
             for (Director director : film.getDirectors()) {
@@ -171,6 +156,22 @@ public class FilmDbStorage implements FilmDao {
                 "ORDER by EXTRACT(YEAR FROM CAST(f.RELEASE_DATE AS date))";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, directorId);
         return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public boolean findIfUserLikedFilm(Long filmId, Long userId) {
+        String query = "SELECT user_id FROM likes WHERE film_id = ?";
+        try {
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId);
+            while(rowSet.next()) {
+                if(userId == rowSet.getLong("user_id")){
+                    return true;
+                }
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+        return false;
     }
 }
 

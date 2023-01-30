@@ -1,29 +1,17 @@
 package ru.yandex.practicum.filmorate.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.springtestdbunit.DatabaseConnections
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DatabaseSetup
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
-import org.dbunit.database.DatabaseConnection
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Mpa
-import ru.yandex.practicum.filmorate.model.User
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -112,15 +100,15 @@ class FilmControllerTest extends Specification {
                 .andExpect(status().isBadRequest())
     }
 
-    def "Should return code 200 when user put like"() {
-        expect:
-        mvc.perform(MockMvcRequestBuilders.put("/films/1/like/1"))
-                .andExpect(status().isOk())
-    }
-
     def "Should return code 200 when user delete like"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/1/like/1"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return code 200 when user put like"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.put("/films/1/like/1"))
                 .andExpect(status().isOk())
     }
 

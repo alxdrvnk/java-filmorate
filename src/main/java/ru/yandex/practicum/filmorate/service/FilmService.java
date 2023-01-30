@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
+import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -43,38 +44,31 @@ public class FilmService {
 
     public Film update(Film film) {
         validateReleaseDate(film);
-        getFilmBy(film.getId());
-        storage.update(film.withRate(storage.getRate(film.getId())));
+        storage.update(film.withRate(getFilmBy(film.getId()).getRate()));
         storage.deleteDirectorForFilm(film.getId());
         storage.addDirectorForFilm(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
         return getFilmBy(film.getId());
     }
-     //защита от внешнего воздействия на лайки, нам необходимо не менять количество лайков при обновлении фильма, 
-     //поэтому для операций "удаление/добавление лайков" нам необходим отдельный класс
-    
-    public void updateLikes(Film film) {
-        validateReleaseDate(film);
-        getFilmBy(film.getId());
-        storage.update(film);
-    }
 
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
+        userService.getUserBy(userId);
+        if(storage.findIfUserLikedFilm(filmId, userId)){
+            throw new FilmorateAlreadyExistException("Пользователь " + userId + " уже поставил лайк фильму " + filmId);
+        }
         filmLikeDao.addFilmLike(filmId, userId);
         int likes = film.getRate() + 1;
-        updateLikes(film.withRate(likes));
+        storage.update(film.withRate(likes));
         return likes;
     }
 
     public int removeFilmLike(Long filmId, Long userId) {
-
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
-
         int likes = film.getRate() - 1;
-        updateLikes(film.withRate(likes));
+        storage.update(film.withRate(likes));
         return likes;
     }
 

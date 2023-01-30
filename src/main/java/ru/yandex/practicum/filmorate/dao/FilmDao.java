@@ -7,8 +7,6 @@ import java.util.List;
 public interface FilmDao extends FilmorateDao<Film> {
     List<Film> getPopularFilms(int count);
     
-    int getRate(Long id);
-    
     void addDirectorForFilm(Film film);
 
     void deleteDirectorForFilm(Long filmId);
@@ -16,4 +14,6 @@ public interface FilmDao extends FilmorateDao<Film> {
     List<Film> getDirectorFilmSortedByLike(int directorId);
 
     List<Film> getDirectorFilmSortedByYear(int directorId);
+
+    boolean findIfUserLikedFilm(Long filmId, Long userId);
 }
