@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FilmMapper {
 
@@ -36,23 +37,20 @@ public class FilmMapper {
                         .releaseDate(releaseDate)
                         .duration(duration)
                         .rate(rate)
-                        .mpa(mpa)
-                        .build();
+                        .mpa(mpa).build();
                 filmById.put(film.getId(), film);
             }
 
             if (genre.getId() != 0) {
-                film = filmById.get(id);
-                List<Genre> genres = new ArrayList<>(film.getGenres());
+                Set<Genre> genres = new HashSet<>(film.getGenres());
                 genres.add(genre);
-                filmById.put(film.getId(), film.withGenres(genres));
+                filmById.put(film.getId(), film.withGenres(genres.stream().collect(Collectors.toList())));
             }
-
-            if (director != null && director.getId() != 0) {
-                film = filmById.get(id);
-                List<Director> directors = new ArrayList<>(film.getDirectors());
+            if (director.getId() != 0) {
+                Set<Director> directors = new HashSet<>(film.getDirectors());
                 directors.add(director);
-                filmById.put(film.getId(), film.withDirectors(directors));
+                Film f = filmById.get(film.getId());
+                filmById.put(f.getId(), f.withDirectors(directors.stream().collect(Collectors.toList())));
             }
         }
         return new ArrayList<>(filmById.values());
@@ -73,14 +71,10 @@ public class FilmMapper {
     }
 
     private static Director makeDirector(SqlRowSet rs) {
-        try {
-            return  Director.builder()
-                    .id(rs.getInt("DIRECTOR_ID"))
-                    .name(Objects.requireNonNull(rs.getString("DIRECTOR_NAME")))
-                    .build();
-        } catch (NullPointerException e) {
-            return null;
-        }
+        return Director.builder()
+                .id(rs.getInt("DIRECTOR_ID"))
+                .name(rs.getString("DIRECTOR_NAME"))
+                .build();
     }
 }
 

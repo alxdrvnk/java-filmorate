@@ -34,13 +34,13 @@ public class DirectorController {
 
     // POST /directors - Создание режиссёра
     @PostMapping
-    public Director createDirector(@RequestBody @Valid Director director) {
+    public Director createDirector(@Valid @RequestBody Director director) {
         return directorService.createDirector(director);
     }
 
     // PUT /directors - Изменение режиссёра
     @PutMapping
-    public Director updateDirector(@RequestBody @Valid Director director) {
+    public Director updateDirector(@Valid @RequestBody Director director) {
         return directorService.updateDirector(director);
     }
 
@@ -50,6 +50,4 @@ public class DirectorController {
         directorService.deleteDirectorById(id);
     }
 
-    //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
-    //Возвращает список фильмов режиссера отсортированных по количеству лайков или году выпуска.
 }

@@ -9,4 +9,13 @@ public interface FilmDao extends FilmorateDao<Film> {
 
     List<Film> findFilmsBy(String query, String by);
 
+
+
+    void addDirectorForFilm(Film film);
+
+    void deleteDirectorForFilm(Long filmId);
+
+    List<Film> getDirectorFilmSortedByLike(int directorId);
+
+    List<Film> getDirectorFilmSortedByYear(int directorId);
 }

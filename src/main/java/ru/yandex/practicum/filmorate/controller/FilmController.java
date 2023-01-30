@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -66,5 +68,20 @@ public class FilmController {
     @GetMapping("/search")
     public List<Film> findFilmBy(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
         return filmService.findFilmsBy(query, by);
+    }
+
+    // GIR: class Directors
+    //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsDirectorBySort(@PathVariable Integer directorId,
+                                                   @RequestParam(value = "sortBy") String sort) {
+        if (sort.equals("likes")) {
+            return filmService.getDirectorFilmSortedByLike(directorId);
+        }
+        if (sort.equals("year")) {
+            return filmService.getDirectorFilmSortedByYear(directorId);
+        } else {
+            throw new FilmorateValidationException("Неверный запрос");
+        }
     }
 }

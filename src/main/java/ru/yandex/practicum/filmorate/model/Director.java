@@ -1,18 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.With;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-@Data
+@Value
 @Builder
-@AllArgsConstructor
+@EqualsAndHashCode
 public class Director {
     @With
     private int id;
+    @NotNull
     @NotBlank
     private String name;
 }
