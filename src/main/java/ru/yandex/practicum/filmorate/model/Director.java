@@ -10,8 +10,8 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode
 public class Director {
     @With
-    private int id;
+    int id;
     @NotNull
     @NotBlank
-    private String name;
+    String name;
 }

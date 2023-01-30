@@ -77,8 +77,8 @@ public class FilmService {
         return getFilmBy(filmId).getRate();
     }
 
-    public List<Film> getPopularFilms(int count) {    // ????
-        return storage.getPopularFilms(count);
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        return storage.getPopularFilms(count, genreId, year);
     }
 
     public void deleteFilmBy(Long id) {
