@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.dao.mapper;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FilmMapper {
 
@@ -26,6 +25,7 @@ public class FilmMapper {
             int rate = rs.getInt("RATE");
             Mpa mpa = makeMpa(rs);
             Genre genre = makeGenre(rs);
+            Director director = makeDirector(rs);
 
             Film film = filmById.get(id);
 
@@ -42,9 +42,15 @@ public class FilmMapper {
             }
 
             if (genre.getId() != 0) {
-                List<Genre> genres = new ArrayList<>(film.getGenres());
+                Set<Genre> genres = new HashSet<>(film.getGenres());
                 genres.add(genre);
-                filmById.put(film.getId(), film.withGenres(genres));
+                filmById.put(film.getId(), film.withGenres(genres.stream().collect(Collectors.toList())));
+            }
+            if (director.getId() != 0) {
+                Set<Director> directors = new HashSet<>(film.getDirectors());
+                directors.add(director);
+                Film f = filmById.get(film.getId());
+                filmById.put(f.getId(), f.withDirectors(directors.stream().collect(Collectors.toList())));
             }
         }
         return new ArrayList<>(filmById.values());
@@ -61,6 +67,13 @@ public class FilmMapper {
         return Genre.builder()
                 .id(rs.getLong("GENRE_ID"))
                 .name(rs.getString("GENRE_NAME"))
+                .build();
+    }
+
+    private static Director makeDirector(SqlRowSet rs) {
+        return Director.builder()
+                .id(rs.getInt("DIRECTOR_ID"))
+                .name(rs.getString("DIRECTOR_NAME"))
                 .build();
     }
 }
