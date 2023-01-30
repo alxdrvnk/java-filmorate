@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.dao.impl.MpaDb
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException
 import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Mpa
+import ru.yandex.practicum.filmorate.model.Review
 import ru.yandex.practicum.filmorate.model.User
 import ru.yandex.practicum.filmorate.service.FilmService
 import ru.yandex.practicum.filmorate.service.ReviewService
@@ -18,8 +19,6 @@ import ru.yandex.practicum.filmorate.service.UserService
 import spock.lang.Specification
 
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -202,7 +201,6 @@ class FilmorateApplicationTests extends Specification {
         when:
         def userId = userService.create(user).getId()
         def friendId = userService.create(friendUser).getId()
-        def timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
         def friendOfFriendId = userService.create(friendOfFriendUser).getId()
 
         userService.addFriend(friendId, userId)
@@ -210,12 +208,11 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         def eventList = userService.getFeed(userId as Long)
-        eventList.size() == 1
-        eventList[0].getId() == 2L
-        eventList[0].getEntityId() == 3L
-        eventList[0].getType() == "FRIEND"
-        eventList[0].getOperation() == "ADD"
-        eventList[0].getTimestamp() == timestamp
+        eventList.size() == 2
+        eventList[1].getEventId() == 2L
+        eventList[1].getEntityId() == 3L
+        eventList[1].getEventType() == "FRIEND"
+        eventList[1].getOperation() == "ADD"
 
 
     }
@@ -231,80 +228,74 @@ class FilmorateApplicationTests extends Specification {
 
         when:
         def filmID = filmService.create(film).getId()
-        def timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
         filmService.setFilmLike(filmID, 2)
-
-        then:
-        def eventList = userService.getFeed(1)
-        eventList.size() == 2
-
-        eventList[0].getId() == 2L
-        eventList[0].getEntityId() == 3L
-        eventList[0].getType() == "FRIEND"
-        eventList[0].getOperation() == "ADD"
-
-        eventList[1].getId() == 3L
-        eventList[1].getEntityId() == 1L
-        eventList[1].getType() == "LIKE"
-        eventList[1].getOperation() == "ADD"
-        eventList[1].getTimestamp() == timestamp
-    }
-
-    def "Should add event when remove friend"() {
-        when:
-        def timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
-        userService.removeFriend(3, 2)
 
         then:
         def eventList = userService.getFeed(1)
         eventList.size() == 3
 
-        eventList[0].getId() == 2L
-        eventList[0].getEntityId() == 3L
-        eventList[0].getType() == "FRIEND"
-        eventList[0].getOperation() == "ADD"
-
-        eventList[1].getId() == 3L
-        eventList[1].getEntityId() == 1L
-        eventList[1].getType() == "LIKE"
+        eventList[1].getEventId() == 2L
+        eventList[1].getEntityId() == 3L
+        eventList[1].getEventType() == "FRIEND"
         eventList[1].getOperation() == "ADD"
 
-        eventList[2].getId() == 4L
-        eventList[2].getEntityId() == 3L
-        eventList[2].getType() == "FRIEND"
-        eventList[2].getOperation() == "REMOVE"
-        eventList[2].getTimestamp() == timestamp
+        eventList[2].getEventId() == 3L
+        eventList[2].getEntityId() == 1L
+        eventList[2].getEventType() == "LIKE"
+        eventList[2].getOperation() == "ADD"
     }
 
-    def "Should add event when remove like from film"() {
+    def "Should add event when remove friend"() {
         when:
-        def timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
-        filmService.removeFilmLike(1, 2)
+        userService.removeFriend(3, 2)
 
         then:
         def eventList = userService.getFeed(1)
         eventList.size() == 4
 
-        eventList[0].getId() == 2L
-        eventList[0].getEntityId() == 3L
-        eventList[0].getType() == "FRIEND"
-        eventList[0].getOperation() == "ADD"
-
-        eventList[1].getId() == 3L
-        eventList[1].getEntityId() == 1L
-        eventList[1].getType() == "LIKE"
+        eventList[1].getEventId() == 2L
+        eventList[1].getEntityId() == 3L
+        eventList[1].getEventType() == "FRIEND"
         eventList[1].getOperation() == "ADD"
 
-        eventList[2].getId() == 4L
-        eventList[2].getEntityId() == 3L
-        eventList[2].getType() == "FRIEND"
-        eventList[2].getOperation() == "REMOVE"
+        eventList[2].getEventId() == 3L
+        eventList[2].getEntityId() == 1L
+        eventList[2].getEventType() == "LIKE"
+        eventList[2].getOperation() == "ADD"
 
-        eventList[3].getId() == 5L
-        eventList[3].getEntityId() == 1L
-        eventList[3].getType() == "LIKE"
+        eventList[3].getEventId() == 4L
+        eventList[3].getEntityId() == 3L
+        eventList[3].getEventType() == "FRIEND"
         eventList[3].getOperation() == "REMOVE"
-        eventList[3].getTimestamp() == timestamp
+    }
+
+    def "Should add event when remove like from film"() {
+        when:
+        filmService.removeFilmLike(1, 2)
+
+        then:
+        def eventList = userService.getFeed(1)
+        eventList.size() == 5
+
+        eventList[1].getEventId() == 2L
+        eventList[1].getEntityId() == 3L
+        eventList[1].getEventType() == "FRIEND"
+        eventList[1].getOperation() == "ADD"
+
+        eventList[2].getEventId() == 3L
+        eventList[2].getEntityId() == 1L
+        eventList[2].getEventType() == "LIKE"
+        eventList[2].getOperation() == "ADD"
+
+        eventList[3].getEventId() == 4L
+        eventList[3].getEntityId() == 3L
+        eventList[3].getEventType() == "FRIEND"
+        eventList[3].getOperation() == "REMOVE"
+
+        eventList[4].getEventId() == 5L
+        eventList[4].getEntityId() == 1L
+        eventList[4].getEventType() == "LIKE"
+        eventList[4].getOperation() == "REMOVE"
     }
 
     def "Shouldn't add event when try to add unknown friend"() {
@@ -316,7 +307,7 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Пользователь с id: 2 или id: 9999 не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 4
+        eventList.size() == 5
     }
 
     def "Shouldn't add event when try to remove unknown film"() {
@@ -328,7 +319,7 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Пользователь не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 4
+        eventList.size() == 5
     }
 
     def "Shouldn't add event when try to like unknown film"() {
@@ -340,7 +331,7 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Фильм с id: 9999 не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 4
+        eventList.size() == 5
     }
 
     def "Shouldn't add event when try to dislike unknown film"() {
@@ -352,9 +343,41 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Фильм с id: 9999 не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 4
+        eventList.size() == 5
     }
 
+    def "Should add event when user add review"() {
+        given:
+        def review = Review.builder()
+                .userId(2)
+                .filmId(1)
+                .content("Test content")
+                .isPositive(true).build()
+
+        when:
+        userService.getUserBy(2)
+        reviewService.create(review).getReviewId()
+
+        then:
+        def eventList = userService.getFeed(1)
+        eventList.size() == 6
+        eventList[5].getEventType() == "REVIEW"
+        eventList[5].getOperation() == "ADD"
+        eventList[5].getEntityId() == 1
+    }
+
+    def "Should add event when like review"(){
+        when:
+        reviewService.addLike(1, 3)
+
+        then:
+        def eventList = userService.getFeed(2)
+        eventList.size() == 5
+
+
+    }
+
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "can add like to review"() {
         when:
         reviewService.addLike(1, 1)

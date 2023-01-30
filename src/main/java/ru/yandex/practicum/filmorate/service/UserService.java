@@ -57,8 +57,10 @@ public class UserService {
         return friendListDb.getFriends(userId);
     }
 
-    public void approveFriend(Long userId, Long friendID) {
-        friendListDb.approveFriend(userId, friendID);
+
+    @HandleFilmorateEvent(eventType = FilmorateEventType.FRIEND, eventOperation = FilmorateEventOperation.UPDATE)
+    public void approveFriend(Long friendId, Long userId) {
+        friendListDb.approveFriend(userId, friendId);
     }
 
     public List<User> getMutualFriends(Long userId, Long otherUserId) {

@@ -2,10 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.aspects.HandleFilmorateCreateEvent;
+import ru.yandex.practicum.filmorate.aspects.HandleFilmorateDeleteEvent;
+import ru.yandex.practicum.filmorate.aspects.HandleFilmorateEvent;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.dao.ReviewLikeDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.utils.FilmorateEventOperation;
+import ru.yandex.practicum.filmorate.utils.FilmorateEventType;
 
 import java.util.List;
 
@@ -17,6 +22,7 @@ public class ReviewService {
     private final UserService userService;
     private final FilmService filmService;
 
+    @HandleFilmorateCreateEvent(eventType = FilmorateEventType.REVIEW, eventOperation = FilmorateEventOperation.ADD)
     public Review create(Review review) {
         userService.getUserBy(review.getUserId());
         filmService.getFilmBy(review.getFilmId());
@@ -28,6 +34,7 @@ public class ReviewService {
         return reviewDao.create(review);
     }
 
+    @HandleFilmorateCreateEvent(eventType = FilmorateEventType.REVIEW, eventOperation = FilmorateEventOperation.UPDATE)
     public Review update(Review review) {
         Review fromDb = get(review.getReviewId());
 
@@ -40,6 +47,7 @@ public class ReviewService {
         return reviewDao.update(review);
     }
 
+    @HandleFilmorateDeleteEvent(eventType = FilmorateEventType.REVIEW, eventOperation = FilmorateEventOperation.REMOVE)
     public void delete(Long id) {
         reviewDao.deleteBy(id);
     }
@@ -52,6 +60,7 @@ public class ReviewService {
         return reviewDao.getByFilm(filmId, count);
     }
 
+    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.ADD)
     public void addLike(Long id, Long userId) {
         Review review = get(id);
 
@@ -70,6 +79,7 @@ public class ReviewService {
         reviewDao.update(review);
     }
 
+    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.REMOVE)
     public void addDislike(Long id, Long userId) {
         Review review = get(id);
 
@@ -88,6 +98,7 @@ public class ReviewService {
         reviewDao.update(review);
     }
 
+    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.UPDATE)
     public void removeLike(Long id, Long userId) {
         Review review = get(id);
 
@@ -98,6 +109,7 @@ public class ReviewService {
         }
     }
 
+    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.UPDATE)
     public void removeDislike(Long id, Long userId) {
         Review review = get(id);
 

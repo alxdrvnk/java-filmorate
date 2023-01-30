@@ -15,6 +15,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import javax.sql.DataSource
+import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @Subject(EventsDbStorage)
@@ -39,21 +40,22 @@ class EventDaoSpec extends Specification {
         def event = Event.builder()
                 .userId(1)
                 .entityId(1)
-                .type("FRIEND")
+                .eventType("FRIEND")
                 .operation("ADD")
                 .timestamp(
-                        LocalDateTime.of(2000, 1, 1, 1, 1, 1))
+                        Timestamp.valueOf(
+                                LocalDateTime.of(2000, 1, 1, 1, 1, 1)).getTime())
                 .build()
 
         when:
-        def id = eventDao.create(event).getId()
+        def id = eventDao.create(event).getEventId()
 
         then:
         id > 0
         def res = db.rows("select * from events where id = ${id}")
         res[0]["ID"] == id
         res[0]["USER_ID"] == event.getUserId()
-        res[0]["TYPE"] == event.getType()
+        res[0]["TYPE"] == event.getEventType()
         res[0]["OPERATION"] == event.getOperation()
     }
 }

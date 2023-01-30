@@ -61,7 +61,7 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friedId}/approve")
     public void approveFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
-        userService.approveFriend(id, friendId);
+        userService.approveFriend(friendId, id);
         log.info(String.format("UserController: User with id: %d approve friend with id: %d", id, friendId));
     }
 

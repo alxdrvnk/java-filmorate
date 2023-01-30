@@ -5,22 +5,17 @@ import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 public class EventMapper implements RowMapper<Event> {
-
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
-                .id(rs.getLong("id"))
+                .eventId(rs.getLong("id"))
                 .userId(rs.getLong("user_id"))
-                .type(rs.getString("type"))
+                .eventType(rs.getString("type"))
                 .operation(rs.getString("operation"))
                 .entityId(rs.getLong("entity_id"))
-                .timestamp(LocalDateTime.parse(rs.getString("timestamp"), formatter))
+                .timestamp(rs.getLong("event_time"))
                 .build();
     }
 }

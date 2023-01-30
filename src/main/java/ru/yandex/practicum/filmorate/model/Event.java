@@ -4,17 +4,15 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.With;
 
-import java.time.LocalDateTime;
-
 @Value
 @Builder
 public class Event {
 
     @With
-    Long id;
+    Long eventId;
     Long userId;
     Long entityId;
-    String type;
+    String eventType;
     String operation;
-    LocalDateTime timestamp;
+    Long timestamp;
 }
