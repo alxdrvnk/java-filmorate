@@ -366,17 +366,6 @@ class FilmorateApplicationTests extends Specification {
         eventList[5].getEntityId() == 1
     }
 
-    def "Should add event when like review"(){
-        when:
-        reviewService.addLike(1, 3)
-
-        then:
-        def eventList = userService.getFeed(2)
-        eventList.size() == 5
-
-
-    }
-
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "can add like to review"() {
         when:

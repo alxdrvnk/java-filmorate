@@ -2,9 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.aspects.HandleFilmorateCreateEvent;
-import ru.yandex.practicum.filmorate.aspects.HandleFilmorateDeleteEvent;
-import ru.yandex.practicum.filmorate.aspects.HandleFilmorateEvent;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.dao.ReviewLikeDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
@@ -21,8 +18,8 @@ public class ReviewService {
     private final ReviewLikeDao reviewLikeDao;
     private final UserService userService;
     private final FilmService filmService;
+    private final EventsService eventsService;
 
-    @HandleFilmorateCreateEvent(eventType = FilmorateEventType.REVIEW, eventOperation = FilmorateEventOperation.ADD)
     public Review create(Review review) {
         userService.getUserBy(review.getUserId());
         filmService.getFilmBy(review.getFilmId());
@@ -30,11 +27,16 @@ public class ReviewService {
         if (review.getUseful() != 0) {
             review.withUseful(0);
         }
+        review = reviewDao.create(review);
 
-        return reviewDao.create(review);
+        eventsService.create(review.getUserId(),
+                review.getReviewId(),
+                FilmorateEventType.REVIEW,
+                FilmorateEventOperation.ADD);
+
+        return review;
     }
 
-    @HandleFilmorateCreateEvent(eventType = FilmorateEventType.REVIEW, eventOperation = FilmorateEventOperation.UPDATE)
     public Review update(Review review) {
         Review fromDb = get(review.getReviewId());
 
@@ -43,13 +45,25 @@ public class ReviewService {
         ) {
             review = review.withUseful(fromDb.getUseful());
         }
+        review = reviewDao.update(review);
 
-        return reviewDao.update(review);
+        eventsService.create(review.getUserId(),
+                review.getReviewId(),
+                FilmorateEventType.REVIEW,
+                FilmorateEventOperation.UPDATE);
+
+        return  review;
     }
 
-    @HandleFilmorateDeleteEvent(eventType = FilmorateEventType.REVIEW, eventOperation = FilmorateEventOperation.REMOVE)
     public void delete(Long id) {
+        Review review = get(id);
+
         reviewDao.deleteBy(id);
+
+        eventsService.create(review.getUserId(),
+                review.getReviewId(),
+                FilmorateEventType.REVIEW,
+                FilmorateEventOperation.REMOVE);
     }
 
     public Review get(Long id) {
@@ -60,7 +74,6 @@ public class ReviewService {
         return reviewDao.getByFilm(filmId, count);
     }
 
-    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.ADD)
     public void addLike(Long id, Long userId) {
         Review review = get(id);
 
@@ -79,7 +92,6 @@ public class ReviewService {
         reviewDao.update(review);
     }
 
-    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.REMOVE)
     public void addDislike(Long id, Long userId) {
         Review review = get(id);
 
@@ -96,9 +108,9 @@ public class ReviewService {
         }
 
         reviewDao.update(review);
+
     }
 
-    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.UPDATE)
     public void removeLike(Long id, Long userId) {
         Review review = get(id);
 
@@ -106,10 +118,10 @@ public class ReviewService {
         if (isRemoved) {
             int useful = review.getUseful() - 1;
             reviewDao.update(review.withUseful(useful));
+
         }
     }
 
-    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.UPDATE)
     public void removeDislike(Long id, Long userId) {
         Review review = get(id);
 

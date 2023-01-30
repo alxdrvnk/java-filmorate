@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.aspects.HandleFilmorateEvent;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
@@ -26,6 +25,7 @@ public class FilmService {
     private final FilmLikeDao filmLikeDao;
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;
+    private final EventsService eventsService;
 
     public Film create(Film film) {
         validateReleaseDate(film);
@@ -56,17 +56,17 @@ public class FilmService {
         return getFilmBy(film.getId());
     }
 
-    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.ADD)
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         filmLikeDao.addFilmLike(filmId, userId);
 
         int likes = film.getRate() + 1;
         update(film.withRate(likes));
+
+        eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.ADD);
         return likes;
     }
 
-    @HandleFilmorateEvent(eventType = FilmorateEventType.LIKE, eventOperation = FilmorateEventOperation.REMOVE)
     public int removeFilmLike(Long filmId, Long userId) {
 
         Film film = getFilmBy(filmId);
@@ -75,6 +75,9 @@ public class FilmService {
 
         int likes = film.getRate()-1;
         update(film.withRate(likes));
+
+        eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.REMOVE);
+
         return likes;
     }
 
