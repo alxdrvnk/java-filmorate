@@ -108,4 +108,18 @@ public class FilmDbStorage implements FilmDao {
         return parameters;
     }
 
+    @Override
+    public int getRate(Long id) {
+        String query = "SELECT rate FROM films WHERE id = ?";
+        try {
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, id);
+            if (rowSet.next()) {
+                return rowSet.getInt("rate");
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return 0;
+        }
+        return 0;
+    }
+
 }

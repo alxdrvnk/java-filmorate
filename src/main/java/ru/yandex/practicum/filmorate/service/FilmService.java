@@ -43,28 +43,23 @@ public class FilmService {
     public Film update(Film film) {
         validateReleaseDate(film);
         getFilmBy(film.getId());
-
-        storage.update(film.withRate(0));
+        storage.update(film.withRate(storage.getRate(film.getId())));
         //защита от внешнего воздействия на лайки, но нужен отдельный класс для добавления/удаления лайков
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
-
         return getFilmBy(film.getId());
     }
 
-    public Film updateLikes(Film film) {
+    public void updateLikes(Film film) {
         validateReleaseDate(film);
         getFilmBy(film.getId());
         storage.update(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
-
-        return getFilmBy(film.getId());
     }
     //да, тут повтор кода, но если создавать ещё один класс, то получится ещё больше строк
 
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         filmLikeDao.addFilmLike(filmId, userId);
-
         int likes = film.getRate() + 1;
         updateLikes(film.withRate(likes));
         return likes;
@@ -76,7 +71,7 @@ public class FilmService {
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
 
-        int likes = film.getRate()-1;
+        int likes = film.getRate() - 1;
         updateLikes(film.withRate(likes));
         return likes;
     }

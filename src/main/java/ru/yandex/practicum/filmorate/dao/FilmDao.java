@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface FilmDao extends FilmorateDao<Film> {
     List<Film> getPopularFilms(int count);
+
+    int getRate(Long id);
 }
