@@ -43,6 +43,7 @@ class FilmControllerTest extends Specification {
     @Autowired
     private ObjectMapper objectMapper
 
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "Should return code 400 when try get not available film"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.get("/films/9999"))
@@ -58,7 +59,7 @@ class FilmControllerTest extends Specification {
                 .releaseDate(LocalDate.of(1977, 5, 25))
                 .mpa(Mpa.builder().id(1).name("G").build()).build()
 
-        def expected = film.withId(1)
+        def expected = film.withId(4)
 
         expect:
         mvc.perform(MockMvcRequestBuilders.post("/films")
