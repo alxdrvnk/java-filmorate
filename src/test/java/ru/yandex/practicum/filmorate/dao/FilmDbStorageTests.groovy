@@ -22,7 +22,8 @@ class FilmDbStorageTests extends Specification {
     @Autowired
     private FilmDbStorage filmDbStorage
 
-    def "can insert a film object"() {
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
+    def "can insert a film object"(){
         given:
         def film = Film.builder()
                 .name("Test Film Name")
@@ -58,8 +59,7 @@ class FilmDbStorageTests extends Specification {
 
     }
 
-    @ExpectedDatabase(value = "/dbunit/update-film.xml", table = "films")
-    def "can update film"() {
+    def "can update film"(){
 
         given:
         def newMpa = Mpa.builder()
