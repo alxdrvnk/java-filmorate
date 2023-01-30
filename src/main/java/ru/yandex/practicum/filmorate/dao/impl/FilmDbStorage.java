@@ -127,8 +127,6 @@ public class FilmDbStorage implements FilmDao {
         return 0;
     }
 
-}
-
     public void addDirectorForFilm(Film film) {
         if (film.getDirectors().size() != 0) {
             for (Director director : film.getDirectors()) {
