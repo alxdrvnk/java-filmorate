@@ -250,7 +250,7 @@ class FilmorateApplicationTests extends Specification {
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "should return 200 and list of recommendations"() {
         when:
-        def films = userService.getRecommendations(1)
+        def films = userService.getRecommendations(3)
 
         then:
         with(films) {
