@@ -179,7 +179,7 @@ public class FilmDbStorage implements FilmDao {
                 "SELECT l1.film_id FROM likes l1 WHERE l1.user_id = ? " +
                 "INTERSECT " +
                 "SELECT l2.film_id FROM likes l2 WHERE l2.user_id = ?" +
-                ") ORDER BY f.id";
+                ") ORDER BY f.rate DESC";
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, friendId);
         return FilmMapper.makeFilmList(rowSet);

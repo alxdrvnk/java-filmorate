@@ -264,7 +264,7 @@ class FilmorateApplicationTests extends Specification {
         films.size() == 0
     }
 
-    def "should return 200 and common list of common films"() {
+    def "should return 200 and list of common films"() {
         when:
         def films = filmService.getCommonFilms(1, 2)
 
