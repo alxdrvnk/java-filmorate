@@ -6,8 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface FilmDao extends FilmorateDao<Film> {
-    List<Film> getPopularFilms(int count);
-
+    List<Film> getPopularFilms(Integer count, Integer genreId, Integer year);
 
     void addDirectorForFilm(Film film);
 

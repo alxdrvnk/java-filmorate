@@ -26,9 +26,11 @@ public class FilmService {
 
     public Film create(Film film) {
         validateReleaseDate(film);
+
         Film newFilm = storage.create(film);
         storage.addDirectorForFilm(newFilm);
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
+
         return getFilmBy(newFilm.getId());
     }
 
@@ -75,8 +77,8 @@ public class FilmService {
         return getFilmBy(filmId).getRate();
     }
 
-    public List<Film> getPopularFilms(int count) {    // ????
-        return storage.getPopularFilms(count);
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        return storage.getPopularFilms(count, genreId, year);
     }
 
     public void deleteFilmBy(Long id) {
@@ -89,7 +91,7 @@ public class FilmService {
 
     public List<Film> getDirectorFilmSortedByLike(int directorId) {
         List<Film> films = storage.getDirectorFilmSortedByLike(directorId);
-        if (films.size() == 0) {
+        if (films.isEmpty()) {
             throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
         }
         return films;
@@ -97,7 +99,7 @@ public class FilmService {
 
     public List<Film> getDirectorFilmSortedByYear(int directorId) {
         List<Film> films = storage.getDirectorFilmSortedByYear(directorId);
-        if (films.size() == 0) {
+        if (films.isEmpty()) {
             throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
         }
         return films;
