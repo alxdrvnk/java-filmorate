@@ -104,7 +104,7 @@ public class FilmDbStorage implements FilmDao {
                 (genreId != null ?
                         genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
-        return new ArrayList<>(FilmMapper.makeFilmList(rowSet));
+        return FilmMapper.makeFilmList(rowSet);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class FilmDbStorage implements FilmDao {
     }
 
     public void addDirectorForFilm(Film film) {
-        if (film.getDirectors().size() != 0) {
+        if (!film.getDirectors().isEmpty()) {
             for (Director director : film.getDirectors()) {
                 jdbcTemplate.update("INSERT INTO FILM_DIRECTORS (DIRECTOR_ID, FILM_ID) VALUES ( ?, ? )", director.getId(), film.getId());
             }

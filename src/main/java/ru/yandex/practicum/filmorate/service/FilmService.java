@@ -65,7 +65,7 @@ public class FilmService {
         filmLikeDao.addFilmLike(filmId, userId);
 
         int likes = film.getRate() + 1;
-        update(film.withRate(likes));
+        storage.update(film.withRate(likes));
 
         eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.ADD);
         return likes;
@@ -76,7 +76,7 @@ public class FilmService {
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
         int likes = film.getRate() - 1;
-        update(film.withRate(likes));
+        storage.update(film.withRate(likes));
 
         eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.REMOVE);
 
