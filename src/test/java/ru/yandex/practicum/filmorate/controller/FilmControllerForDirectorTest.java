@@ -144,7 +144,7 @@ public class FilmControllerForDirectorTest {
         final int index1 = 1;
         final int like1 = 1;
         final int like5 = 5;
-        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, new By().setSortBy("likes"));
+        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, "likes");
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getRate() == like5).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index1).getRate() == like1).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getDirectors().contains(director1)).isTrue();
@@ -160,7 +160,7 @@ public class FilmControllerForDirectorTest {
         final int index1 = 1;
         final int year1 = 1987;
         final int year2 = 1989;
-        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, new By().setSortBy("year"));
+        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, "year");
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getReleaseDate().getYear() == year1).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index1).getReleaseDate().getYear() == year2).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getDirectors().contains(director1)).isTrue();

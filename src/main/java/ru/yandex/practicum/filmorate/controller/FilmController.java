@@ -76,11 +76,11 @@ public class FilmController {
     //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
     @GetMapping("/director/{directorId}")
     public Collection<Film> getFilmsDirectorBySort(@PathVariable Integer directorId,
-                                                   By sortBy) {
-        if (sortBy.isLikes()) {
+                                                   @RequestParam(value = "sortBy") String sort) {
+        if (sort.equals("likes")) {
             return filmService.getDirectorFilmSortedByLike(directorId);
         }
-        if (sortBy.isYear()) {
+        if (sort.equals("year")) {
             return filmService.getDirectorFilmSortedByYear(directorId);
         } else {
             throw new FilmorateValidationException("Неверный запрос");
