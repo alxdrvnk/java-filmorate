@@ -160,10 +160,10 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public boolean findIfUserLikedFilm(Long filmId, Long userId) {
-        String query = "SELECT user_id FROM likes WHERE film_id = ?";
+        String query = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
         try {
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId);
-            while(rowSet.next()) {
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId, userId);
+            if(rowSet.next()) {
                 if(userId == rowSet.getLong("user_id")){
                     return true;
                 }
