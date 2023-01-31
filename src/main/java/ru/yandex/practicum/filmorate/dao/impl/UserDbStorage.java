@@ -67,7 +67,7 @@ public class UserDbStorage implements UserDao {
         return jdbcTemplate.update(query, id);
     }
 
-    private Map<String, Object> userToParameters(User user){
+    private Map<String, Object> userToParameters(User user) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", user.getId());
         parameters.put("email", user.getEmail());

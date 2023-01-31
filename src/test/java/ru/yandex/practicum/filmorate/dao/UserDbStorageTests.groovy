@@ -81,20 +81,20 @@ class UserDbStorageTests extends Specification {
             id == 4
             login == "userLogin"
             name == "TestName"
-            birthday == LocalDate.of(2000,01,01)
+            birthday == LocalDate.of(2000, 01, 01)
             email == "user@mail.mail"
         }
     }
 
-    def "can delete user by id" () {
+    def "can delete user by id"() {
         when:
         userDbStorage.deleteBy(4)
 
         then:
         def users = userDbStorage.getAll()
 
-        with(users){
-            id == [1,2,3]
+        with(users) {
+            id == [1, 2, 3]
         }
     }
 }
