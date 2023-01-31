@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -105,7 +106,16 @@ public class FilmDbStorage implements FilmDao {
     }
 
     @Override
-    public List<Film> findFilmsBy(String query, String where) {
+    public List<Film> findFilmsBy(String query, By by) {
+        query = "%" + query.toLowerCase() + "%";
+        StringBuilder where = new StringBuilder("WHERE ");
+        if (by.isDirector()) {
+            where.append("lower(d.name) LIKE :query OR ");
+        }
+        if (by.isTitle()) {
+            where.append("lower(title) LIKE :query OR ");
+        }
+        where.delete(where.length() - 3, where.length());
         String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, " +
                 "d.id AS director_id, d.name AS director_name " +
                 "FROM films AS f INNER JOIN mpa AS m ON m.id = f.mpa_id " +
