@@ -68,6 +68,7 @@ public class UserService {
             throw new FilmorateNotFoundException(
                     String.format("Пользователь с id: %d не найден.", id));
         }
+    }
 
     public List<Film> getRecommendations(Long userId) {
         // достаем всех пользователей у которых есть хотя бы одно пересечение по лайкам с текущим пользователем
