@@ -16,6 +16,7 @@ import java.util.Optional;
 public class MpaDb implements MpaDao {
 
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public List<Mpa> getAll() {
         String query = "SELECT * FROM mpa";
@@ -26,7 +27,7 @@ public class MpaDb implements MpaDao {
     public Optional<Mpa> getBy(Long id) {
         String query = "SELECT * FROM mpa WHERE id = ?";
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(query, new MpaMapper() ,id));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(query, new MpaMapper(), id));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }

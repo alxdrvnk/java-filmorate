@@ -25,7 +25,7 @@ public class UserService {
         return storage.create(user);
     }
 
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         return storage.getAll();
     }
 
