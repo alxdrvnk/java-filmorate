@@ -28,7 +28,7 @@ public class FilmService {
         validateReleaseDate(film);
 
         Film newFilm = storage.create(film);
-
+        storage.addDirectorForFilm(newFilm);
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
 
         return getFilmBy(newFilm.getId());
@@ -91,7 +91,7 @@ public class FilmService {
 
     public List<Film> getDirectorFilmSortedByLike(int directorId) {
         List<Film> films = storage.getDirectorFilmSortedByLike(directorId);
-        if (films.size() == 0) {
+        if (films.isEmpty()) {
             throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
         }
         return films;
@@ -99,7 +99,7 @@ public class FilmService {
 
     public List<Film> getDirectorFilmSortedByYear(int directorId) {
         List<Film> films = storage.getDirectorFilmSortedByYear(directorId);
-        if (films.size() == 0) {
+        if (films.isEmpty()) {
             throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
         }
         return films;
