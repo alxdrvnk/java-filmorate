@@ -246,4 +246,23 @@ class FilmorateApplicationTests extends Specification {
         def likeCount = reviewService.get(1).getUseful()
         likeCount == 0
     }
+
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
+    def "should return 200 and list of recommendations"() {
+        when:
+        def films = userService.getRecommendations(3)
+
+        then:
+        with(films) {
+            id == [2]
+        }
+    }
+
+    def "should return 200 and empty list of recommendations"() {
+        when:
+        def films = userService.getRecommendations(2)
+
+        then:
+        films.size() == 0
+    }
 }
