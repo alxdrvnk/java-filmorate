@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
@@ -111,14 +112,16 @@ public class FilmService {
         }
     }
 
-    public List<Film> findFilmsBy(String query, String by) {
+    public List<Film> findFilmsBy(String query, By by) {
+        if (query.isBlank()) {
+            throw new IllegalArgumentException("Не заполенено поле поиска");
+        }
         query = "%" + query.toLowerCase() + "%";
-        by = by.toLowerCase();
         StringBuilder where = new StringBuilder("WHERE ");
-        if (by.contains("director")) {
+        if (by.isDirector()) {
             where.append("lower(d.name) LIKE :query OR ");
         }
-        if (by.contains("title")) {
+        if (by.isTitle()) {
             where.append("lower(title) LIKE :query OR ");
         }
         if (where.length() > 6) {

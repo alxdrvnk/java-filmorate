@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,14 +63,13 @@ public class FilmorateExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(value = JdbcSQLIntegrityConstraintViolationException.class)
-    public ResponseEntity<Object> handleSQLIntegrityConstraintViolationException
-            (JdbcSQLIntegrityConstraintViolationException exception) {
-        log.warn(String.format("Ошибка SQL ограничения. Код: %s, текст: %s.",
-                exception.getSQLState(), exception.getOriginalMessage()));
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException
+            (IllegalArgumentException exception, WebRequest request) {
+        log.warn("Запрос {} завершился ошибкой: {}.", request.getDescription(false), exception.getMessage());
         FilmorateError error = FilmorateError.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .errors(List.of(exception.getOriginalMessage())).build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }

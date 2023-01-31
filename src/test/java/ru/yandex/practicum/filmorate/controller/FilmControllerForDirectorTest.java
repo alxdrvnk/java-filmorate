@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -143,7 +144,7 @@ public class FilmControllerForDirectorTest {
         final int index1 = 1;
         final int like1 = 1;
         final int like5 = 5;
-        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, "likes");
+        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, new By().setSortBy("likes"));
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getRate() == like5).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index1).getRate() == like1).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getDirectors().contains(director1)).isTrue();
@@ -159,7 +160,7 @@ public class FilmControllerForDirectorTest {
         final int index1 = 1;
         final int year1 = 1987;
         final int year2 = 1989;
-        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, "year");
+        Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, new By().setSortBy("year"));
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getReleaseDate().getYear() == year1).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index1).getReleaseDate().getYear() == year2).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getDirectors().contains(director1)).isTrue();

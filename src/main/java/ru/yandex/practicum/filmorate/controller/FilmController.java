@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -66,7 +67,8 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public List<Film> findFilmBy(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
+    public List<Film> findFilmBy(@RequestParam(name = "query") String query, By by) {
+        log.info("FilmController: search query: {} search by: {}", query, by);
         return filmService.findFilmsBy(query, by);
     }
 
@@ -74,11 +76,11 @@ public class FilmController {
     //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
     @GetMapping("/director/{directorId}")
     public Collection<Film> getFilmsDirectorBySort(@PathVariable Integer directorId,
-                                                   @RequestParam(value = "sortBy") String sort) {
-        if (sort.equals("likes")) {
+                                                   By sortBy) {
+        if (sortBy.isLikes()) {
             return filmService.getDirectorFilmSortedByLike(directorId);
         }
-        if (sort.equals("year")) {
+        if (sortBy.isYear()) {
             return filmService.getDirectorFilmSortedByYear(directorId);
         } else {
             throw new FilmorateValidationException("Неверный запрос");
