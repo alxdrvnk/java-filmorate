@@ -10,7 +10,9 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import ru.yandex.practicum.filmorate.model.Director
 import ru.yandex.practicum.filmorate.model.Film
+import ru.yandex.practicum.filmorate.model.Genre
 import ru.yandex.practicum.filmorate.model.Mpa
 import spock.lang.Specification
 
@@ -136,6 +138,7 @@ class FilmControllerTest extends Specification {
     }
 
 
+
     def "Should delete film by id then return code 200"(){
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
@@ -146,5 +149,65 @@ class FilmControllerTest extends Specification {
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
                 .andExpect(status().isNotFound())
+
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
+    def "Should return film when get popular films with filter by genre"() {
+        given:
+        Film film = Film.builder()
+                .id(3)
+                .name("The Shawshank Redemption")
+                .description("The Shawshank Redemption description")
+                .releaseDate(LocalDate.of(1994, 9, 10))
+                .duration(142)
+                .rate(0)
+                .mpa(Mpa.builder()
+                        .id(1)
+                        .name("G")
+                        .build())
+                .genres(List.of(Genre.builder()
+                        .id(2)
+                        .name("Драма")
+                        .build()))
+                .build()
+
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/films/popular?genreId=2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(List.of(film))))
+    }
+
+    def "Should return film when get popular films with filter by year"() {
+        given:
+        Film film = Film.builder()
+                .id(1)
+                .name("SW")
+                .description("SW description")
+                .releaseDate(LocalDate.of(1977, 5, 25))
+                .duration(121)
+                .rate(0)
+                .mpa(Mpa.builder()
+                        .id(2)
+                        .name("PG")
+                        .build())
+                .genres(List.of(Genre.builder()
+                        .id(6)
+                        .name("Боевик")
+                        .build()))
+                .build()
+
+
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/films/popular?year=1977"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(List.of(film))))
+    }
+
+    def "Should return empty list when all movies don't meet filter requirements"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/films/popular?year=1977&genreId=1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(Collections.emptyList())))
+
     }
 }

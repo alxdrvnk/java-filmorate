@@ -138,7 +138,7 @@ class FilmorateApplicationTests extends Specification {
         filmService.setFilmLike(3, 2)
 
         when:
-        def popularFilms = filmService.getPopularFilms(3)
+        def popularFilms = filmService.getPopularFilms(3, null, null)
 
         then:
         with(popularFilms) {

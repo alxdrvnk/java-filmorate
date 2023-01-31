@@ -61,12 +61,12 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(name = "count", defaultValue = "10") int count) {
-        return filmService.getPopularFilms(count);
+    public List<Film> getPopularFilms(@RequestParam(name = "count", defaultValue = "10") int count,
+                                      @RequestParam(name = "genreId", required = false) Integer genreId,
+                                      @RequestParam(name = "year", required = false) Integer year) {
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
-    // GIR: class Directors
-    //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
     @GetMapping("/director/{directorId}")
     public Collection<Film> getFilmsDirectorBySort(@PathVariable Integer directorId,
                                                    @RequestParam(value = "sortBy") String sort) {

@@ -54,8 +54,8 @@ public class UserController {
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
-         userService.removeFriend(id, friendId);
-         log.info(String.format("UserController: User with %d id remove friend with id %d", id, friendId));
+        userService.removeFriend(id, friendId);
+        log.info(String.format("UserController: User with %d id remove friend with id %d", id, friendId));
     }
 
     @PutMapping("/{id}/friends/{friedId}/approve")
