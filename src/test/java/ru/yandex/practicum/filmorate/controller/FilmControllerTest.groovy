@@ -10,7 +10,6 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import ru.yandex.practicum.filmorate.model.Director
 import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Genre
 import ru.yandex.practicum.filmorate.model.Mpa
@@ -102,15 +101,15 @@ class FilmControllerTest extends Specification {
                 .andExpect(status().isBadRequest())
     }
 
-    def "Should return code 200 when user put like"() {
-        expect:
-        mvc.perform(MockMvcRequestBuilders.put("/films/1/like/1"))
-                .andExpect(status().isOk())
-    }
-
     def "Should return code 200 when user delete like"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/1/like/1"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return code 200 when user put like"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.put("/films/1/like/1"))
                 .andExpect(status().isOk())
     }
 
@@ -134,6 +133,19 @@ class FilmControllerTest extends Specification {
     def "Should return 404 when non-expect user put like to film"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.put("/films/2/like/9999"))
+                .andExpect(status().isNotFound())
+    }
+
+
+    def "Should delete film by id then return code 200"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
+                .andExpect(status().isOk())
+    }
+
+    def "Should return code 400 because of deleting non exist film"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
                 .andExpect(status().isNotFound())
     }
 
@@ -195,5 +207,6 @@ class FilmControllerTest extends Specification {
         mvc.perform(MockMvcRequestBuilders.get("/films/popular?year=1977&genreId=1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(Collections.emptyList())))
+
     }
 }

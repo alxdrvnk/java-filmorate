@@ -63,6 +63,13 @@ public class UserService {
         return friendListDb.getCommonFriends(userId, otherUserId);
     }
 
+    public void deleteUserBy(Long id) {
+        if (storage.deleteBy(id) == 0) {
+            throw new FilmorateNotFoundException(
+                    String.format("Пользователь с id: %d не найден.", id));
+        }
+    }
+
     public List<Film> getRecommendations(Long userId) {
         // достаем всех пользователей у которых есть хотя бы одно пересечение по лайкам с текущим пользователем
         Map<Long, List<Long>> likes = likeDao.getSameLikesByUser(userId);

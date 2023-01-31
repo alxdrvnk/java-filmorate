@@ -54,10 +54,10 @@ public class FilmController {
         return filmService.removeFilmLike(id, userId);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteFilmBy(@PathVariable("id") Long id) {
-        filmService.deleteFilmBy(id);
-        log.info(String.format("FilmController: Remove film with id: %d.", id));
+    @DeleteMapping("/{filmId}")
+    public void deleteFilmBy(@PathVariable("filmId") Long filmId) {
+        filmService.deleteFilmBy(filmId);
+        log.info(String.format("FilmController: Remove film with id: %d.", filmId));
     }
 
     @GetMapping("/popular")

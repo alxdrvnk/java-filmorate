@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FilmMapper {
 
@@ -20,7 +19,7 @@ public class FilmMapper {
             Long id = rs.getLong("ID");
             String title = rs.getString("TITLE");
             String description = rs.getString("DESCRIPTION");
-            LocalDate releaseDate = rs.getDate("RELEASE_DATE").toLocalDate();
+            LocalDate releaseDate = Objects.requireNonNull(rs.getDate("RELEASE_DATE")).toLocalDate();
             int duration = rs.getInt("DURATION");
             int rate = rs.getInt("RATE");
             Mpa mpa = makeMpa(rs);
@@ -44,13 +43,13 @@ public class FilmMapper {
             if (genre.getId() != 0) {
                 Set<Genre> genres = new HashSet<>(film.getGenres());
                 genres.add(genre);
-                filmById.put(film.getId(), film.withGenres(genres.stream().collect(Collectors.toList())));
+                filmById.put(film.getId(), film.withGenres(new ArrayList<>(genres)));
             }
             if (director.getId() != 0) {
                 Set<Director> directors = new HashSet<>(film.getDirectors());
                 directors.add(director);
                 Film f = filmById.get(film.getId());
-                filmById.put(f.getId(), f.withDirectors(directors.stream().collect(Collectors.toList())));
+                filmById.put(f.getId(), f.withDirectors(new ArrayList<>(directors)));
             }
         }
         return new ArrayList<>(filmById.values());
