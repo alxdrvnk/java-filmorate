@@ -176,4 +176,10 @@ class UserControllerTest extends Specification {
         mvc.perform(MockMvcRequestBuilders.delete("/users/3/friends/9999"))
                 .andExpect(status().isNotFound())
     }
+
+    def "should return 200 and list of recommendation"() {
+        expect:
+        mvc.perform(MockMvcRequestBuilders.get("/users/1/recommendations"))
+                .andExpect(status().isOk())
+    }
 }
