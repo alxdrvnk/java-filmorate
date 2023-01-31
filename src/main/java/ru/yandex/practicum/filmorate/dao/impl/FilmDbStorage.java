@@ -107,6 +107,24 @@ public class FilmDbStorage implements FilmDao {
         return new ArrayList<>(FilmMapper.makeFilmList(rowSet));
     }
 
+    @Override
+    public List<Film> getByIds(Collection<Long> filmIds) {
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String query = String.format(
+                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                        "FROM films AS f " +
+                        "JOIN mpa AS m ON f.mpa_id = m.id " +
+                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                        "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                        "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                        "WHERE f.id in (%s) " +
+                        "ORDER BY f.id", inSql);
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmIds.toArray());
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
     private Map<String, Object> filmToParameters(Film film) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", film.getId());

@@ -1,14 +1,14 @@
 package ru.yandex.practicum.filmorate.dao;
 
-import ru.yandex.practicum.filmorate.model.Film;
-
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public interface FilmLikeDao {
 
     void addFilmLike(Long filmId, Long userId);
 
     void removeFilmLike(Long filmId, Long userId);
+
+    Map<Long, List<Long>> getSameLikesByUser(Long userId);
 
 }
