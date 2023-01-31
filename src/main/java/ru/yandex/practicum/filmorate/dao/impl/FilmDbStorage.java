@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -105,7 +104,7 @@ public class FilmDbStorage implements FilmDao {
                 (genreId != null ?
                         genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
-        return FilmMapper.makeFilmList(rowSet).stream().collect(Collectors.toList());
+        return new ArrayList<>(FilmMapper.makeFilmList(rowSet));
     }
 
     private Map<String, Object> filmToParameters(Film film) {
@@ -171,8 +170,8 @@ public class FilmDbStorage implements FilmDao {
         String query = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
         try {
             SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId, userId);
-            if(rowSet.next()) {
-                if(userId == rowSet.getLong("user_id")){
+            if (rowSet.next()) {
+                if (userId == rowSet.getLong("user_id")) {
                     return true;
                 }
             }
@@ -182,5 +181,3 @@ public class FilmDbStorage implements FilmDao {
         return false;
     }
 }
-}
-

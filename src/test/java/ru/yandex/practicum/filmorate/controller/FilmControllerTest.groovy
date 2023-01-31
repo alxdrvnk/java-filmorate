@@ -10,7 +10,6 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import ru.yandex.practicum.filmorate.model.Director
 import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Genre
 import ru.yandex.practicum.filmorate.model.Mpa
@@ -138,17 +137,17 @@ class FilmControllerTest extends Specification {
     }
 
 
-
-    def "Should delete film by id then return code 200"(){
+    def "Should delete film by id then return code 200"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
                 .andExpect(status().isOk())
     }
 
-    def "Should return code 400 because of deleting non exist film"(){
+    def "Should return code 400 because of deleting non exist film"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.delete("/films/1"))
                 .andExpect(status().isNotFound())
+    }
 
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "Should return film when get popular films with filter by genre"() {

@@ -56,7 +56,7 @@ public class FilmService {
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
-        if(storage.findIfUserLikedFilm(filmId, userId)){
+        if (storage.findIfUserLikedFilm(filmId, userId)) {
             throw new FilmorateAlreadyExistException("Пользователь " + userId + " уже поставил лайк фильму " + filmId);
         }
         filmLikeDao.addFilmLike(filmId, userId);
