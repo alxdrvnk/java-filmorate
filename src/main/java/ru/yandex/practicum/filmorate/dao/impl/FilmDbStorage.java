@@ -90,7 +90,6 @@ public class FilmDbStorage implements FilmDao {
                         "SELECT film_id FROM film_genres " +
                         String.format("WHERE genre_id = %d ", genreId) +
                         ") AS flmgnr ON flmgnr.film_id = f.id";
-
         String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
                 "FROM films AS f " +
                 "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
@@ -105,8 +104,7 @@ public class FilmDbStorage implements FilmDao {
                 (genreId != null ?
                         genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
-
-        return FilmMapper.makeFilmList(rowSet);
+        return new ArrayList<>(FilmMapper.makeFilmList(rowSet));
     }
 
     @Override
@@ -139,7 +137,6 @@ public class FilmDbStorage implements FilmDao {
         return parameters;
     }
 
-    @Override
     public void addDirectorForFilm(Film film) {
         if (film.getDirectors().size() != 0) {
             for (Director director : film.getDirectors()) {
@@ -184,5 +181,21 @@ public class FilmDbStorage implements FilmDao {
                 "ORDER by EXTRACT(YEAR FROM CAST(f.RELEASE_DATE AS date))";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, directorId);
         return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public boolean findIfUserLikedFilm(Long filmId, Long userId) {
+        String query = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
+        try {
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId, userId);
+            if (rowSet.next()) {
+                if (userId == rowSet.getLong("user_id")) {
+                    return true;
+                }
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+        return false;
     }
 }

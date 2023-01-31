@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
+import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -29,8 +30,8 @@ public class FilmService {
 
     public Film create(Film film) {
         validateReleaseDate(film);
+        Film newFilm = storage.create(film.withRate(0));
 
-        Film newFilm = storage.create(film);
         storage.addDirectorForFilm(newFilm);
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
 
@@ -48,8 +49,7 @@ public class FilmService {
 
     public Film update(Film film) {
         validateReleaseDate(film);
-        getFilmBy(film.getId());
-        storage.update(film);
+        storage.update(film.withRate(getFilmBy(film.getId()).getRate()));
         storage.deleteDirectorForFilm(film.getId());
         storage.addDirectorForFilm(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
@@ -58,6 +58,10 @@ public class FilmService {
 
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
+        userService.getUserBy(userId);
+        if (storage.findIfUserLikedFilm(filmId, userId)) {
+            throw new FilmorateAlreadyExistException("Пользователь " + userId + " уже поставил лайк фильму " + filmId);
+        }
         filmLikeDao.addFilmLike(filmId, userId);
 
         int likes = film.getRate() + 1;
@@ -68,11 +72,9 @@ public class FilmService {
     }
 
     public int removeFilmLike(Long filmId, Long userId) {
-
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
-
         int likes = film.getRate() - 1;
         update(film.withRate(likes));
 
