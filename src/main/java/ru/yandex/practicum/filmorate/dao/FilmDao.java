@@ -23,4 +23,6 @@ public interface FilmDao extends FilmorateDao<Film> {
 
     List<Film> getByIds(Collection<Long> filmIds);
 
+    List<Film> getCommonFilms(Long userId, Long friendId);
+
 }
