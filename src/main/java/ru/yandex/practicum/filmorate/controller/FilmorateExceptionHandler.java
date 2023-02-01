@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,5 +72,20 @@ public class FilmorateExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .errors(List.of(exception.getMessage())).build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception,
+                                                                        WebRequest request) {
+        List<String> errors = exception.getConstraintViolations().stream().map(error -> {
+            String propertyPath = error.getPropertyPath().toString();
+            String message = error.getMessage();
+            return String.format("%s: %s", propertyPath, message);
+        }).collect(Collectors.toList());
+        log.warn("Запрос {} завершился ошибкой: {}.", request.getDescription(false), errors);
+        FilmorateError error = FilmorateError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(errors).build();
+        return ResponseEntity.status(error.getStatus()).body(error);
     }
 }

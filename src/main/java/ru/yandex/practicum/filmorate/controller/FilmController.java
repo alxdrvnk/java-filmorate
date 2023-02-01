@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
+@Validated
 public class FilmController {
     private final FilmService filmService;
 
@@ -68,12 +71,6 @@ public class FilmController {
         return filmService.getPopularFilms(count, genreId, year);
     }
 
-    @GetMapping("/search")
-    public List<Film> findFilmBy(@RequestParam(name = "query") String query, By by) {
-        log.info("FilmController: search query: {} search by: {}", query, by);
-        return filmService.findFilmsBy(query, by);
-    }
-
     // GIR: class Directors
     //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
     @GetMapping("/director/{directorId}")
@@ -87,5 +84,14 @@ public class FilmController {
         } else {
             throw new FilmorateValidationException("Неверный запрос");
         }
+    }
+
+    @GetMapping("/search")
+    public List<Film> findFilmBy(@RequestParam(name = "query") @NotBlank String query, By by) {
+        if (!by.isDirector() && !by.isTitle()) {
+            throw new FilmorateValidationException("Неверный запрос");
+        }
+        log.info("FilmController: search query: {} search by: {}", query, by);
+        return filmService.findFilmsBy(query, by);
     }
 }
