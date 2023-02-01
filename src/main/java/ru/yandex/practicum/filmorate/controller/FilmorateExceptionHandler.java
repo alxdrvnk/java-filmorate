@@ -62,4 +62,14 @@ public class FilmorateExceptionHandler {
                 .errors(errors).build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException
+            (IllegalArgumentException exception, WebRequest request) {
+        log.warn("Запрос {} завершился ошибкой: {}.", request.getDescription(false), exception.getMessage());
+        FilmorateError error = FilmorateError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 }

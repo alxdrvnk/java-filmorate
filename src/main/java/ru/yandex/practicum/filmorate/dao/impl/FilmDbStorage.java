@@ -5,9 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -104,7 +108,7 @@ public class FilmDbStorage implements FilmDao {
                 (genreId != null ?
                         genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
-        return FilmMapper.makeFilmList(rowSet);
+        return new ArrayList<>(FilmMapper.makeFilmList(rowSet));
     }
 
     @Override
@@ -125,16 +129,28 @@ public class FilmDbStorage implements FilmDao {
         return FilmMapper.makeFilmList(rowSet);
     }
 
-    private Map<String, Object> filmToParameters(Film film) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("id", film.getId());
-        parameters.put("title", film.getName());
-        parameters.put("description", film.getDescription());
-        parameters.put("release_date", film.getReleaseDate());
-        parameters.put("duration", film.getDuration());
-        parameters.put("rate", film.getRate());
-        parameters.put("mpa_id", film.getMpa().getId());
-        return parameters;
+    @Override
+    public List<Film> findFilmsBy(String query, By by) {
+        query = "%" + query.toLowerCase() + "%";
+        StringBuilder where = new StringBuilder("WHERE ");
+        if (by.isDirector()) {
+            where.append("lower(d.name) LIKE :query OR ");
+        }
+        if (by.isTitle()) {
+            where.append("lower(title) LIKE :query OR ");
+        }
+        where.delete(where.length() - 3, where.length());
+        String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, " +
+                "d.id AS director_id, d.name AS director_name " +
+                "FROM films AS f INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN film_directors AS fd ON fd.film_id = f.id " +
+                "LEFT JOIN directors d ON fd.director_id = d.id " + where + " ORDER BY f.rate DESC";
+        NamedParameterJdbcTemplate jdbc = new NamedParameterJdbcTemplate(jdbcTemplate);
+        SqlParameterSource namedParameter = new MapSqlParameterSource().addValue("query", query);
+        SqlRowSet rowSet = jdbc.queryForRowSet(sql, namedParameter);
+        return FilmMapper.makeFilmList(rowSet);
     }
 
     public void addDirectorForFilm(Film film) {
@@ -167,6 +183,26 @@ public class FilmDbStorage implements FilmDao {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
+                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                "WHERE f.id in (" +
+                "SELECT l1.film_id FROM likes l1 WHERE l1.user_id = ? " +
+                "INTERSECT " +
+                "SELECT l2.film_id FROM likes l2 WHERE l2.user_id = ?" +
+                ") ORDER BY f.rate DESC";
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, friendId);
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+
+    @Override
     public List<Film> getDirectorFilmSortedByYear(int directorId) {
         String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
                 "FROM films AS f " +
@@ -197,5 +233,17 @@ public class FilmDbStorage implements FilmDao {
             return false;
         }
         return false;
+    }
+
+    private Map<String, Object> filmToParameters(Film film) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id", film.getId());
+        parameters.put("title", film.getName());
+        parameters.put("description", film.getDescription());
+        parameters.put("release_date", film.getReleaseDate());
+        parameters.put("duration", film.getDuration());
+        parameters.put("rate", film.getRate());
+        parameters.put("mpa_id", film.getMpa().getId());
+        return parameters;
     }
 }
