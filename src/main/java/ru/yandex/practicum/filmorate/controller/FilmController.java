@@ -68,9 +68,6 @@ public class FilmController {
 
     @GetMapping("/search")
     public List<Film> findFilmBy(@RequestParam(name = "query") String query, By by) {
-        if (query.isBlank() || (!by.isDirector() && !by.isTitle())) {
-            throw new IllegalArgumentException("Ошибочный запрос");
-        }
         log.info("FilmController: search query: {} search by: {}", query, by);
         return filmService.findFilmsBy(query, by);
     }

@@ -113,7 +113,22 @@ public class FilmService {
     }
 
     public List<Film> findFilmsBy(String query, By by) {
-        return storage.findFilmsBy(query, by);
-
+        if (query.isBlank()) {
+            throw new IllegalArgumentException("Не заполенено поле поиска");
+        }
+        query = "%" + query.toLowerCase() + "%";
+        StringBuilder where = new StringBuilder("WHERE ");
+        if (by.isDirector()) {
+            where.append("lower(d.name) LIKE :query OR ");
+        }
+        if (by.isTitle()) {
+            where.append("lower(title) LIKE :query OR ");
+        }
+        if (where.length() > 6) {
+            where.delete(where.length() - 3, where.length());
+            return storage.findFilmsBy(query, where.toString());
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

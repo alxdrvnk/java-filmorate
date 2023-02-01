@@ -9,7 +9,6 @@ public class By{
 
 
     public By setBy(String by) {
-        by = by.toLowerCase();
         if (by.contains("director")) {
             director = true;
         }
