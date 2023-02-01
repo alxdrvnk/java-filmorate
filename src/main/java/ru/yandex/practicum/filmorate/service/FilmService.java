@@ -82,6 +82,10 @@ public class FilmService {
         return storage.getPopularFilms(count, genreId, year);
     }
 
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return storage.getCommonFilms(userId, friendId);
+    }
+
     public void deleteFilmBy(Long id) {
         storage.deleteDirectorForFilm(id);
         if (storage.deleteBy(id) == 0) {

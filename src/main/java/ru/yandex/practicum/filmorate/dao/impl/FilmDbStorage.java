@@ -167,6 +167,26 @@ public class FilmDbStorage implements FilmDao {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
+                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                "WHERE f.id in (" +
+                "SELECT l1.film_id FROM likes l1 WHERE l1.user_id = ? " +
+                "INTERSECT " +
+                "SELECT l2.film_id FROM likes l2 WHERE l2.user_id = ?" +
+                ") ORDER BY f.rate DESC";
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, friendId);
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+
+    @Override
     public List<Film> getDirectorFilmSortedByYear(int directorId) {
         String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
                 "FROM films AS f " +
