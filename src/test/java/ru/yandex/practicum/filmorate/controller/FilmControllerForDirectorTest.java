@@ -174,8 +174,8 @@ public class FilmControllerForDirectorTest {
         initFilms();
         final int count = 1;
         final int size = 1;
-        List<Film> films = filmController.getPopularFilms(count);
-        assertThat(films.size() == size);
+        List<Film> films = filmController.getPopularFilms(count, null, null);
+        assertThat(films.size() == size).isTrue();
         assertThat(films.contains(film1)).isTrue();
     }
 }

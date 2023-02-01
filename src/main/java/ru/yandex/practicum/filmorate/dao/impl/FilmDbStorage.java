@@ -16,10 +16,7 @@ import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -90,7 +87,12 @@ public class FilmDbStorage implements FilmDao {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        String genreIdFilter =
+                "INNER JOIN (" +
+                        "SELECT film_id FROM film_genres " +
+                        String.format("WHERE genre_id = %d ", genreId) +
+                        ") AS flmgnr ON flmgnr.film_id = f.id";
         String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
                 "FROM films AS f " +
                 "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
@@ -98,9 +100,31 @@ public class FilmDbStorage implements FilmDao {
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
                 "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
                 "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
-                "RIGHT JOIN (SELECT id from films order by rate DESC LIMIT ?) as flm ON flm.id = f.id";
+                "RIGHT JOIN (SELECT id from films " +
+                (year != null ?
+                        String.format("WHERE EXTRACT(YEAR FROM release_date) = %d ", year) : "") +
+                "ORDER BY rate DESC LIMIT ?) AS flm ON flm.id = f.id " +
+                (genreId != null ?
+                        genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
+        return new ArrayList<>(FilmMapper.makeFilmList(rowSet));
+    }
 
+    @Override
+    public List<Film> getByIds(Collection<Long> filmIds) {
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String query = String.format(
+                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                        "FROM films AS f " +
+                        "JOIN mpa AS m ON f.mpa_id = m.id " +
+                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                        "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                        "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                        "WHERE f.id in (%s) " +
+                        "ORDER BY f.id", inSql);
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmIds.toArray());
         return FilmMapper.makeFilmList(rowSet);
     }
 
@@ -119,7 +143,6 @@ public class FilmDbStorage implements FilmDao {
         return FilmMapper.makeFilmList(rowSet);
     }
 
-    @Override
     public void addDirectorForFilm(Film film) {
         if (film.getDirectors().size() != 0) {
             for (Director director : film.getDirectors()) {
@@ -164,6 +187,22 @@ public class FilmDbStorage implements FilmDao {
                 "ORDER by EXTRACT(YEAR FROM CAST(f.RELEASE_DATE AS date))";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, directorId);
         return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public boolean findIfUserLikedFilm(Long filmId, Long userId) {
+        String query = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
+        try {
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId, userId);
+            if (rowSet.next()) {
+                if (userId == rowSet.getLong("user_id")) {
+                    return true;
+                }
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+        return false;
     }
 
     private Map<String, Object> filmToParameters(Film film) {

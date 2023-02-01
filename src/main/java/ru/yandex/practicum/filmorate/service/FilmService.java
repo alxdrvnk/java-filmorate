@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
+import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -28,9 +29,11 @@ public class FilmService {
 
     public Film create(Film film) {
         validateReleaseDate(film);
-        Film newFilm = storage.create(film);
+        Film newFilm = storage.create(film.withRate(0));
+
         storage.addDirectorForFilm(newFilm);
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
+
         return getFilmBy(newFilm.getId());
     }
 
@@ -45,8 +48,7 @@ public class FilmService {
 
     public Film update(Film film) {
         validateReleaseDate(film);
-        getFilmBy(film.getId());
-        storage.update(film);
+        storage.update(film.withRate(getFilmBy(film.getId()).getRate()));
         storage.deleteDirectorForFilm(film.getId());
         storage.addDirectorForFilm(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
@@ -55,21 +57,22 @@ public class FilmService {
 
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
+        userService.getUserBy(userId);
+        if (storage.findIfUserLikedFilm(filmId, userId)) {
+            throw new FilmorateAlreadyExistException("Пользователь " + userId + " уже поставил лайк фильму " + filmId);
+        }
         filmLikeDao.addFilmLike(filmId, userId);
-
         int likes = film.getRate() + 1;
-        update(film.withRate(likes));
+        storage.update(film.withRate(likes));
         return likes;
     }
 
     public int removeFilmLike(Long filmId, Long userId) {
-
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
         filmLikeDao.removeFilmLike(filmId, userId);
-
         int likes = film.getRate() - 1;
-        update(film.withRate(likes));
+        storage.update(film.withRate(likes));
         return likes;
     }
 
@@ -77,8 +80,8 @@ public class FilmService {
         return getFilmBy(filmId).getRate();
     }
 
-    public List<Film> getPopularFilms(int count) {    // ????
-        return storage.getPopularFilms(count);
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        return storage.getPopularFilms(count, genreId, year);
     }
 
     public void deleteFilmBy(Long id) {
@@ -91,7 +94,7 @@ public class FilmService {
 
     public List<Film> getDirectorFilmSortedByLike(int directorId) {
         List<Film> films = storage.getDirectorFilmSortedByLike(directorId);
-        if (films.size() == 0) {
+        if (films.isEmpty()) {
             throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
         }
         return films;
@@ -99,7 +102,7 @@ public class FilmService {
 
     public List<Film> getDirectorFilmSortedByYear(int directorId) {
         List<Film> films = storage.getDirectorFilmSortedByYear(directorId);
-        if (films.size() == 0) {
+        if (films.isEmpty()) {
             throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
         }
         return films;

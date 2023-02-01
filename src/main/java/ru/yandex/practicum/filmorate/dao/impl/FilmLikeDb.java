@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -47,5 +49,20 @@ public class FilmLikeDb implements FilmLikeDao {
         parameters.put("film_id", filmId);
 
         return parameters;
+    }
+
+    @Override
+    public Map<Long, List<Long>> getSameLikesByUser(Long userId) {
+        String query = "SELECT * FROM likes WHERE user_id IN (SELECT DISTINCT user_id FROM LIKES WHERE film_id IN " +
+                "(SELECT film_id FROM likes WHERE user_id = ?))";
+
+        Map<Long, List<Long>> likes = new HashMap<>();
+        jdbcTemplate.query(query, rs -> {
+            long id = rs.getLong("user_id");
+            long filmId = rs.getLong("film_id");
+            likes.putIfAbsent(id, new ArrayList<>());
+            likes.get(id).add(filmId);
+        }, userId);
+        return likes;
     }
 }
