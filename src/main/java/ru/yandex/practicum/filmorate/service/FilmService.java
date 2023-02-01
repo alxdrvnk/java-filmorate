@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.utils.FilmorateEventOperation;
 import ru.yandex.practicum.filmorate.utils.FilmorateEventType;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -130,6 +129,5 @@ public class FilmService {
 
     public List<Film> findFilmsBy(String query, By by) {
         return storage.findFilmsBy(query, by);
-
     }
 }
