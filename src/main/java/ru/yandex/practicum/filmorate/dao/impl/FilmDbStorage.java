@@ -109,6 +109,8 @@ public class FilmDbStorage implements FilmDao {
                         genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
 
+        return FilmMapper.makeFilmList(rowSet);
+    }
     @Override
     public List<Film> getByIds(Collection<Long> filmIds) {
         String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
