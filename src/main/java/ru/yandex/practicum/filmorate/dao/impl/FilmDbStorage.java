@@ -146,7 +146,7 @@ public class FilmDbStorage implements FilmDao {
                 "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
                 "LEFT JOIN film_directors AS fd ON fd.film_id = f.id " +
-                "LEFT JOIN directors d ON fd.director_id = d.id " + where + "ORDER BY f.rate";
+                "LEFT JOIN directors d ON fd.director_id = d.id " + where + " ORDER BY f.rate DESC";
         NamedParameterJdbcTemplate jdbc = new NamedParameterJdbcTemplate(jdbcTemplate);
         SqlParameterSource namedParameter = new MapSqlParameterSource().addValue("query", query);
         SqlRowSet rowSet = jdbc.queryForRowSet(sql, namedParameter);
