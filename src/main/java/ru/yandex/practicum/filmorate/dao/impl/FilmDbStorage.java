@@ -108,7 +108,7 @@ public class FilmDbStorage implements FilmDao {
                 (genreId != null ?
                         genreIdFilter : "");
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
-        return new ArrayList<>(FilmMapper.makeFilmList(rowSet));
+        return FilmMapper.makeFilmList(rowSet);
     }
 
     @Override
