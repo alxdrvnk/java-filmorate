@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -73,6 +74,17 @@ public class FilmController {
         return filmService.getCommonFilms(userId, friendId);
     }
 
+    @GetMapping("/search")
+    public List<Film> findFilmBy(@RequestParam(name = "query") String query, By by) {
+        if (query.isBlank() || (!by.isDirector() && !by.isTitle())) {
+            throw new IllegalArgumentException("Ошибочный запрос");
+        }
+        log.info("FilmController: search query: {} search by: {}", query, by);
+        return filmService.findFilmsBy(query, by);
+    }
+
+    // GIR: class Directors
+    //GET /films/director/{directorId}?sortBy=[year,likes]  - добавить в FilmController
     @GetMapping("/director/{directorId}")
     public Collection<Film> getFilmsDirectorBySort(@PathVariable Integer directorId,
                                                    @RequestParam(value = "sortBy") String sort) {

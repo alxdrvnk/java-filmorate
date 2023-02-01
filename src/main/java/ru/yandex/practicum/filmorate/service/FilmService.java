@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -115,5 +117,10 @@ public class FilmService {
             throw new FilmorateValidationException(
                     String.format("Дата релиза не может быть раньше чем %s", cinemaBirthday));
         }
+    }
+
+    public List<Film> findFilmsBy(String query, By by) {
+        return storage.findFilmsBy(query, by);
+
     }
 }
