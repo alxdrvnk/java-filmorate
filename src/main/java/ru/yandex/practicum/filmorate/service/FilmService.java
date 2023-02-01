@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
-import ru.yandex.practicum.filmorate.exception.FilmorateAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -61,7 +60,7 @@ public class FilmService {
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
         if (storage.findIfUserLikedFilm(filmId, userId)) {
-            throw new FilmorateAlreadyExistException("Пользователь " + userId + " уже поставил лайк фильму " + filmId);
+            return film.getRate();
         }
         filmLikeDao.addFilmLike(filmId, userId);
 

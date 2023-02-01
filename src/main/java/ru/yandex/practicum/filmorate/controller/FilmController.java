@@ -78,9 +78,9 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public List<Film> findFilmBy(@RequestParam(name = "query") String query, By by) {
-        if (query.isBlank() || (!by.isDirector() && !by.isTitle())) {
-            throw new IllegalArgumentException("Ошибочный запрос");
+    public List<Film> findFilmBy(@RequestParam(name = "query") @NotBlank String query, By by) {
+        if (!by.isDirector() && !by.isTitle()) {
+            throw new FilmorateValidationException("Неверный запрос");
         }
         log.info("FilmController: search query: {} search by: {}", query, by);
         return filmService.findFilmsBy(query, by);
@@ -101,12 +101,4 @@ public class FilmController {
         }
     }
 
-    @GetMapping("/search")
-    public List<Film> findFilmBy(@RequestParam(name = "query") @NotBlank String query, By by) {
-        if (!by.isDirector() && !by.isTitle()) {
-            throw new FilmorateValidationException("Неверный запрос");
-        }
-        log.info("FilmController: search query: {} search by: {}", query, by);
-        return filmService.findFilmsBy(query, by);
-    }
 }
