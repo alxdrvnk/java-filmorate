@@ -43,12 +43,10 @@ public class EventsDbStorage implements EventDao {
     public List<Event> getFeedList(Long userId) {
         String query =
                 "SELECT * from events AS e " +
-                        "WHERE e.user_id IN " +
-                        "(SELECT fl.friend_id FROM friend_list AS fl " +
-                        "WHERE fl.user_id = ? " +
-                        "UNION " +
-                        "SELECT fl.user_id FROM friend_list AS fl " +
-                        "WHERE fl.friend_id = ? AND fl.state = true) OR e.user_id = ?";
+                "WHERE e.user_id = ? " +
+                "OR e.user_id IN (SELECT fl.friend_id FROM friend_list fl WHERE fl.user_id = ?) AND e.entity_id = ? " +
+                "ORDER BY e.event_time";
+
         return jdbcTemplate.query(query, new EventMapper(), userId, userId, userId);
     }
 }

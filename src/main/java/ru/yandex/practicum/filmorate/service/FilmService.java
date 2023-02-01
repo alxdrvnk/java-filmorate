@@ -61,13 +61,15 @@ public class FilmService {
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
-        if (storage.findIfUserLikedFilm(filmId, userId)) {
-            throw new FilmorateAlreadyExistException("Пользователь " + userId + " уже поставил лайк фильму " + filmId);
-        }
-        filmLikeDao.addFilmLike(filmId, userId);
+//        if (storage.findIfUserLikedFilm(filmId, userId)) {
+//            throw new FilmorateAlreadyExistException("Пользователь " + userId + " уже поставил лайк фильму " + filmId);
+//        }
 
-        int likes = film.getRate() + 1;
-        storage.update(film.withRate(likes));
+        int likes = film.getRate();
+        if (filmLikeDao.addFilmLike(filmId, userId)) {
+            likes += 1;
+            storage.update(film.withRate(likes));
+        }
 
         eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.ADD);
         return likes;
@@ -76,9 +78,12 @@ public class FilmService {
     public int removeFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
-        filmLikeDao.removeFilmLike(filmId, userId);
-        int likes = film.getRate() - 1;
-        storage.update(film.withRate(likes));
+
+        int likes = film.getRate();
+        if(filmLikeDao.removeFilmLike(filmId, userId)) {
+            likes -= 1;
+            storage.update(film.withRate(likes));
+        }
 
         eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.REMOVE);
 

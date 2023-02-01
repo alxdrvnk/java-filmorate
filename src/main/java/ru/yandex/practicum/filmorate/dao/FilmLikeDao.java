@@ -5,9 +5,9 @@ import java.util.Map;
 
 public interface FilmLikeDao {
 
-    void addFilmLike(Long filmId, Long userId);
+    boolean addFilmLike(Long filmId, Long userId);
 
-    void removeFilmLike(Long filmId, Long userId);
+    boolean removeFilmLike(Long filmId, Long userId);
 
     Map<Long, List<Long>> getSameLikesByUser(Long userId);
 

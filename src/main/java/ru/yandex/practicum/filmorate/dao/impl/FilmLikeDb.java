@@ -23,12 +23,13 @@ public class FilmLikeDb implements FilmLikeDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addFilmLike(Long filmId, Long userId) {
+    public boolean addFilmLike(Long filmId, Long userId) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("likes");
         try {
-            simpleJdbcInsert.execute(likesToParameters(userId, filmId));
+            return simpleJdbcInsert.execute(likesToParameters(userId, filmId)) == 1;
         } catch (DuplicateKeyException e) {
             log.debug(String.format("FilmLikes: trying to add duplicate like from User id: %d to Film Id: %d", userId, filmId));
+            return false;
         } catch (DataIntegrityViolationException e) {
             throw new FilmorateNotFoundException(
                     String.format("Фильм с id: %d или пользователь с id: %d не найдены.", filmId, userId));
@@ -36,9 +37,9 @@ public class FilmLikeDb implements FilmLikeDao {
     }
 
     @Override
-    public void removeFilmLike(Long filmId, Long userId) {
+    public boolean removeFilmLike(Long filmId, Long userId) {
         String query = "DELETE FROM likes WHERE user_id = ? AND film_id = ?";
-        jdbcTemplate.update(query, userId, filmId);
+        return jdbcTemplate.update(query, userId, filmId) == 1;
     }
 
     private Map<String, Object> likesToParameters(Long userId, Long filmId) {

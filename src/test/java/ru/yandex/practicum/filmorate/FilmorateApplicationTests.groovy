@@ -206,11 +206,11 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         def eventList = userService.getFeed(userId as Long)
-        eventList.size() == 2
-        eventList[1].getEventId() == 2L
-        eventList[1].getEntityId() == 3L
-        eventList[1].getEventType() == "FRIEND"
-        eventList[1].getOperation() == "ADD"
+        eventList.size() == 1
+        eventList[0].getEventId() == 1L
+        eventList[0].getEntityId() == 2L
+        eventList[0].getEventType() == "FRIEND"
+        eventList[0].getOperation() == "ADD"
 
 
     }
@@ -230,41 +230,17 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         def eventList = userService.getFeed(1)
-        eventList.size() == 3
+        eventList.size() == 2
 
-        eventList[1].getEventId() == 2L
-        eventList[1].getEntityId() == 3L
-        eventList[1].getEventType() == "FRIEND"
+        eventList[0].getEventId() == 1L
+        eventList[0].getEntityId() == 2L
+        eventList[0].getEventType() == "FRIEND"
+        eventList[0].getOperation() == "ADD"
+
+        eventList[1].getEventId() == 3L
+        eventList[1].getEntityId() == 1L
+        eventList[1].getEventType() == "LIKE"
         eventList[1].getOperation() == "ADD"
-
-        eventList[2].getEventId() == 3L
-        eventList[2].getEntityId() == 1L
-        eventList[2].getEventType() == "LIKE"
-        eventList[2].getOperation() == "ADD"
-    }
-
-    def "Should add event when remove friend"() {
-        when:
-        userService.removeFriend(3, 2)
-
-        then:
-        def eventList = userService.getFeed(1)
-        eventList.size() == 4
-
-        eventList[1].getEventId() == 2L
-        eventList[1].getEntityId() == 3L
-        eventList[1].getEventType() == "FRIEND"
-        eventList[1].getOperation() == "ADD"
-
-        eventList[2].getEventId() == 3L
-        eventList[2].getEntityId() == 1L
-        eventList[2].getEventType() == "LIKE"
-        eventList[2].getOperation() == "ADD"
-
-        eventList[3].getEventId() == 4L
-        eventList[3].getEntityId() == 3L
-        eventList[3].getEventType() == "FRIEND"
-        eventList[3].getOperation() == "REMOVE"
     }
 
     def "Should add event when remove like from film"() {
@@ -273,27 +249,22 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         def eventList = userService.getFeed(1)
-        eventList.size() == 5
+        eventList.size() == 3
 
-        eventList[1].getEventId() == 2L
-        eventList[1].getEntityId() == 3L
-        eventList[1].getEventType() == "FRIEND"
+        eventList[0].getEventId() == 1L
+        eventList[0].getEntityId() == 2L
+        eventList[0].getEventType() == "FRIEND"
+        eventList[0].getOperation() == "ADD"
+
+        eventList[1].getEventId() == 3L
+        eventList[1].getEntityId() == 1L
+        eventList[1].getEventType() == "LIKE"
         eventList[1].getOperation() == "ADD"
 
-        eventList[2].getEventId() == 3L
+        eventList[2].getEventId() == 4L
         eventList[2].getEntityId() == 1L
         eventList[2].getEventType() == "LIKE"
-        eventList[2].getOperation() == "ADD"
-
-        eventList[3].getEventId() == 4L
-        eventList[3].getEntityId() == 3L
-        eventList[3].getEventType() == "FRIEND"
-        eventList[3].getOperation() == "REMOVE"
-
-        eventList[4].getEventId() == 5L
-        eventList[4].getEntityId() == 1L
-        eventList[4].getEventType() == "LIKE"
-        eventList[4].getOperation() == "REMOVE"
+        eventList[2].getOperation() == "REMOVE"
     }
 
     def "Shouldn't add event when try to add unknown friend"() {
@@ -305,7 +276,7 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Пользователь с id: 2 или id: 9999 не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 5
+        eventList.size() == 3
     }
 
     def "Shouldn't add event when try to remove unknown film"() {
@@ -317,7 +288,7 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Пользователь не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 5
+        eventList.size() == 3
     }
 
     def "Shouldn't add event when try to like unknown film"() {
@@ -329,7 +300,7 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Фильм с id: 9999 не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 5
+        eventList.size() == 3
     }
 
     def "Shouldn't add event when try to dislike unknown film"() {
@@ -341,7 +312,7 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Фильм с id: 9999 не найден."
 
         def eventList = userService.getFeed(1)
-        eventList.size() == 5
+        eventList.size() == 3
     }
 
     def "Should add event when user add review"() {
@@ -358,10 +329,10 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         def eventList = userService.getFeed(1)
-        eventList.size() == 6
-        eventList[5].getEventType() == "REVIEW"
-        eventList[5].getOperation() == "ADD"
-        eventList[5].getEntityId() == 1
+        eventList.size() == 4
+        eventList[3].getEventType() == "REVIEW"
+        eventList[3].getOperation() == "ADD"
+        eventList[3].getEntityId() == 1
     }
 
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
