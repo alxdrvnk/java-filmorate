@@ -107,8 +107,8 @@ public class FilmDbStorage implements FilmDao {
                 "WHERE f.id IN (SELECT id from films " +
                 (year != null ?
                         String.format("WHERE EXTRACT(YEAR FROM release_date) = %d ", year) : "") +
-                "LIMIT ?) " +
-                "ORDER BY rate DESC";
+                "ORDER BY rate DESC LIMIT ?) " +
+                "ORDER BY f.rate DESC";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
         return FilmMapper.makeFilmList(rowSet);
     }
