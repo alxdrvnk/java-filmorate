@@ -17,35 +17,30 @@ public class DirectorService {
     private final DirectorDao directorDao;
 
     public List<Director> getAllDirectors() {
-        log.info("Получен запрос на список всех режиссёров");
+        log.info("Received a request for a list of all directors");
         List<Director> directors = directorDao.getAllDirectors();
         return directors;
 
     }
 
     public Director getDirectorById(Integer id) {
-        log.info("Получен запрос на получение режиссёра по id = " + id);
+        log.info("A request was received to get a director by id = " + id);
         return directorDao.getDirectorById(id).orElseThrow(() -> new FilmorateNotFoundException(
-                String.format("Не удалось найти режиссера с id " + id + ", его нет в списке")));
+                String.format("Could not find director with id = "+ id + "he is not in the list")));
     }
 
     public Director createDirector(Director director) {
-        log.info("Получен запрос на добавление режиссёра");
+        log.info("Director request received");
         return directorDao.createDirector(director);
     }
 
     public Director updateDirector(Director director) {
-        log.info("Получен запрос на обновление режиссёра с id = " + director.getId());
-        Director directorUpdate = directorDao.updateDirector(director);
-        if (Objects.isNull(directorUpdate)) {
-            log.warn("Ошибка обновления режиссера");
-            throw new FilmorateNotFoundException("Не удалось обновить режиссера, его нет в списке");
-        }
-        return directorUpdate;
+        log.info("Request received to update director with id = " + director.getId());
+        return directorDao.updateDirector(director);
     }
 
     public void deleteDirectorById(Integer id) {
-        log.info("Получен запрос на удаление режиссёра по id = " + id);
+        log.info("A request was received to delete a director by id = " + id);
         directorDao.deleteDirectorById(id);
     }
 }

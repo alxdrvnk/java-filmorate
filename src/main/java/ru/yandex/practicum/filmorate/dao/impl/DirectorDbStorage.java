@@ -54,7 +54,7 @@ public class DirectorDbStorage implements DirectorDao {
         String sql = "UPDATE DIRECTORS SET NAME = ? WHERE ID = ?";
         Integer rowCount = jdbcTemplate.update(sql, director.getName(), director.getId());
         if (rowCount < 1) {
-            return null;
+            throw new FilmorateNotFoundException("Director with id = " + director.getId() + " not update");
         } else {
             return director;
         }
@@ -65,7 +65,7 @@ public class DirectorDbStorage implements DirectorDao {
         String sql1 = "DELETE FROM DIRECTORS WHERE ID = ?";
         Integer directorCount = jdbcTemplate.update(sql1, id);
         if (directorCount < 1) {
-            throw new FilmorateNotFoundException("Режисер с id = " + id + " не найден");
+            throw new FilmorateNotFoundException("Director with id = " + id + " not found");
         }
     }
 

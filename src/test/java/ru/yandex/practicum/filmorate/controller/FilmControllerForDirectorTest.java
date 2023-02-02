@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -22,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -81,13 +80,13 @@ public class FilmControllerForDirectorTest {
         int size2 = 2;
         int size0 = 0;
         Film film = filmController.findFilmBy(id);
-        assertThat(film.getDirectors().size() == size2).isTrue();
+        assertThat(film.getDirectors()).hasSize(size2);
         assertThat(film.getDirectors().contains(director1)).isTrue();
         assertThat(film.getDirectors().contains(director2)).isTrue();
         filmDao.deleteDirectorForFilm(id);
         Film filmEmptyListDirectors = filmController.findFilmBy(id);
         assertThat(filmEmptyListDirectors.getDirectors().isEmpty()).isTrue();
-        assertThat(filmEmptyListDirectors.getDirectors().size() == size0).isTrue();
+        assertThat(filmEmptyListDirectors.getDirectors()).hasSize(size0);
         filmDao.addDirectorForFilm(film1);
         Film filmUpdate = filmController.findFilmBy(id);
         assertThat(filmUpdate.equals(film1)).isTrue();
@@ -99,13 +98,13 @@ public class FilmControllerForDirectorTest {
     @DisplayName("Получение всех фильмов")
     void findAllFilmDirectorTest() {
         initDirectors();
-        final int index0 = 0;
-        final int index1 = 1;
-        final int index2 = 2;
-        final int index3 = 3;
-        final int index4 = 4;
-        final int index5 = 5;
-        final int index6 = 6;
+        int index0 = 0;
+        int index1 = 1;
+        int index2 = 2;
+        int index3 = 3;
+        int index4 = 4;
+        int index5 = 5;
+        int index6 = 6;
         List<Film> allFilms = filmController.findAll();
         assertThat(allFilms.get(index0).getDirectors().contains(director1)).isTrue();
         assertThat(allFilms.get(index0).getDirectors().contains(director2)).isTrue();
@@ -126,24 +125,24 @@ public class FilmControllerForDirectorTest {
         int size2 = 2;
         int size0 = 0;
         Film film = filmController.findFilmBy(id);
-        assertThat(film.getDirectors().size() == size2).isTrue();
+        assertThat(film.getDirectors()).hasSize(size2);
         assertThat(film.getDirectors().contains(director1)).isTrue();
         assertThat(film.getDirectors().contains(director2)).isTrue();
         filmDao.deleteDirectorForFilm(id);
         Film filmEmptyListDirectors = filmController.findFilmBy(id);
         assertThat(filmEmptyListDirectors.getDirectors().isEmpty()).isTrue();
-        assertThat(filmEmptyListDirectors.getDirectors().size() == size0).isTrue();
+        assertThat(filmEmptyListDirectors.getDirectors()).hasSize(size0);
     }
 
     @Test
     @DisplayName("Сортировка фильмов по кол-ву лайков и id директора")
     void getFilmsDirectorBySortLikesTest() throws SQLException {
         initDirectors();
-        final int idDirector = 1;
-        final int index0 = 0;
-        final int index1 = 1;
-        final int like1 = 1;
-        final int like5 = 5;
+        int idDirector = 1;
+        int index0 = 0;
+        int index1 = 1;
+        int like1 = 1;
+        int like5 = 5;
         Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, "likes");
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getRate() == like5).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index1).getRate() == like1).isTrue();
@@ -155,11 +154,11 @@ public class FilmControllerForDirectorTest {
     @DisplayName("Сортировка фильмов по годам и id директора")
     void getFilmsDirectorBySortYearTest() throws SQLException {
         initDirectors();
-        final int idDirector = 1;
-        final int index0 = 0;
-        final int index1 = 1;
-        final int year1 = 1987;
-        final int year2 = 1989;
+        int idDirector = 1;
+        int index0 = 0;
+        int index1 = 1;
+        int year1 = 1987;
+        int year2 = 1989;
         Collection<Film> films = filmController.getFilmsDirectorBySort(idDirector, "year");
         assertThat(films.stream().collect(Collectors.toList()).get(index0).getReleaseDate().getYear() == year1).isTrue();
         assertThat(films.stream().collect(Collectors.toList()).get(index1).getReleaseDate().getYear() == year2).isTrue();
@@ -172,10 +171,10 @@ public class FilmControllerForDirectorTest {
     void getPopularFilms() {
         initDirectors();
         initFilms();
-        final int count = 1;
-        final int size = 1;
+        int count = 1;
+        int size = 1;
         List<Film> films = filmController.getPopularFilms(count, null, null);
-        assertThat(films.size() == size).isTrue();
+        assertThat(films).hasSize(size);
         assertThat(films.contains(film1)).isTrue();
     }
 }
