@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
@@ -19,6 +20,9 @@ public class ReviewController {
     @PostMapping
     public Review create(@Valid @RequestBody Review review) {
         log.info("ReviewController: create Review request. Data: {}", review);
+        if (review.getUserId() < 1 || review.getFilmId() < 1){
+            throw new FilmorateNotFoundException("ReviewController: User id: %d or Film id: %d is incorrect");
+        }
         return reviewService.create(review);
     }
 
@@ -40,9 +44,9 @@ public class ReviewController {
     }
 
     @GetMapping
-    public List<Review> findByFilm(@RequestParam(required = false) Long filmId,
-                                   @RequestParam(defaultValue = "10") Integer count) {
-        return reviewService.getByFilm(filmId, count);
+    public List<Review> findByFilmOrDefault(@RequestParam(required = false) Long filmId,
+                                            @RequestParam(defaultValue = "10") Integer count) {
+        return reviewService.getByFilmOrDefault(filmId, count);
     }
 
     @PutMapping("/{id}/like/{userId}")

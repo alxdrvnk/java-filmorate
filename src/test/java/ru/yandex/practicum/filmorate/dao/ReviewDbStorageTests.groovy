@@ -28,7 +28,7 @@ class ReviewDbStorageTests extends Specification {
 
     def "Can get list of reviews by film id 1"() {
         when:
-        def reviews = reviewDao.getByFilm(1, 3)
+        def reviews = reviewDao.getByFilmOrDefault(1, 3)
 
         then:
         with(reviews) {
