@@ -82,8 +82,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}/recommendations")
-    public List<Film> findRecommendations(@PathVariable Long id) {
-        return userService.getRecommendations(id);
+    public List<Film> findRecommendations(@PathVariable Long id, @RequestParam(name = "count", defaultValue = "5") int count) {
+        return userService.getRecommendations(id, count);
     }
 
     private void validateUserBirthday(User user) {

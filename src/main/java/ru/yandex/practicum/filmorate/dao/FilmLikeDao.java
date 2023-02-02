@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.dao;
 
+import ru.yandex.practicum.filmorate.model.Film;
+
 import java.util.List;
-import java.util.Map;
 
 public interface FilmLikeDao {
 
@@ -9,6 +10,6 @@ public interface FilmLikeDao {
 
     boolean removeFilmLike(Long filmId, Long userId);
 
-    Map<Long, List<Long>> getSameLikesByUser(Long userId);
+    List<Film> getSameLikesByUser(Long userId, int count);
 
 }
