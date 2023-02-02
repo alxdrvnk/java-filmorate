@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS film_directors (
 CREATE TABLE IF NOT EXISTS review_likes (
                                             user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
                                             review_id INTEGER REFERENCES reviews (id) ON DELETE CASCADE,
-                                            value_st BOOLEAN,
+                                            is_like BOOLEAN,
                                             PRIMARY KEY (user_id, review_id)
 );
 

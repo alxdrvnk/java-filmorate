@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ReviewDao extends FilmorateDao<Review> {
 
-    List<Review> getByFilm(Long filmId, Integer count);
+    List<Review> getByFilmOrDefault(Long filmId, Integer count);
 }

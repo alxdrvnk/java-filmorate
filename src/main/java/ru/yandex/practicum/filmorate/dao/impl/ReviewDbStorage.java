@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -28,8 +29,14 @@ public class ReviewDbStorage implements ReviewDao {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("reviews")
                 .usingGeneratedKeyColumns("id");
-        Long reviewId = simpleJdbcInsert.executeAndReturnKey(reviewToParameters(review)).longValue();
-        return review.withReviewId(reviewId);
+        try {
+            Long reviewId = simpleJdbcInsert.executeAndReturnKey(reviewToParameters(review)).longValue();
+            return review.withReviewId(reviewId);
+        } catch (
+                DataIntegrityViolationException e) {
+            throw new FilmorateNotFoundException(
+                    String.format("Review: User with id: %d or Film with id: %d not found", review.getUserId(), review.getFilmId()));
+        }
     }
 
     @Override
@@ -67,7 +74,7 @@ public class ReviewDbStorage implements ReviewDao {
     }
 
     @Override
-    public List<Review> getByFilm(Long filmId, Integer count) {
+    public List<Review> getByFilmOrDefault(Long filmId, Integer count) {
         SqlRowSet rowSet;
         if (filmId != null) {
             rowSet = jdbcTemplate.queryForRowSet("SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?", filmId, count);

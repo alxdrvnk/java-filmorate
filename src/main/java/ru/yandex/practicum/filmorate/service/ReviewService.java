@@ -21,12 +21,10 @@ public class ReviewService {
     private final EventsService eventsService;
 
     public Review create(Review review) {
-        userService.getUserBy(review.getUserId());
-        filmService.getFilmBy(review.getFilmId());
-
         if (review.getUseful() != 0) {
             review.withUseful(0);
         }
+
         review = reviewDao.create(review);
 
         eventsService.create(review.getUserId(),
@@ -70,8 +68,8 @@ public class ReviewService {
         return reviewDao.getBy(id).orElseThrow(() -> new FilmorateNotFoundException("Отзыв не найден"));
     }
 
-    public List<Review> getByFilm(Long filmId, Integer count) {
-        return reviewDao.getByFilm(filmId, count);
+    public List<Review> getByFilmOrDefault(Long filmId, Integer count) {
+        return reviewDao.getByFilmOrDefault(filmId, count);
     }
 
     public void addLike(Long id, Long userId) {
