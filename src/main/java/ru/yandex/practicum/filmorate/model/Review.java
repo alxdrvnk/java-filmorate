@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 
 @Value
 @Builder
-@EqualsAndHashCode
 @Jacksonized
 public class Review {
     @With

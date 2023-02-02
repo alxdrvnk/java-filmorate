@@ -14,7 +14,6 @@ import java.util.List;
 
 @Value
 @Builder
-@EqualsAndHashCode
 @Jacksonized
 public class Film {
 

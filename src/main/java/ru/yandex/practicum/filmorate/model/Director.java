@@ -7,7 +7,6 @@ import javax.validation.constraints.NotNull;
 
 @Value
 @Builder
-@EqualsAndHashCode
 public class Director {
     @With
     int id;

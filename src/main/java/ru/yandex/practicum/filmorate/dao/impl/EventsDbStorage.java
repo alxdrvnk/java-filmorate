@@ -3,14 +3,13 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.EventDao;
 import ru.yandex.practicum.filmorate.dao.mapper.EventMapper;
 import ru.yandex.practicum.filmorate.model.Event;
 
-import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Slf4j
@@ -22,21 +21,11 @@ public class EventsDbStorage implements EventDao {
 
     @Override
     public Event create(Event event) {
-        String query = "INSERT INTO events(user_id, type, operation, entity_id, event_time) " +
-                "VALUES(?,?,?,?,?)";
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(query, new String[]{"id"});
-            stmt.setLong(1, event.getUserId());
-            stmt.setString(2, event.getEventType());
-            stmt.setString(3, event.getOperation());
-            stmt.setLong(4, event.getEntityId());
-            stmt.setLong(5, event.getTimestamp());
-            return stmt;
-        }, keyHolder);
-        Long id = keyHolder.getKey().longValue();
-        return event.withEventId(id);
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("events")
+                .usingGeneratedKeyColumns("id");
+        Long eventId = simpleJdbcInsert.executeAndReturnKey(eventToParameters(event)).longValue();
+        return event.withEventId(eventId);
     }
 
     @Override
@@ -48,5 +37,17 @@ public class EventsDbStorage implements EventDao {
                 "ORDER BY e.event_time";
 
         return jdbcTemplate.query(query, new EventMapper(), userId, userId, userId);
+    }
+
+    private Map<String, Object> eventToParameters(Event event) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id", event.getEventId());
+        parameters.put("user_id", event.getUserId());
+        parameters.put("entity_id", event.getEntityId());
+        parameters.put("type", event.getEventType());
+        parameters.put("operation", event.getOperation());
+        parameters.put("event_time",
+                new Timestamp(event.getTimestamp()).toLocalDateTime());
+        return parameters;
     }
 }
