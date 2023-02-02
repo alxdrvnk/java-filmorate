@@ -93,7 +93,8 @@ public class FilmDbStorage implements FilmDao {
                 "INNER JOIN (" +
                         "SELECT film_id FROM film_genres " +
                         String.format("WHERE genre_id = %d ", genreId) +
-                        ") AS flmgnr ON flmgnr.film_id = f.id";
+                        ") AS flmgnr ON flmgnr.film_id = f.id ";
+
         String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
                 "FROM films AS f " +
                 "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
@@ -101,12 +102,13 @@ public class FilmDbStorage implements FilmDao {
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
                 "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
                 "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
-                "RIGHT JOIN (SELECT id from films " +
+                (genreId != null ?
+                        genreIdFilter : "") +
+                "WHERE f.id IN (SELECT id from films " +
                 (year != null ?
                         String.format("WHERE EXTRACT(YEAR FROM release_date) = %d ", year) : "") +
-                "ORDER BY rate DESC LIMIT ?) AS flm ON flm.id = f.id " +
-                (genreId != null ?
-                        genreIdFilter : "");
+                "LIMIT ?) " +
+                "ORDER BY rate DESC";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
         return FilmMapper.makeFilmList(rowSet);
     }
@@ -224,15 +226,10 @@ public class FilmDbStorage implements FilmDao {
         String query = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
         try {
             SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId, userId);
-            if (rowSet.next()) {
-                if (userId == rowSet.getLong("user_id")) {
-                    return true;
-                }
-            }
+            return true;
         } catch (EmptyResultDataAccessException e) {
             return false;
         }
-        return false;
     }
 
     private Map<String, Object> filmToParameters(Film film) {
