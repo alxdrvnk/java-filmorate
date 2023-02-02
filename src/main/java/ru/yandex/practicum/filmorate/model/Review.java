@@ -5,11 +5,9 @@ import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 
 @Value
 @Builder
-@EqualsAndHashCode
 @Jacksonized
 public class Review {
     @With
