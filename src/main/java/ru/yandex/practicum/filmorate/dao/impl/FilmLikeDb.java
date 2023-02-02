@@ -6,11 +6,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
+import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,17 +55,24 @@ public class FilmLikeDb implements FilmLikeDao {
     }
 
     @Override
-    public Map<Long, List<Long>> getSameLikesByUser(Long userId) {
-        String query = "SELECT * FROM likes WHERE user_id IN (SELECT DISTINCT user_id FROM LIKES WHERE film_id IN " +
-                "(SELECT film_id FROM likes WHERE user_id = ?))";
+    public List<Film> getSameLikesByUser(Long userId, int count) {
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
+                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                "WHERE f.id IN ( " +
+                "  (SELECT film_id FROM likes WHERE user_id IN ( " +
+                "    SELECT flm.user_id AS user_id from likes AS flm " +
+                "    INNER JOIN likes AS lk ON lk.film_id = flm.film_id AND lk.user_id = ?" +
+                "    GROUP BY flm.user_id HAVING flm.user_id <> ?" +
+                "    ORDER BY COUNT(flm.user_id) DESC )  " +
+                "  EXCEPT " +
+                "  SELECT film_id FROM likes WHERE user_id = ?) LIMIT ? ) ";
 
-        Map<Long, List<Long>> likes = new HashMap<>();
-        jdbcTemplate.query(query, rs -> {
-            long id = rs.getLong("user_id");
-            long filmId = rs.getLong("film_id");
-            likes.putIfAbsent(id, new ArrayList<>());
-            likes.get(id).add(filmId);
-        }, userId);
-        return likes;
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, userId, userId, count);
+        return FilmMapper.makeFilmList(rowSet);
     }
 }
