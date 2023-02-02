@@ -6,8 +6,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
-import ru.yandex.practicum.filmorate.dao.impl.GenreDb
-import ru.yandex.practicum.filmorate.dao.impl.MpaDb
+import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorage
+import ru.yandex.practicum.filmorate.dao.impl.MpaDbStorage
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException
 import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Mpa
@@ -35,10 +35,10 @@ class FilmorateApplicationTests extends Specification {
     private ReviewService reviewService
 
     @Autowired
-    private GenreDb genreStorage
+    private GenreDbStorage genreStorage
 
     @Autowired
-    private MpaDb mpaStorage
+    private MpaDbStorage mpaStorage
 
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "can add friends"() {

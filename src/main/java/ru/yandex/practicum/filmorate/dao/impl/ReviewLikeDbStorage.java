@@ -16,7 +16,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ReviewLikeDb implements ReviewLikeDao {
+public class ReviewLikeDbStorage implements ReviewLikeDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Override

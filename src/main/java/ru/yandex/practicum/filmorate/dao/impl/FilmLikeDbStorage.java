@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FilmLikeDb implements FilmLikeDao {
+public class FilmLikeDbStorage implements FilmLikeDao {
 
     private final JdbcTemplate jdbcTemplate;
 

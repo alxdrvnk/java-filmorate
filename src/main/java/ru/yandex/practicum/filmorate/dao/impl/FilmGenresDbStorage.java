@@ -17,7 +17,7 @@ import java.util.Map;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class FilmGenresDb implements FilmGenreDao {
+public class FilmGenresDbStorage implements FilmGenreDao {
 
     private final JdbcTemplate jdbcTemplate;
 

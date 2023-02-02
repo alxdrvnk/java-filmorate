@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class MpaDb implements MpaDao {
+public class MpaDbStorage implements MpaDao {
 
     private final JdbcTemplate jdbcTemplate;
 

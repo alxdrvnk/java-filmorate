@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
-import ru.yandex.practicum.filmorate.dao.impl.FriendListDb;
+import ru.yandex.practicum.filmorate.dao.impl.FriendListDbStorage;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -20,7 +20,7 @@ import java.util.List;
 public class UserService {
 
     private final UserDao storage;
-    private final FriendListDb friendListDb;
+    private final FriendListDbStorage friendListDbStorage;
     private final FilmDao filmDao;
     private final FilmLikeDao likeDao;
     private final EventsService eventsService;
@@ -43,7 +43,7 @@ public class UserService {
     }
 
     public void addFriend(Long friendId, Long userId) {
-        friendListDb.addFriend(userId, friendId);
+        friendListDbStorage.addFriend(userId, friendId);
 
         eventsService.create(userId, friendId, FilmorateEventType.FRIEND, FilmorateEventOperation.ADD);
     }
@@ -51,18 +51,18 @@ public class UserService {
     public void removeFriend(Long friendId, Long userId) {
         getUserBy(userId);
         getUserBy(friendId);
-        friendListDb.removeFriend(userId, friendId);
+        friendListDbStorage.removeFriend(userId, friendId);
 
         eventsService.create(userId, friendId, FilmorateEventType.FRIEND, FilmorateEventOperation.REMOVE);
     }
 
     public List<User> getUserFriends(Long userId) {
         getUserBy(userId);
-        return friendListDb.getFriends(userId);
+        return friendListDbStorage.getFriends(userId);
     }
 
     public void approveFriend(Long friendId, Long userId) {
-        friendListDb.approveFriend(userId, friendId);
+        friendListDbStorage.approveFriend(userId, friendId);
 
         eventsService.create(userId, friendId, FilmorateEventType.FRIEND, FilmorateEventOperation.UPDATE);
     }
@@ -70,7 +70,7 @@ public class UserService {
     public List<User> getMutualFriends(Long userId, Long otherUserId) {
         getUserBy(userId);
         getUserBy(otherUserId);
-        return friendListDb.getCommonFriends(userId, otherUserId);
+        return friendListDbStorage.getCommonFriends(userId, otherUserId);
     }
 
     public List<Event> getFeed(Long userId) {
