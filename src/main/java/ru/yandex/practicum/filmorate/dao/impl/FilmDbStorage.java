@@ -133,7 +133,7 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public List<Film> findFilmsBy(String query, By by) {
-        query = "%" + query.toLowerCase() + "%";
+        query = "%" + query + "%";
         StringBuilder where = new StringBuilder("WHERE ");
         if (by.isDirector()) {
             where.append("lower(d.name) LIKE :query OR ");
