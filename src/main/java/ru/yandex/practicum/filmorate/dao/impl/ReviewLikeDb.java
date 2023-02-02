@@ -28,7 +28,7 @@ public class ReviewLikeDb implements ReviewLikeDao {
             log.debug(String.format("ReviewLikes: trying to add duplicate like from User id: %d to Review Id: %d", userId, reviewId));
         } catch (DataIntegrityViolationException e) {
             throw new FilmorateNotFoundException(
-                    String.format("Отзыв с id: %d или пользователь с id: %d не найдены.", reviewId, userId));
+                    String.format("ReviewLikes: Review with id: %d or user with id: %d not found.", reviewId, userId));
         }
         return false;
     }
@@ -42,20 +42,20 @@ public class ReviewLikeDb implements ReviewLikeDao {
             log.debug(String.format("ReviewLikes: trying to add duplicate dislike from User id: %d to Review Id: %d", userId, reviewId));
         } catch (DataIntegrityViolationException e) {
             throw new FilmorateNotFoundException(
-                    String.format("Отзыв с id: %d или пользователь с id: %d не найдены.", reviewId, userId));
+                    String.format("ReviewLikes: Review with id: %d or user with id: %d not found.", reviewId, userId));
         }
         return false;
     }
 
     @Override
     public boolean removeLike(Long reviewId, Long userId) {
-        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND value_st = true";
+        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = true";
         return jdbcTemplate.update(query, reviewId, userId) == 1;
     }
 
     @Override
     public boolean removeDislike(Long reviewId, Long userId) {
-        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND value_st = false";
+        String query = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = false";
         return jdbcTemplate.update(query, reviewId, userId) == 1;
     }
 
@@ -63,7 +63,7 @@ public class ReviewLikeDb implements ReviewLikeDao {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", userId);
         parameters.put("review_id", reviewId);
-        parameters.put("value_st", value);
+        parameters.put("is_like", value);
         return parameters;
     }
 }
