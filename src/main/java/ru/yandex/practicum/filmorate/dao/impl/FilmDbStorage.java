@@ -170,16 +170,16 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public List<Film> getDirectorFilmSortedByLike(int directorId) {
-        String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
-                "FROM films AS f INNER JOIN mpa AS m ON m.id = f.mpa_id " +
-                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
-                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
-                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
-                "LEFT JOIN LIKES lk on f.ID = lk.FILM_ID" +
-                " WHERE DIRECTOR_ID = ? " +
-                "GROUP BY f.ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATE, f.MPA_ID, mpa_name, genre_id, genre_name,fd.DIRECTOR_ID,DIRECTOR_NAME " +
-                "ORDER by COUNT(lk.USER_ID) DESC";
+            String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+            "FROM films AS f " +
+            "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+            "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+            "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+            "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+            "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+            "WHERE DIRECTOR_ID = ? " +
+            "GROUP BY f.ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATE, f.MPA_ID, mpa_name, genre_id, genre_name,fd.DIRECTOR_ID,DIRECTOR_NAME " +
+            "ORDER by f.RATE DESC;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, directorId);
         return FilmMapper.makeFilmList(rowSet);
     }
@@ -213,7 +213,6 @@ public class FilmDbStorage implements FilmDao {
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
                 "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
                 "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
-                "LEFT JOIN LIKES lk on f.ID = lk.FILM_ID" +
                 " WHERE DIRECTOR_ID = ? " +
                 "GROUP BY f.ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATE, f.MPA_ID, mpa_name, genre_id, genre_name,fd.DIRECTOR_ID,DIRECTOR_NAME " +
                 "ORDER by EXTRACT(YEAR FROM CAST(f.RELEASE_DATE AS date))";

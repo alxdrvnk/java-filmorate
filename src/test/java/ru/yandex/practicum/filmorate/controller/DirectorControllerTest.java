@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -38,9 +38,9 @@ class DirectorControllerTest {
     @DisplayName("Получение списка всех директоров")
     void getAllDirectorsTest() {
         initDirectors();
-        final int size = 3;
+        int size = 3;
         List<Director> directors = directorController.getAllDirectors();
-        assertThat(directors.size() == size).isTrue();
+        assertThat(directors).hasSize(size);
         assertThat(directors.contains(director1)).isTrue();
         assertThat(directors.contains(director2)).isTrue();
         assertThat(directors.contains(director3)).isTrue();
@@ -51,9 +51,9 @@ class DirectorControllerTest {
     @DisplayName("Получение списка всех директоров, пустая база")
     void getAllDirectorsIsEmptyListTest() {
         initDirectors();
-        final int size = 0;
+        int size = 0;
         List<Director> directors = directorController.getAllDirectors();
-        assertThat(directors.size() == size).isTrue();
+        assertThat(directors).hasSize(size);
         assertThat(directors.contains(director1)).isFalse();
         assertThat(directors.contains(director2)).isFalse();
         assertThat(directors.contains(director3)).isFalse();
@@ -65,7 +65,7 @@ class DirectorControllerTest {
     @DisplayName("Получение директора по id")
     void getDirectorByIdTest() {
         initDirectors();
-        final int id = 1;
+        int id = 1;
         Director directorForTest = directorController.getDirectorById(id);
         assertThat(directorForTest.equals(director1)).isTrue();
         Optional<Director> addDirectorOptional = Optional.ofNullable(directorForTest);
@@ -82,7 +82,7 @@ class DirectorControllerTest {
     @DisplayName("Получение директора по несуществующему id")
     void getDirectorByBadIdTest() {
         initDirectors();
-        final int id = 999;
+        int id = 999;
         assertThrows(FilmorateNotFoundException.class, () -> {
             directorController.getDirectorById(id);
         });
@@ -100,7 +100,7 @@ class DirectorControllerTest {
                 .isPresent()
                 .hasValueSatisfying(d -> assertThat(d).hasFieldOrPropertyWithValue("id", directorCreate.getId()))
                 .hasValueSatisfying(d -> assertThat(d).hasFieldOrPropertyWithValue("name", directorCreate.getName()));
-        final int id = 1;
+        int id = 1;
         Director directorDatabase = directorController.getDirectorById(id);
         assertThat(directorCreate.equals(directorDatabase)).isTrue();
     }
@@ -122,7 +122,7 @@ class DirectorControllerTest {
     @DisplayName("Обновление директора")
     void updateDirectorTest() {
         initDirectors();
-        final int id = 1;
+        int id = 1;
         Director directorDatabase = directorController.getDirectorById(id);
         assertThat(director1.equals(directorDatabase)).isTrue();
         director1 = Director.builder().id(1).name("!!!Steven Spielberg!!!").build();
@@ -150,7 +150,7 @@ class DirectorControllerTest {
     @DisplayName("Удаление директора")
     void deleteDirectorByIdTest() {
         initDirectors();
-        final int id = 1;
+        int id = 1;
         List<Director> directors = directorController.getAllDirectors();
         assertThat(directors.contains(director1)).isTrue();
         assertThat(directors.contains(director2)).isTrue();
@@ -168,7 +168,7 @@ class DirectorControllerTest {
     @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Удаление директора c неверным id")
     void deleteDirectorByBadIdTest() {
-        final int id = 999;
+        int id = 999;
         assertThrows(FilmorateNotFoundException.class, () -> {
             directorController.deleteDirectorById(id);
         });
@@ -178,7 +178,7 @@ class DirectorControllerTest {
     @Sql(value = {"classpath:testDirector/cleanDataForTestDirector.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("Удаление директора c пустой базы")
     void deleteDirectorByIdEmptyDataBaseTest() {
-        final int id = 1;
+        int id = 1;
         assertThrows(FilmorateNotFoundException.class, () -> {
             directorController.deleteDirectorById(id);
         });
