@@ -64,14 +64,13 @@ public class FilmLikeDb implements FilmLikeDao {
                 "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
                 "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
                 "WHERE f.id IN ( " +
-                "  SELECT film_id FROM likes WHERE user_id IN ( " +
+                "  (SELECT film_id FROM likes WHERE user_id IN ( " +
                 "    SELECT flm.user_id AS user_id from likes AS flm " +
                 "    INNER JOIN likes AS lk ON lk.film_id = flm.film_id AND lk.user_id = ?" +
                 "    GROUP BY flm.user_id HAVING flm.user_id <> ?" +
-                "    ORDER BY COUNT(flm.user_id) DESC) " +
+                "    ORDER BY COUNT(flm.user_id) DESC )  " +
                 "  EXCEPT " +
-                "  SELECT film_id FROM likes WHERE user_id = ?) " +
-                "LIMIT ?";
+                "  SELECT film_id FROM likes WHERE user_id = ?) LIMIT ? ) ";
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, userId, userId, count);
         return FilmMapper.makeFilmList(rowSet);
