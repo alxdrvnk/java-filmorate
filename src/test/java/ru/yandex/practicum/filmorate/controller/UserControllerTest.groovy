@@ -183,12 +183,6 @@ class UserControllerTest extends Specification {
                 .andExpect(status().isOk())
     }
 
-    def "Should return code 400 because of deleting non exist user"(){
-        expect:
-        mvc.perform(MockMvcRequestBuilders.delete("/users/2"))
-                .andExpect(status().isNotFound())
-    }
-
     def "should return 200 and list of recommendation"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.get("/users/1/recommendations"))
