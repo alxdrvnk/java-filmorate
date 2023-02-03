@@ -1,7 +1,7 @@
-INSERT INTO users (email, login, name, birthday)
-VALUES ('user1@email.mail', 'user1-login', 'user1-name', '1944-05-14'),
-       ('user2@email.mail', 'user2-login', 'user2-name', '1954-01-24'),
-       ('user3@email.mail', 'user3-login', 'user3-name', '1974-11-04');
+INSERT INTO users (email, login, name, birthday, deleted)
+VALUES ('user1@email.mail', 'user1-login', 'user1-name', '1944-05-14', 'false'),
+       ('user2@email.mail', 'user2-login', 'user2-name', '1954-01-24', 'false'),
+       ('user3@email.mail', 'user3-login', 'user3-name', '1974-11-04', 'false');
 
 INSERT INTO films (title, description, release_date, duration, rate, mpa_id)
 VALUES ('SW', 'SW description', '1977-05-25', 121, 0, 2),

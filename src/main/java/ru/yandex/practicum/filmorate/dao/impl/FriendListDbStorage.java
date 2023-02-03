@@ -53,7 +53,7 @@ public class FriendListDbStorage implements FriendListDao {
                             "WHERE fl.user_id = ? " +
                             "UNION  " +
                             "SELECT fl.user_id FROM friend_list AS fl " +
-                            "WHERE fl.friend_id = ? AND fl.state = true)";
+                            "WHERE fl.friend_id = ? AND fl.state = true) AND deleted = false";
         return jdbcTemplate.query(query, new UserMapper(), userId, userId);
     }
 

@@ -3,13 +3,13 @@ VALUES (1, 'Стивен Спилберг'),
        (2, 'Питер Джексон'),
        (3, 'Джеймс Кэмерон');
 
-INSERT INTO users (email, login, name, birthday)
-VALUES ('user1@email.mail', 'user1-login', 'user1-name', '1944-05-14'),
-       ('user2@email.mail', 'user2-login', 'user2-name', '1954-01-24'),
-       ('user3@email.mail', 'user3-login', 'user3-name', '1974-11-04'),
-       ('user4@email.mail', 'user4-login', 'user4-name', '1991-12-23'),
-       ('user5@email.mail', 'user5-login', 'user5-name', '1987-09-09'),
-       ('user6@email.mail', 'user6-login', 'user6-name', '2001-07-19');
+INSERT INTO users (email, login, name, birthday, deleted)
+VALUES ('user1@email.mail', 'user1-login', 'user1-name', '1944-05-14', 'false'),
+       ('user2@email.mail', 'user2-login', 'user2-name', '1954-01-24', 'false'),
+       ('user3@email.mail', 'user3-login', 'user3-name', '1974-11-04', 'false'),
+       ('user4@email.mail', 'user4-login', 'user4-name', '1991-12-23', 'false'),
+       ('user5@email.mail', 'user5-login', 'user5-name', '1987-09-09', 'false'),
+       ('user6@email.mail', 'user6-login', 'user6-name', '2001-07-19', 'false');
 
 INSERT INTO FILMS (title, description, release_date, duration, rate, mpa_id)
 VALUES ('Фильм-1', 'film1', '1987-02-01', 50, 5, 1);

@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
                                      email VARCHAR NOT NULL UNIQUE,
                                      login VARCHAR NOT NULL UNIQUE,
                                      name VARCHAR,
-                                     birthday DATE NOT NULL
+                                     birthday DATE NOT NULL,
+                                     deleted BOOLEAN NOT NULL,
                                          CONSTRAINT wrong_birthday_date CHECK (birthday < CURRENT_DATE)
 );
 

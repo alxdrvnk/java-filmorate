@@ -26,7 +26,7 @@ public class UserService {
     private final EventsService eventsService;
 
     public User create(User user) {
-        return storage.create(user);
+        return storage.create(user.withDeleted(false));
     }
 
     public List<User> getAllUsers() {
