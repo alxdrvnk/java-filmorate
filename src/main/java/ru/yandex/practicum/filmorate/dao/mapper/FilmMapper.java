@@ -41,8 +41,7 @@ public class FilmMapper {
             }
 
             if (genre.getId() != 0) {
-                Set<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
-                genres.addAll(film.getGenres());
+                Set<Genre> genres = film.getGenres();
                 genres.add(genre);
                 filmById.put(film.getId(), film.withGenres(genres));
             }
