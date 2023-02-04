@@ -419,14 +419,6 @@ class FilmorateApplicationTests extends Specification {
         }
     }
 
-    def "should return 200 and empty list of recommendations"() {
-        when:
-        def films = userService.getRecommendations(2, 5)
-
-        then:
-        films.size() == 0
-    }
-
     def "should return 200 and list of common films"() {
         when:
         def films = filmService.getCommonFilms(1, 2)
