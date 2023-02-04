@@ -14,10 +14,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,8 +47,8 @@ class FilmControllerForDirectorTest {
                         .id(1L)
                         .name("G")
                         .build())
-                .genres(new ArrayList<>(Arrays.asList(Genre.builder().id(2L).name("Драма").build(),
-                        Genre.builder().id(6L).name("Боевик").build())))
+                .genres(Set.of(Genre.builder().id(2L).name("Драма").build(),
+                        Genre.builder().id(6L).name("Боевик").build()))
                 .directors(new ArrayList<>(Arrays.asList(director1, director2)))
                 .build();
     }

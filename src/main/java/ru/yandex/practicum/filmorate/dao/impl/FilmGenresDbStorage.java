@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -29,7 +30,7 @@ public class FilmGenresDbStorage implements FilmGenreDao {
     }
 
     @Override
-    public void updateFilmGenres(Long filmId, List<Genre> genreIds) {
+    public void updateFilmGenres(Long filmId, Set<Genre> genreIds) {
 
         String queryDel = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(queryDel, filmId);
