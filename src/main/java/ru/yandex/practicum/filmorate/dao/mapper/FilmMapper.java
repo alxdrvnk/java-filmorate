@@ -41,9 +41,9 @@ public class FilmMapper {
             }
 
             if (genre.getId() != 0) {
-                Set<Genre> genres = new HashSet<>(film.getGenres());
+                Set<Genre> genres = film.getGenres();
                 genres.add(genre);
-                filmById.put(film.getId(), film.withGenres(new ArrayList<>(genres)));
+                filmById.put(film.getId(), film.withGenres(genres));
             }
             if (director.getId() != 0) {
                 Set<Director> directors = new HashSet<>(film.getDirectors());
