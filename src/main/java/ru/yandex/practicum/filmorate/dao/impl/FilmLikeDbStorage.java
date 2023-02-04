@@ -57,19 +57,22 @@ public class FilmLikeDbStorage implements FilmLikeDao {
     @Override
     public List<Film> getSameLikesByUser(Long userId, int count) {
         String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME\n" +
-                "      FROM films AS f\n" +
-                "      INNER JOIN mpa AS m ON m.id = f.mpa_id \n" +
-                "      LEFT JOIN film_genres AS fg ON fg.film_id = f.id \n" +
-                "      LEFT JOIN genre AS g ON g.id = fg.genre_id \n" +
-                "      LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID \n" +
-                "      LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID \n" +
-                "      WHERE f.id IN ( \n" +
-                "        SELECT flm.film_id FROM likes flm, likes lk, likes ulk\n" +
-                "          WHERE (flm.user_id = lk.user_id AND flm.film_id <> ulk.film_id)\n" +
-                "          AND (lk.film_id = ulk.film_id AND lk.user_id <> ?)\n" +
-                "          AND ulk.user_id = ? LIMIT ? )";
+                "FROM films AS f\n" +
+                "INNER JOIN mpa AS m ON m.id = f.mpa_id \n" +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id \n" +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id \n" +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID \n" +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID \n" +
+                "WHERE f.id IN ( \n" +
+                "  SELECT flk.film_id FROM likes AS flm\n" +
+                "    INNER JOIN likes AS ulk ON ulk.film_id = flm.film_id AND ulk.user_id <> flm.user_id\n" +
+                "    LEFT JOIN likes AS flk ON flk.user_id = ulk.user_id AND flk.film_id <> flm.film_id\n" +
+                "    WHERE flm.user_id = ?\n" +
+                "    GROUP BY ulk.user_id, flk.film_id\n" +
+                "    ORDER BY COUNT(ulk.user_id) DESC\n" +
+                "    LIMIT ?)";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, userId, count);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, count);
         return FilmMapper.makeFilmList(rowSet);
     }
 }
