@@ -1,0 +1,10 @@
+<dataset>
+    <PUBLIC.USERS
+            id="1"
+            login="test"
+            name="test"
+            email="test@mail.test"
+            birthday="2000-02-02"
+            deleted="false"
+    />
+</dataset>

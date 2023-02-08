@@ -3,12 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmorateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.utils.FilmorateEventOperation;
+import ru.yandex.practicum.filmorate.utils.FilmorateEventType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,12 +26,13 @@ public class FilmService {
     private final FilmLikeDao filmLikeDao;
     private final FilmGenreDao filmGenresDao;
     private final UserService userService;
+    private final EventsService eventsService;
 
     public Film create(Film film) {
         validateReleaseDate(film);
+        Film newFilm = storage.create(film.withRate(0));
 
-        Film newFilm = storage.create(film);
-
+        storage.addDirectorForFilm(newFilm);
         filmGenresDao.updateFilmGenres(newFilm.getId(), film.getGenres());
 
         return getFilmBy(newFilm.getId());
@@ -45,31 +49,39 @@ public class FilmService {
 
     public Film update(Film film) {
         validateReleaseDate(film);
-        getFilmBy(film.getId());
-
-        storage.update(film);
+        storage.update(film.withRate(getFilmBy(film.getId()).getRate()));
+        storage.deleteDirectorForFilm(film.getId());
+        storage.addDirectorForFilm(film);
         filmGenresDao.updateFilmGenres(film.getId(), film.getGenres());
-
         return getFilmBy(film.getId());
     }
 
     public int setFilmLike(Long filmId, Long userId) {
         Film film = getFilmBy(filmId);
-        filmLikeDao.addFilmLike(filmId, userId);
+        userService.getUserBy(userId);
 
-        int likes = film.getRate() + 1;
-        update(film.withRate(likes));
+        int likes = film.getRate();
+        if (filmLikeDao.addFilmLike(filmId, userId)) {
+            likes += 1;
+            storage.update(film.withRate(likes));
+        }
+
+        eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.ADD);
         return likes;
     }
 
     public int removeFilmLike(Long filmId, Long userId) {
-
         Film film = getFilmBy(filmId);
         userService.getUserBy(userId);
-        filmLikeDao.removeFilmLike(filmId, userId);
 
-        int likes = film.getRate()-1;
-        update(film.withRate(likes));
+        int likes = film.getRate();
+        if(filmLikeDao.removeFilmLike(filmId, userId)) {
+            likes -= 1;
+            storage.update(film.withRate(likes));
+        }
+
+        eventsService.create(userId, filmId, FilmorateEventType.LIKE, FilmorateEventOperation.REMOVE);
+
         return likes;
     }
 
@@ -77,15 +89,36 @@ public class FilmService {
         return getFilmBy(filmId).getRate();
     }
 
-    public List<Film> getPopularFilms(int count) {
-        return storage.getPopularFilms(count);
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        return storage.getPopularFilms(count, genreId, year);
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return storage.getCommonFilms(userId, friendId);
     }
 
     public void deleteFilmBy(Long id) {
+        storage.deleteDirectorForFilm(id);
         if (storage.deleteBy(id) == 0) {
             throw new FilmorateNotFoundException(
                     String.format("Фильм с id: %d не найден.", id));
         }
+    }
+
+    public List<Film> getDirectorFilmSortedByLike(int directorId) {
+        List<Film> films = storage.getDirectorFilmSortedByLike(directorId);
+        if (films.isEmpty()) {
+            throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
+        }
+        return films;
+    }
+
+    public List<Film> getDirectorFilmSortedByYear(int directorId) {
+        List<Film> films = storage.getDirectorFilmSortedByYear(directorId);
+        if (films.isEmpty()) {
+            throw new FilmorateNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
+        }
+        return films;
     }
 
     private void validateReleaseDate(Film film) {
@@ -93,5 +126,10 @@ public class FilmService {
             throw new FilmorateValidationException(
                     String.format("Дата релиза не может быть раньше чем %s", cinemaBirthday));
         }
+    }
+
+    public List<Film> findFilmsBy(String query, By by) {
+        return storage.findFilmsBy(query.toLowerCase(), by);
+
     }
 }

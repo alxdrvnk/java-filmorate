@@ -35,7 +35,7 @@ public class UserDbStorage implements UserDao {
 
     @Override
     public Optional<User> getBy(Long id) {
-        String query = "SELECT * FROM users WHERE id = ?";
+        String query = "SELECT * FROM users WHERE id = ? AND deleted = false";
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(query, new UserMapper(), id));
         } catch (EmptyResultDataAccessException e) {
@@ -45,7 +45,7 @@ public class UserDbStorage implements UserDao {
 
     @Override
     public List<User> getAll() {
-        String query = "SELECT * FROM users";
+        String query = "SELECT * FROM users WHERE deleted = false";
         return jdbcTemplate.query(query, new UserMapper());
     }
 
@@ -63,18 +63,20 @@ public class UserDbStorage implements UserDao {
 
     @Override
     public int deleteBy(Long id) {
-        String query = "DELETE FROM users WHERE id = ?";
+        String query = "UPDATE users SET deleted = true WHERE id = ?";
         return jdbcTemplate.update(query, id);
     }
 
-    private Map<String, Object> userToParameters(User user){
+    private Map<String, Object> userToParameters(User user) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", user.getId());
         parameters.put("email", user.getEmail());
         parameters.put("login", user.getLogin());
         parameters.put("name", user.getName());
         parameters.put("birthday", user.getBirthday());
+        parameters.put("deleted", user.getDeleted());
         return parameters;
     }
+
 
 }

@@ -13,23 +13,24 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class FilmGenresDb implements FilmGenreDao {
+public class FilmGenresDbStorage implements FilmGenreDao {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Genre> getFilmGenres(Long filmId) {
         String query = "SELECT * FROM genre " +
-                       "WHERE id IN (SELECT genre_id FROM film_genres WHERE film_id = ?)";
+                "WHERE id IN (SELECT genre_id FROM film_genres WHERE film_id = ?)";
         return jdbcTemplate.query(query, new GenreMapper(), filmId);
     }
 
     @Override
-    public void updateFilmGenres(Long filmId, List<Genre> genreIds) {
+    public void updateFilmGenres(Long filmId, Set<Genre> genreIds) {
 
         String queryDel = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(queryDel, filmId);

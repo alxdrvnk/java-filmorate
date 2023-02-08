@@ -5,17 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.controller.dto.By;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,12 +58,13 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public List<Film> getAll() {
-        String query =
-                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
-                        "JOIN mpa AS m ON f.mpa_id = m.id " +
-                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
-                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                        "ORDER BY f.id";
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f JOIN mpa AS m ON f.mpa_id = m.id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                "ORDER BY f.id";
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query);
         return FilmMapper.makeFilmList(rowSet);
@@ -69,13 +72,13 @@ public class FilmDbStorage implements FilmDao {
 
     @Override
     public Optional<Film> getBy(Long id) {
-
-        String query =
-                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
-                        "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
-                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
-                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                        "WHERE f.id = ?";
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
+                "INNER JOIN mpa AS m ON f.mpa_id = m.id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID WHERE f.id = ?;";
         try {
             SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, id);
             return FilmMapper.makeFilmList(rowSet).stream().findAny();
@@ -85,17 +88,147 @@ public class FilmDbStorage implements FilmDao {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        String genreIdFilter =
+                "INNER JOIN (" +
+                        "SELECT film_id FROM film_genres " +
+                        String.format("WHERE genre_id = %d ", genreId) +
+                        ") AS flmgnr ON flmgnr.film_id = f.id ";
 
-        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name FROM films AS f " +
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
                 "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
                 "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
                 "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
-                "ORDER BY f.rate DESC " +
-                "LIMIT ?";
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                (genreId != null ?
+                        genreIdFilter : "") +
+                "WHERE f.id IN (SELECT id from films " +
+                (year != null ?
+                        String.format("WHERE EXTRACT(YEAR FROM release_date) = %d ", year) : "") +
+                "ORDER BY rate DESC LIMIT ?) " +
+                "ORDER BY f.rate DESC";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, count);
-
         return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public List<Film> getByIds(Collection<Long> filmIds) {
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String query = String.format(
+                "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                        "FROM films AS f " +
+                        "JOIN mpa AS m ON f.mpa_id = m.id " +
+                        "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                        "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                        "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                        "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                        "WHERE f.id in (%s) " +
+                        "ORDER BY f.id", inSql);
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmIds.toArray());
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public List<Film> findFilmsBy(String query, By by) {
+        query = "%" + query + "%";
+        StringBuilder where = new StringBuilder("WHERE ");
+        if (by.isDirector()) {
+            where.append("lower(d.name) LIKE :query OR ");
+        }
+        if (by.isTitle()) {
+            where.append("lower(title) LIKE :query OR ");
+        }
+        where.delete(where.length() - 3, where.length());
+        String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, " +
+                "d.id AS director_id, d.name AS director_name " +
+                "FROM films AS f INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN film_directors AS fd ON fd.film_id = f.id " +
+                "LEFT JOIN directors d ON fd.director_id = d.id " + where + " ORDER BY f.rate DESC";
+        NamedParameterJdbcTemplate jdbc = new NamedParameterJdbcTemplate(jdbcTemplate);
+        SqlParameterSource namedParameter = new MapSqlParameterSource().addValue("query", query);
+        SqlRowSet rowSet = jdbc.queryForRowSet(sql, namedParameter);
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+    public void addDirectorForFilm(Film film) {
+        if (!film.getDirectors().isEmpty()) {
+            for (Director director : film.getDirectors()) {
+                jdbcTemplate.update("INSERT INTO FILM_DIRECTORS (DIRECTOR_ID, FILM_ID) VALUES ( ?, ? )", director.getId(), film.getId());
+            }
+        }
+    }
+
+    @Override
+    public void deleteDirectorForFilm(Long filmId) {
+        jdbcTemplate.update("DELETE FROM FILM_DIRECTORS WHERE FILM_ID = ?", filmId);
+    }
+
+    @Override
+    public List<Film> getDirectorFilmSortedByLike(int directorId) {
+            String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+            "FROM films AS f " +
+            "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+            "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+            "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+            "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+            "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+            "WHERE DIRECTOR_ID = ? " +
+            "GROUP BY f.ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATE, f.MPA_ID, mpa_name, genre_id, genre_name,fd.DIRECTOR_ID,DIRECTOR_NAME " +
+            "ORDER by f.RATE DESC;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, directorId);
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String query = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
+                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                "WHERE f.id in (" +
+                "SELECT l1.film_id FROM likes l1 WHERE l1.user_id = ? " +
+                "INTERSECT " +
+                "SELECT l2.film_id FROM likes l2 WHERE l2.user_id = ?" +
+                ") ORDER BY f.rate DESC";
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, userId, friendId);
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+
+    @Override
+    public List<Film> getDirectorFilmSortedByYear(int directorId) {
+        String sql = "SELECT f.*, m.name AS mpa_name, g.id AS genre_id, g.name AS genre_name, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+                "FROM films AS f " +
+                "INNER JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genre AS g ON g.id = fg.genre_id " +
+                "LEFT JOIN FILM_DIRECTORS fd on f.ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                " WHERE DIRECTOR_ID = ? " +
+                "GROUP BY f.ID, f.TITLE, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATE, f.MPA_ID, mpa_name, genre_id, genre_name,fd.DIRECTOR_ID,DIRECTOR_NAME " +
+                "ORDER by EXTRACT(YEAR FROM CAST(f.RELEASE_DATE AS date))";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, directorId);
+        return FilmMapper.makeFilmList(rowSet);
+    }
+
+    @Override
+    public boolean findIfUserLikedFilm(Long filmId, Long userId) {
+        String query = "SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?";
+        try {
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(query, filmId, userId);
+            return true;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
     }
 
     private Map<String, Object> filmToParameters(Film film) {
@@ -109,5 +242,4 @@ public class FilmDbStorage implements FilmDao {
         parameters.put("mpa_id", film.getMpa().getId());
         return parameters;
     }
-
 }

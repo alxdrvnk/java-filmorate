@@ -1,24 +1,20 @@
 package ru.yandex.practicum.filmorate
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
-import org.junit.runner.RunWith
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener
-import ru.yandex.practicum.filmorate.dao.impl.GenreDb
-import ru.yandex.practicum.filmorate.dao.impl.MpaDb
+import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorage
+import ru.yandex.practicum.filmorate.dao.impl.MpaDbStorage
 import ru.yandex.practicum.filmorate.exception.FilmorateNotFoundException
 import ru.yandex.practicum.filmorate.model.Film
 import ru.yandex.practicum.filmorate.model.Mpa
+import ru.yandex.practicum.filmorate.model.Review
 import ru.yandex.practicum.filmorate.model.User
 import ru.yandex.practicum.filmorate.service.FilmService
+import ru.yandex.practicum.filmorate.service.ReviewService
 import ru.yandex.practicum.filmorate.service.UserService
 import spock.lang.Specification
 
@@ -36,10 +32,13 @@ class FilmorateApplicationTests extends Specification {
     private FilmService filmService
 
     @Autowired
-    private GenreDb genreStorage
+    private ReviewService reviewService
 
     @Autowired
-    private MpaDb mpaStorage
+    private GenreDbStorage genreStorage
+
+    @Autowired
+    private MpaDbStorage mpaStorage
 
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
     def "can add friends"() {
@@ -49,21 +48,21 @@ class FilmorateApplicationTests extends Specification {
                 .login("userLogin")
                 .birthday(LocalDate.of(2000, 01, 01)).build()
         userService.create(user)
-        userService.addFriend(4, 1)
-        userService.addFriend(4, 2)
+        userService.addFriend(1, 4)
+        userService.addFriend(2, 4)
 
         when:
         def friends = userService.getUserFriends(4)
 
         then:
         with(friends) {
-            id == [1,2]
+            id == [1, 2]
         }
     }
 
     def "can remove user from friends"() {
         given:
-        userService.addFriend(1, 4)
+        userService.addFriend(4, 1)
 
         expect:
         def friends = userService.getUserFriends(1)
@@ -72,7 +71,7 @@ class FilmorateApplicationTests extends Specification {
         }
 
         when:
-        userService.removeFriend(1, 4)
+        userService.removeFriend(4, 1)
 
         then:
         def friendsUpdate = userService.getUserFriends(1)
@@ -87,7 +86,7 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         with(genres) {
-            id == [1,2,3,4,5,6]
+            id == [1, 2, 3, 4, 5, 6]
             name == ["Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик"]
         }
     }
@@ -98,7 +97,7 @@ class FilmorateApplicationTests extends Specification {
 
         then:
         with(mpa) {
-            id == [1,2,3,4,5]
+            id == [1, 2, 3, 4, 5]
             name == ["G", "PG", "PG-13", "R", "NC-17"]
         }
     }
@@ -120,7 +119,7 @@ class FilmorateApplicationTests extends Specification {
 
     }
 
-    def "can remove like from film"(){
+    def "can remove like from film"() {
         given:
         def likesCount = filmService.getFilmsLikesCount(3)
 
@@ -137,16 +136,14 @@ class FilmorateApplicationTests extends Specification {
 
     def "can get popular films"() {
         given:
-        filmService.setFilmLike(3, 1)
         filmService.setFilmLike(3, 2)
-        filmService.setFilmLike(1, 3)
 
         when:
-        def popularFilms = filmService.getPopularFilms(3)
+        def popularFilms = filmService.getPopularFilms(3, null, null)
 
         then:
         with(popularFilms) {
-            id == [3,1,2]
+            id == [3, 1, 2]
         }
     }
 
@@ -158,16 +155,16 @@ class FilmorateApplicationTests extends Specification {
         e.message == "Фильм с id: 9999 не найден."
     }
 
-    def "should return 404 when updating unknown film" () {
+    def "should return 404 when updating unknown film"() {
         given:
         def film = Film.builder()
-        .id(9999)
-        .name("Unknown")
-        .description("None")
-        .rate(9)
-        .duration(10)
-        .releaseDate(LocalDate.of(2000,01,01))
-        .mpa(Mpa.builder().id(1).build()).build()
+                .id(9999)
+                .name("Unknown")
+                .description("None")
+                .rate(9)
+                .duration(10)
+                .releaseDate(LocalDate.of(2000, 01, 01))
+                .mpa(Mpa.builder().id(1).build()).build()
 
         when:
         filmService.update(film)
@@ -175,5 +172,260 @@ class FilmorateApplicationTests extends Specification {
         then:
         def e = thrown(FilmorateNotFoundException)
         e.message == "Фильм с id: 9999 не найден."
+    }
+
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql"])
+    def "Should add event if user add friend"() {
+        given:
+        def user = User.builder()
+                .name("userName")
+                .login("loginUser")
+                .email("test@mail.test")
+                .birthday(LocalDate.of(2000, 1, 1))
+                .build()
+        def friendUser = User.builder()
+                .name("friendUserName")
+                .login("friendLogin")
+                .email("friend@mail.test")
+                .birthday(LocalDate.of(2000, 2, 2))
+                .build()
+        def friendOfFriendUser = User.builder()
+                .name("friendOfFriendUserName")
+                .login("friendOfFriendLogin")
+                .email("FoF@mail.test")
+                .birthday(LocalDate.of(2000, 3, 3))
+                .build()
+
+        when:
+        def userId = userService.create(user).getId()
+        def friendId = userService.create(friendUser).getId()
+        def friendOfFriendId = userService.create(friendOfFriendUser).getId()
+
+        userService.addFriend(friendId, userId)
+        userService.addFriend(friendOfFriendId, friendId)
+
+        then:
+        def eventList = userService.getFeed(userId as Long)
+        eventList.size() == 1
+        eventList[0].getEventId() == 1L
+        eventList[0].getEntityId() == 2L
+        eventList[0].getEventType() == "FRIEND"
+        eventList[0].getOperation() == "ADD"
+
+
+    }
+
+    def "Should add event if user like film"() {
+        given:
+        def film = Film.builder()
+                .name("testFilm")
+                .description("test")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(199)
+                .mpa(Mpa.builder().id(1).build()).build()
+
+        when:
+        def filmID = filmService.create(film).getId()
+        filmService.setFilmLike(filmID, 2)
+
+        then:
+        def eventList = userService.getFeed(1)
+        eventList.size() == 2
+
+        eventList[0].getEventId() == 1L
+        eventList[0].getEntityId() == 2L
+        eventList[0].getEventType() == "FRIEND"
+        eventList[0].getOperation() == "ADD"
+
+        eventList[1].getEventId() == 3L
+        eventList[1].getEntityId() == 1L
+        eventList[1].getEventType() == "LIKE"
+        eventList[1].getOperation() == "ADD"
+    }
+
+    def "Should add event when remove like from film"() {
+        when:
+        filmService.removeFilmLike(1, 2)
+
+        then:
+        def eventList = userService.getFeed(1)
+        eventList.size() == 3
+
+        eventList[0].getEventId() == 1L
+        eventList[0].getEntityId() == 2L
+        eventList[0].getEventType() == "FRIEND"
+        eventList[0].getOperation() == "ADD"
+
+        eventList[1].getEventId() == 3L
+        eventList[1].getEntityId() == 1L
+        eventList[1].getEventType() == "LIKE"
+        eventList[1].getOperation() == "ADD"
+
+        eventList[2].getEventId() == 4L
+        eventList[2].getEntityId() == 1L
+        eventList[2].getEventType() == "LIKE"
+        eventList[2].getOperation() == "REMOVE"
+    }
+
+    def "Shouldn't add event when try to add unknown friend"() {
+        when:
+        userService.addFriend(9999, 2)
+
+        then:
+        def e = thrown(FilmorateNotFoundException)
+        e.message == "Пользователь с id: 2 или id: 9999 не найден."
+
+        def eventList = userService.getFeed(1)
+        eventList.size() == 3
+    }
+
+    def "Shouldn't add event when try to remove unknown film"() {
+        when:
+        userService.removeFriend(9999, 2)
+
+        then:
+        def e = thrown(FilmorateNotFoundException)
+        e.message == "Пользователь не найден."
+
+        def eventList = userService.getFeed(1)
+        eventList.size() == 3
+    }
+
+    def "Shouldn't add event when try to like unknown film"() {
+        when:
+        filmService.setFilmLike(9999, 2)
+
+        then:
+        def e = thrown(FilmorateNotFoundException)
+        e.message == "Фильм с id: 9999 не найден."
+
+        def eventList = userService.getFeed(1)
+        eventList.size() == 3
+    }
+
+    def "Shouldn't add event when try to dislike unknown film"() {
+        when:
+        filmService.removeFilmLike(9999, 2)
+
+        then:
+        def e = thrown(FilmorateNotFoundException)
+        e.message == "Фильм с id: 9999 не найден."
+
+        def eventList = userService.getFeed(1)
+        eventList.size() == 3
+    }
+
+    def "Should add event when user add review"() {
+        given:
+        def review = Review.builder()
+                .userId(2)
+                .filmId(1)
+                .content("Test content")
+                .isPositive(true).build()
+
+        when:
+        userService.getUserBy(2)
+        reviewService.create(review).getReviewId()
+
+        then:
+        def eventList = userService.getFeed(1)
+        eventList.size() == 4
+        eventList[3].getEventType() == "REVIEW"
+        eventList[3].getOperation() == "ADD"
+        eventList[3].getEntityId() == 1
+    }
+
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
+    def "can add like to review"() {
+        when:
+        reviewService.addLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 1
+    }
+
+    def "cannot add like twice"() {
+        when:
+        reviewService.addLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 1
+    }
+
+    def "can remove like from review"() {
+        when:
+        reviewService.removeLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 0
+    }
+
+    def "cannot remove like twice"() {
+        when:
+        reviewService.removeLike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 0
+    }
+
+    def "can add dislike to review"() {
+        when:
+        reviewService.addDislike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == -1
+    }
+
+    def "cannot add dislike twice"() {
+        when:
+        reviewService.addDislike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == -1
+    }
+
+    def "can remove dislike from review"() {
+        when:
+        reviewService.removeDislike(1, 1)
+
+        then:
+        def likesCount = reviewService.get(1).getUseful()
+        likesCount == 0
+    }
+
+    def "cannot remove dislike twice"() {
+        when:
+        reviewService.removeDislike(1, 1)
+
+        then:
+        def likeCount = reviewService.get(1).getUseful()
+        likeCount == 0
+    }
+
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = ["/cleanup.sql", "/populate.sql"])
+    def "should return 200 and list of recommendations"() {
+        when:
+        def films = userService.getRecommendations(3, 5)
+
+        then:
+        with(films) {
+            id == [2]
+        }
+    }
+
+    def "should return 200 and list of common films"() {
+        when:
+        def films = filmService.getCommonFilms(1, 2)
+
+        then:
+        with(films) {
+            id == [1, 2]
+        }
     }
 }

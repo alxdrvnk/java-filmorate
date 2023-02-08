@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class GenreDb implements GenreDao {
+public class GenreDbStorage implements GenreDao {
 
     private final JdbcTemplate jdbcTemplate;
 

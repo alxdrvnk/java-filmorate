@@ -19,7 +19,7 @@ import java.util.Map;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class FriendListDb implements FriendListDao {
+public class FriendListDbStorage implements FriendListDao {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -53,7 +53,7 @@ public class FriendListDb implements FriendListDao {
                             "WHERE fl.user_id = ? " +
                             "UNION  " +
                             "SELECT fl.user_id FROM friend_list AS fl " +
-                            "WHERE fl.friend_id = ? AND fl.state = true)";
+                            "WHERE fl.friend_id = ? AND fl.state = true) AND deleted = false";
         return jdbcTemplate.query(query, new UserMapper(), userId, userId);
     }
 
@@ -90,4 +90,6 @@ public class FriendListDb implements FriendListDao {
         parameters.put("state", state);
         return parameters;
     }
+
+
 }

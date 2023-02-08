@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.dao
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DatabaseSetup
-import com.github.springtestdbunit.annotation.DbUnitConfiguration
-import org.junit.runner.RunWith
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
@@ -81,20 +78,20 @@ class UserDbStorageTests extends Specification {
             id == 4
             login == "userLogin"
             name == "TestName"
-            birthday == LocalDate.of(2000,01,01)
+            birthday == LocalDate.of(2000, 01, 01)
             email == "user@mail.mail"
         }
     }
 
-    def "can delete user by id" () {
+    def "can delete user by id"() {
         when:
         userDbStorage.deleteBy(4)
 
         then:
         def users = userDbStorage.getAll()
 
-        with(users){
-            id == [1,2,3]
+        with(users) {
+            id == [1, 2, 3]
         }
     }
 }
